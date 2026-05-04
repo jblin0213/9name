@@ -43,8 +43,8 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
 .ptbl{width:100%;border-collapse:collapse}
 .ptbl th{background:#f8efd8;color:var(--sub);font-size:.78em;padding:6px;border-bottom:1px solid var(--border)}
 .ptbl td{padding:8px 10px;text-align:center;border-bottom:1px solid #f0e8d0;font-size:.92em}
-.ptbl tr.now{background:linear-gradient(90deg,#8B1A1A,#6b0e0e);font-weight:bold}
-.ptbl tr.now td{color:#f5e6c8!important}
+.ptbl tr.now{background:linear-gradient(90deg,#d46a00,#b85200);font-weight:bold}
+.ptbl tr.now td{color:#fff!important}
 .ptbl tr.now td:first-child::before{content:'▶ '}
 .ptbl tr.next{background:linear-gradient(90deg,#eef6ff,#e8f2ff);font-weight:bold;color:#1a4a8b}
 .ptbl tr.next td:first-child::before{content:'◈ '}
@@ -767,21 +767,21 @@ function renderPalaces(g,by,currentAge){
 
 /* ── 流年運程 ── */
 const FLOW_STAGES=[
-  {name:'冠帶',mod:'發展運',desc:'穩步發展，踏實前進',color:'#2a7a2a'},
-  {name:'臨官',mod:'爆發運',desc:'能量爆發，大展拳腳',color:'#1a6a1a'},
-  {name:'帝旺',mod:'巔峰運',desc:'人生巔峰，最強盛期',color:'#c8981a'},
-  {name:'衰',  mod:'老化運',desc:'走下坡，需收斂蓄力',color:'#8a5a00'},
-  {name:'病',  mod:'破滅運',desc:'身心受阻，慎防損失',color:'#cc4400'},
-  {name:'死',  mod:'崩壞運',desc:'最低潮，諸事不順',  color:'#8B1A1A'},
-  {name:'絕',  mod:'谷底運',desc:'谷底，轉機即將到來',color:'#5a0e7a'},
   {name:'胎',  mod:'醞釀運',desc:'醞釀新能量，厚積薄發',color:'#2a4a8b'},
   {name:'養',  mod:'吸收運',desc:'吸收能量，學習充電',color:'#1a6a6a'},
   {name:'長生',mod:'長生運',desc:'新生開始，充滿朝氣',color:'#1a8b4a'},
+  {name:'冠帶',mod:'開創運',desc:'穩步發展，踏實前進',color:'#2a7a2a'},
+  {name:'臨官',mod:'發展運',desc:'能量爆發，大展拳腳',color:'#1a6a1a'},
+  {name:'帝旺',mod:'巔峰運',desc:'人生巔峰，最強盛期',color:'#c8981a'},
+  {name:'衰',  mod:'老化運',desc:'走下坡，需收斂蓄力',color:'#8a5a00'},
+  {name:'病',  mod:'病變運',desc:'身心受阻，慎防損失',color:'#cc4400'},
+  {name:'死',  mod:'停滯運',desc:'最低潮，諸事不順',  color:'#8B1A1A'},
+  {name:'絕',  mod:'幻滅運',desc:'谷底，轉機即將到來',color:'#5a0e7a'},
 ];
 
 function calcFlowYear(zongVal,age){
   const units=zongVal%10;
-  const offset=(age%10-units+10)%10;
+  const offset=(age%10-units+10+3)%10;
   return{stage:FLOW_STAGES[offset],offset,units};
 }
 
@@ -792,7 +792,7 @@ function renderFlowYear(zongVal,age,name){
   let sv=`<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:240px;display:block;margin:0 auto">`;
   for(let i=0;i<N;i++){
     const s=FLOW_STAGES[i];
-    const a0=i*step-Math.PI/2,a1=(i+1)*step-Math.PI/2;
+    const a0=i*step+Math.PI/2,a1=(i+1)*step+Math.PI/2;
     const x0=CX+RI*Math.cos(a0),y0=CY+RI*Math.sin(a0);
     const x1=CX+RO*Math.cos(a0),y1=CY+RO*Math.sin(a0);
     const x2=CX+RO*Math.cos(a1),y2=CY+RO*Math.sin(a1);
