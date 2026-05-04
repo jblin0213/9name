@@ -85,6 +85,13 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
 .btn-dual.on{background:linear-gradient(135deg,#6b0e0e,#4a0808)}
 .dual-section{background:#f0f5ff;border:1px solid #c0d0f0;border-radius:8px;padding:14px;margin-top:14px}
 .dual-section-title{color:#1a3a6b;font-weight:bold;font-size:.9em;border-bottom:1px solid #c0d0f0;padding-bottom:8px;margin-bottom:12px;letter-spacing:2px}
+.svg-zoomable{cursor:zoom-in;position:relative;display:inline-block}
+.svg-zoomable::after{content:'🔍';position:absolute;bottom:4px;right:4px;font-size:14px;opacity:.5}
+.svg-zoomable:hover::after{opacity:1}
+#svg-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out}
+#svg-modal.open{display:flex}
+#svg-modal-inner{background:#fff8f0;border-radius:16px;padding:24px;max-width:90vw;max-height:90vh;overflow:auto;box-shadow:0 8px 40px rgba(0,0,0,.4);cursor:default}
+#svg-modal-inner svg{width:min(80vw,80vh);height:min(80vw,80vh)}
 .cmp-card-title{color:#1a3a6b;border-bottom-color:#4a7ab5}
 .person-b-title{color:#1a3a6b;border-bottom-color:#4a7ab5}
 </style>
@@ -827,7 +834,7 @@ function renderFlowYear(zongVal,age,name){
   sv+=`</svg>`;
 
   let html=`<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">`;
-  html+=`<div style="flex:0 0 auto">${sv}</div>`;
+  html+=`<div class="svg-zoomable" style="flex:0 0 auto" onclick="openSvgModal(this.querySelector('svg'))">${sv}</div>`;
   html+=`<div style="flex:1;min-width:160px">
     <div style="background:${stage.color};color:white;padding:8px 16px;border-radius:8px;display:inline-block;font-weight:bold;font-size:1.1em;margin-bottom:10px">${stage.name}（${stage.mod}）</div>
     <div style="color:#4a2a00;font-size:.9em;line-height:1.7;padding:10px 14px;background:#fdf8ef;border-radius:6px;border-left:3px solid ${stage.color}">
@@ -1008,6 +1015,24 @@ function renderComparison(dataA,dataB){
   html+='</tbody></table></div>';
   document.getElementById('comparison-content').innerHTML=html;
 }
+
+function openSvgModal(svgEl){
+  const modal=document.getElementById('svg-modal');
+  const inner=document.getElementById('svg-modal-inner');
+  inner.innerHTML=svgEl.outerHTML;
+  modal.classList.add('open');
+}
+function closeSvgModal(){
+  document.getElementById('svg-modal').classList.remove('open');
+}
 </script>
+
+<div id="svg-modal" onclick="if(event.target===this)closeSvgModal()">
+  <div id="svg-modal-inner">
+    <div style="text-align:right;margin-bottom:8px">
+      <button onclick="closeSvgModal()" style="background:none;border:none;font-size:1.4em;cursor:pointer;color:#7a5430">✕</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
