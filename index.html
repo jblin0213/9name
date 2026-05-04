@@ -97,16 +97,16 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
     <div class="ig">
       <div class="if">
         <label for="name">姓名（2〜4個字）</label>
-        <input type="text" id="name" placeholder="例：郭台銘 / 武田信玄" maxlength="4">
+        <input type="text" id="name" name="name" autocomplete="on" placeholder="例：郭台銘 / 武田信玄" maxlength="4">
       </div>
       <div class="if">
         <label>出生年月日（民國）</label>
         <div class="bdate">
-          <input type="number" id="by" placeholder="年" min="1" max="120" style="max-width:65px">
+          <input type="number" id="by" name="birth_year" autocomplete="on" placeholder="年" min="1" max="120" style="max-width:65px">
           <span>/</span>
-          <input type="number" id="bm" placeholder="月" min="1" max="12" style="max-width:55px">
+          <input type="number" id="bm" name="birth_month" autocomplete="on" placeholder="月" min="1" max="12" style="max-width:55px">
           <span>/</span>
-          <input type="number" id="bd" placeholder="日" min="1" max="31" style="max-width:55px">
+          <input type="number" id="bd" name="birth_day" autocomplete="on" placeholder="日" min="1" max="31" style="max-width:55px">
         </div>
       </div>
     </div>
@@ -121,16 +121,16 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
       <div class="ig">
         <div class="if">
           <label for="name_b">姓名（2〜4個字）</label>
-          <input type="text" id="name_b" placeholder="例：林志玲" maxlength="4">
+          <input type="text" id="name_b" name="name_b" autocomplete="on" placeholder="例：林志玲" maxlength="4">
         </div>
         <div class="if">
           <label>出生年月日（民國）</label>
           <div class="bdate">
-            <input type="number" id="by_b" placeholder="年" min="1" max="120" style="max-width:65px">
+            <input type="number" id="by_b" name="birth_year_b" autocomplete="on" placeholder="年" min="1" max="120" style="max-width:65px">
             <span>/</span>
-            <input type="number" id="bm_b" placeholder="月" min="1" max="12" style="max-width:55px">
+            <input type="number" id="bm_b" name="birth_month_b" autocomplete="on" placeholder="月" min="1" max="12" style="max-width:55px">
             <span>/</span>
-            <input type="number" id="bd_b" placeholder="日" min="1" max="31" style="max-width:55px">
+            <input type="number" id="bd_b" name="birth_day_b" autocomplete="on" placeholder="日" min="1" max="31" style="max-width:55px">
           </div>
         </div>
       </div>
