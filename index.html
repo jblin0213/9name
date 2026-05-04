@@ -43,8 +43,11 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
 .ptbl{width:100%;border-collapse:collapse}
 .ptbl th{background:#f8efd8;color:var(--sub);font-size:.78em;padding:6px;border-bottom:1px solid var(--border)}
 .ptbl td{padding:8px 10px;text-align:center;border-bottom:1px solid #f0e8d0;font-size:.92em}
-.ptbl tr.now{background:linear-gradient(90deg,#fff4e0,#fff0d0);font-weight:bold;color:var(--red)}
+.ptbl tr.now{background:linear-gradient(90deg,#8B1A1A,#6b0e0e);font-weight:bold}
+.ptbl tr.now td{color:#f5e6c8!important}
 .ptbl tr.now td:first-child::before{content:'▶ '}
+.ptbl tr.next{background:linear-gradient(90deg,#eef6ff,#e8f2ff);font-weight:bold;color:#1a4a8b}
+.ptbl tr.next td:first-child::before{content:'◈ '}
 .ptbl tr.past td{color:#bbb}
 .ainfo{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .abadge{background:var(--red);color:#f5e6c8;padding:9px 22px;border-radius:30px;font-size:1.15em;font-weight:bold}
@@ -73,7 +76,14 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
 .pgrid8{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .pgrid8 .pcard-note{border:1px dashed var(--border);border-radius:9px;padding:14px;text-align:center;background:#fafafa;color:var(--sub);font-size:.88em}
 .arch-label{font-size:.82em;fill:#7a5430;font-family:'Noto Serif TC',serif}
-@media(max-width:600px){.ig{grid-template-columns:1fr}.pgrid{grid-template-columns:1fr}.pgrid8{grid-template-columns:1fr}header h1{font-size:1.35em}.wx-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.ig{grid-template-columns:1fr}.pgrid{grid-template-columns:1fr}.pgrid8{grid-template-columns:1fr}header h1{font-size:1.35em}.wx-grid{grid-template-columns:1fr 1fr}.dual-summary-grid{grid-template-columns:1fr!important}}
+.btn-dual{background:linear-gradient(135deg,#1a3a6b,#0e2050);color:#e0eaff;border:none;border-radius:7px;padding:11px;font-size:.95em;font-family:inherit;cursor:pointer;letter-spacing:2px;width:100%;transition:all .2s;box-shadow:0 3px 8px rgba(26,58,107,.25)}
+.btn-dual:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(26,58,107,.4)}
+.btn-dual.on{background:linear-gradient(135deg,#6b0e0e,#4a0808)}
+.dual-section{background:#f0f5ff;border:1px solid #c0d0f0;border-radius:8px;padding:14px;margin-top:14px}
+.dual-section-title{color:#1a3a6b;font-weight:bold;font-size:.9em;border-bottom:1px solid #c0d0f0;padding-bottom:8px;margin-bottom:12px;letter-spacing:2px}
+.cmp-card-title{color:#1a3a6b;border-bottom-color:#4a7ab5}
+.person-b-title{color:#1a3a6b;border-bottom-color:#4a7ab5}
 </style>
 </head>
 <body>
@@ -106,6 +116,37 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
     </div>
     <div id="manual-section"></div>
     <button class="btn" onclick="doQuery()">✦ 查詢姓名筆劃 ✦</button>
+    <div id="dual-input" style="display:block;margin-top:12px;border-top:1px dashed var(--border);padding-top:12px" class="dual-section">
+      <div class="dual-section-title">👫 第二人資料（選填）— 填入後自動進行雙人命格比對</div>
+      <div class="ig">
+        <div class="if">
+          <label for="name_b">姓名（2〜4個字）</label>
+          <input type="text" id="name_b" placeholder="例：林志玲" maxlength="4">
+        </div>
+        <div class="if">
+          <label>出生年月日（民國）</label>
+          <div class="bdate">
+            <input type="number" id="by_b" placeholder="年" min="1" max="120" style="max-width:65px">
+            <span>/</span>
+            <input type="number" id="bm_b" placeholder="月" min="1" max="12" style="max-width:55px">
+            <span>/</span>
+            <input type="number" id="bd_b" placeholder="日" min="1" max="31" style="max-width:55px">
+          </div>
+        </div>
+      </div>
+      <div class="fuxing-row">
+        <input type="checkbox" id="fuxing_b">
+        <label for="fuxing_b">複姓（雙字姓）</label>
+      </div>
+      <div id="manual-section-b"></div>
+    </div>
+  </div>
+
+  <div id="comparison-result" style="display:none">
+    <div class="card">
+      <div class="card-title cmp-card-title">👫 雙人命格比對</div>
+      <div id="comparison-content"></div>
+    </div>
   </div>
 
   <div id="results">
@@ -120,6 +161,11 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
     <div class="card">
       <div class="card-title">✦ 命格基本架構</div>
       <div class="arch-svg-wrap" id="mingge-diagram"></div>
+      <div id="activation-note"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">✦ 流年運程</div>
+      <div id="flowyear-section"></div>
     </div>
     <div class="card">
       <div class="card-title">✦ 五格分析</div>
@@ -133,6 +179,27 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
       <div class="card-title">✦ 九宮發動年齡</div>
       <div id="palace-tables"></div>
       <div class="note">▲ 標示「▶」的列為目前正在發動的宮位週期。每個宮位發動後持續至下一個發動年。</div>
+    </div>
+  </div>
+
+  <div id="results-b" style="display:none">
+    <div class="card">
+      <div class="card-title person-b-title">✦ 第二人：<span id="person-b-name"></span></div>
+      <div id="age-info_b"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">✦ 命格基本架構</div>
+      <div class="arch-svg-wrap" id="mingge-diagram_b"></div>
+      <div id="activation-note_b"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">✦ 流年運程</div>
+      <div id="flowyear-section_b"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">✦ 九宮發動年齡</div>
+      <div id="palace-tables_b"></div>
+      <div class="note">▲ 標示「▶」的列為目前正在發動的宮位週期。</div>
     </div>
   </div>
 </main>
@@ -217,6 +284,10 @@ function wxRel(a,b){
 }
 
 let manualOverrides={};
+let renderContext='';
+function targetEl(id){return document.getElementById(id+renderContext);}
+let dualMode=true;
+let lastSvgA='',lastSvgB='';
 
 /* ── localStorage 記憶 ── */
 function saveForm(){
@@ -270,8 +341,37 @@ function doQuery(){
     ms.innerHTML=html;return;
   }
   ms.innerHTML='';
-  render(name,by,bm,bd,isFX);
+  const nameB_check=document.getElementById('name_b').value.trim();
+  const hasPersonB=!!(nameB_check&&(parseInt(document.getElementById('by_b').value)||0));
+  if(hasPersonB){
+    const nameB=nameB_check;
+    const byB=parseInt(document.getElementById('by_b').value)||0;
+    const bmB=parseInt(document.getElementById('bm_b').value)||0;
+    const bdB=parseInt(document.getElementById('bd_b').value)||0;
+    const isFXB=document.getElementById('fuxing_b').checked;
+    if(!nameB||!byB||!bmB||!bdB){alert('請輸入第二人的完整資料');return;}
+    const charsB=Array.from(nameB);
+    const unknownsB=charsB.filter(c=>c&&!getStrokes(c)&&!manualOverrides[c]);
+    const msb=document.getElementById('manual-section-b');
+    if(unknownsB.length>0){
+      let bh=`<div class="manual-area"><b style="color:var(--red)">⚠ 第二人有未知字，請輸入筆劃：</b>`;
+      for(const c of unknownsB){
+        bh+=`<div class="manual-row"><span class="mchar">${c}</span><span style="color:var(--sub)">筆劃：</span>
+          <input type="number" id="mob_${c}" value="${manualOverrides[c]||''}" min="1" max="50" placeholder="?"></div>`;
+      }
+      bh+=`<button class="btn" style="margin-top:10px;max-width:200px" onclick="saveManualDual('${encodeURIComponent(name)}',${by},${bm},${bd},${isFX},'${encodeURIComponent(nameB)}',${byB},${bmB},${bdB},${isFXB})">確認後比對</button></div>`;
+      msb.innerHTML=bh;return;
+    }
+    msb.innerHTML='';
+    render(name,by,bm,bd,isFX);
+    doRenderB(nameB,byB,bmB,bdB,isFXB,name,by,bm,bd,isFX);
+  }else{
+    document.getElementById('results-b').style.display='none';
+    document.getElementById('comparison-result').style.display='none';
+    render(name,by,bm,bd,isFX);
+  }
 }
+
 
 function saveManual(enc,by,bm,bd,isFX){
   const name=decodeURIComponent(enc);
@@ -297,7 +397,9 @@ function render(name,by,bm,bd,isFX){
   const age=calcAge(by,bm,bd);
   renderAge(age,by,bm,bd,getAgeRange(by,bm,bd));
   renderChars(chars,s,n1,n2,n3,isFX);
-  renderDiagram(chars,grids,s,n1,n2,n3,isFX);
+  lastSvgA=renderDiagram(chars,grids,s,n1,n2,n3,isFX);
+  renderActivationNote(grids,age,chars,isFX);
+  renderFlowYear(grids.zong,age,name);
   renderGrids(grids,chars,isFX);
   renderWuXing(grids);
   renderPalaces(grids,by,age);
@@ -307,7 +409,7 @@ function render(name,by,bm,bd,isFX){
 
 /* ── 年齡資訊 ── */
 function renderAge(age,by,bm,bd,range){
-  document.getElementById('age-info').innerHTML=`
+  targetEl('age-info').innerHTML=`
     <div class="ainfo">
       <span class="abadge">虛歲 ${age} 歲</span>
       <div class="arange">
@@ -495,7 +597,37 @@ function renderDiagram(chars,grids,s,n1,n2,n3,isFX){
 
   sv+=`</g>`;
   sv+='</svg>';
-  document.getElementById('mingge-diagram').innerHTML=sv;
+  targetEl('mingge-diagram').innerHTML=sv;
+  return sv;
+}
+
+/* ── 發動年齡備註 ── */
+function getPalaceYears(gridVal){
+  const s=new Set();
+  for(let y=gridVal+1;y<=120;y+=9)s.add(y);
+  let b=gridVal-10;
+  while(b>0){s.add(b);b-=9;}
+  return s;
+}
+function renderActivationNote(grids,age,chars,isFX){
+  const hasWai=isFX?chars.length>=4:chars.length>=3;
+  const pals=[
+    {name:'① 命宮',  val:grids.zong},
+    {name:'② 父母宮',val:grids.tian},
+    {name:'③ 疾惡宮',val:grids.ren},
+    {name:'④ 奴僕宮',val:grids.di},
+  ];
+  if(hasWai)pals.push({name:'⑤ 遷移宮',val:grids.wai});
+  const now=pals.filter(p=>getPalaceYears(p.val).has(age));
+  const next=pals.filter(p=>getPalaceYears(p.val).has(age+1));
+  if(!now.length&&!next.length){targetEl('activation-note').innerHTML='';return;}
+  let h='<div style="margin-top:14px;padding:11px 16px;background:#fdf8ef;border-radius:8px;border:1px solid #dcc88a;font-size:.9em;line-height:2">';
+  if(now.length)
+    h+=`<div><span style="background:#8B1A1A;color:#f5e6c8;padding:2px 11px;border-radius:10px;font-weight:bold;font-size:.82em">🔥 正在發動</span>${now.map(p=>`<span style="color:#8B1A1A;font-weight:bold;margin-left:8px">${p.name}</span>`).join('')}</div>`;
+  if(next.length)
+    h+=`<div style="margin-top:4px"><span style="background:#5a3e08;color:#f5e6c8;padding:2px 11px;border-radius:10px;font-weight:bold;font-size:.82em">⚡ 明年發動</span>${next.map(p=>`<span style="color:#7a5430;font-weight:bold;margin-left:8px">${p.name}</span>`).join('')}</div>`;
+  h+='</div>';
+  targetEl('activation-note').innerHTML=h;
 }
 
 /* ── 五格分析表 ── */
@@ -614,8 +746,8 @@ function renderPalaces(g,by,currentAge){
       <table class="ptbl"><thead><tr><th>發動年齡</th><th>民國年</th></tr></thead><tbody>`;
     for(let i=0;i<ages.length;i++){
       const a=ages[i],rocY=by+a-1;
-      const isPast=currentAge>=(ages[i+1]||999),isNow=i===nowIdx;
-      html+=`<tr class="${isNow?'now':isPast?'past':''}"><td>${a} 歲</td><td>${rocY} 年 <span style="font-size:.8em;opacity:.7">(${rocY+1911})</span></td></tr>`;
+      const isPast=currentAge>=(ages[i+1]||999),isNow=i===nowIdx,isNext=a===currentAge+1;
+      html+=`<tr class="${isNow?'now':isNext?'next':isPast?'past':''}"><td>${a} 歲</td><td>${rocY} 年 <span style="font-size:.8em;opacity:.7">(${rocY+1911})</span></td></tr>`;
     }
     html+=`</tbody></table></div>`;
   }
@@ -630,7 +762,232 @@ function renderPalaces(g,by,currentAge){
     </div>`;
   }
   html+='</div>';
-  document.getElementById('palace-tables').innerHTML=html;
+  targetEl('palace-tables').innerHTML=html;
+}
+
+/* ── 流年運程 ── */
+const FLOW_STAGES=[
+  {name:'冠帶',mod:'發展運',desc:'穩步發展，踏實前進',color:'#2a7a2a'},
+  {name:'臨官',mod:'爆發運',desc:'能量爆發，大展拳腳',color:'#1a6a1a'},
+  {name:'帝旺',mod:'巔峰運',desc:'人生巔峰，最強盛期',color:'#c8981a'},
+  {name:'衰',  mod:'老化運',desc:'走下坡，需收斂蓄力',color:'#8a5a00'},
+  {name:'病',  mod:'破滅運',desc:'身心受阻，慎防損失',color:'#cc4400'},
+  {name:'死',  mod:'崩壞運',desc:'最低潮，諸事不順',  color:'#8B1A1A'},
+  {name:'絕',  mod:'谷底運',desc:'谷底，轉機即將到來',color:'#5a0e7a'},
+  {name:'胎',  mod:'醞釀運',desc:'醞釀新能量，厚積薄發',color:'#2a4a8b'},
+  {name:'養',  mod:'吸收運',desc:'吸收能量，學習充電',color:'#1a6a6a'},
+  {name:'長生',mod:'長生運',desc:'新生開始，充滿朝氣',color:'#1a8b4a'},
+];
+
+function calcFlowYear(zongVal,age){
+  const units=zongVal%10;
+  const offset=(age%10-units+10)%10;
+  return{stage:FLOW_STAGES[offset],offset,units};
+}
+
+function renderFlowYear(zongVal,age,name){
+  const{stage,offset,units}=calcFlowYear(zongVal,age);
+  const CX=130,CY=130,RO=110,RI=55,N=10;
+  const step=2*Math.PI/N;
+  let sv=`<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:240px;display:block;margin:0 auto">`;
+  for(let i=0;i<N;i++){
+    const s=FLOW_STAGES[i];
+    const a0=i*step-Math.PI/2,a1=(i+1)*step-Math.PI/2;
+    const x0=CX+RI*Math.cos(a0),y0=CY+RI*Math.sin(a0);
+    const x1=CX+RO*Math.cos(a0),y1=CY+RO*Math.sin(a0);
+    const x2=CX+RO*Math.cos(a1),y2=CY+RO*Math.sin(a1);
+    const x3=CX+RI*Math.cos(a1),y3=CY+RI*Math.sin(a1);
+    const isCur=i===offset,isNxt=i===(offset+1)%N;
+    const fill=isCur?s.color:isNxt?s.color+'55':'#f5f0e0';
+    const sw=isCur?2.5:1;
+    const sc=isCur?'white':isNxt?s.color:'#d4c090';
+    sv+=`<path d="M${x0},${y0}L${x1},${y1}A${RO},${RO} 0 0,1 ${x2},${y2}L${x3},${y3}A${RI},${RI} 0 0,0 ${x0},${y0}" fill="${fill}" stroke="${sc}" stroke-width="${sw}"/>`;
+    const ma=a0+step/2,lr=(RI+RO)/2;
+    const lx=CX+lr*Math.cos(ma),ly=CY+lr*Math.sin(ma);
+    sv+=`<text x="${lx}" y="${ly+1}" text-anchor="middle" dominant-baseline="middle" fill="${isCur?'white':s.color}" font-size="${isCur?10:8.5}" font-weight="${isCur?'bold':'normal'}" font-family="serif">${s.name}</text>`;
+  }
+  sv+=`<circle cx="${CX}" cy="${CY}" r="48" fill="#fff8f0" stroke="#c8981a" stroke-width="2"/>`;
+  sv+=`<text x="${CX}" y="${CY-14}" text-anchor="middle" fill="#7a5430" font-size="9.5" font-family="sans-serif">命宮 ${zongVal}</text>`;
+  sv+=`<text x="${CX}" y="${CY+4}" text-anchor="middle" fill="${stage.color}" font-size="18" font-weight="bold" font-family="serif">${stage.name}</text>`;
+  sv+=`<text x="${CX}" y="${CY+20}" text-anchor="middle" fill="${stage.color}" font-size="9" font-family="sans-serif">${stage.mod}</text>`;
+  sv+=`</svg>`;
+
+  let html=`<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">`;
+  html+=`<div style="flex:0 0 auto">${sv}</div>`;
+  html+=`<div style="flex:1;min-width:160px">
+    <div style="background:${stage.color};color:white;padding:8px 16px;border-radius:8px;display:inline-block;font-weight:bold;font-size:1.1em;margin-bottom:10px">${stage.name}（${stage.mod}）</div>
+    <div style="color:#4a2a00;font-size:.9em;line-height:1.7;padding:10px 14px;background:#fdf8ef;border-radius:6px;border-left:3px solid ${stage.color}">
+      <b>今年運勢：</b>${stage.desc}<br>
+      <b>命宮個位：</b>${units} → ${age}歲走 <b style="color:${stage.color}">${stage.name}</b>
+    </div>
+    <div style="margin-top:10px;font-size:.82em;color:var(--sub)">
+      <b>近五年運程：</b><br>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+        ${[-2,-1,0,1,2].map(d=>{
+          const a=age+d,o=(a%10-units+10)%10,st=FLOW_STAGES[o];
+          const isc=d===0;
+          return`<span style="padding:3px 9px;border-radius:12px;background:${isc?st.color:'#f0e8d0'};color:${isc?'white':st.color};font-weight:${isc?'bold':'normal'};border:1px solid ${st.color}">${a}歲 ${st.name}</span>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+  html+=`</div>`;
+  targetEl('flowyear-section').innerHTML=html;
+}
+
+function saveManualDual(encA,by,bm,bd,isFX,encB,byB,bmB,bdB,isFXB){
+  const nameA=decodeURIComponent(encA),nameB=decodeURIComponent(encB);
+  [...Array.from(nameA),...Array.from(nameB)].forEach(c=>{
+    const inp=document.getElementById('mob_'+c)||document.getElementById('mo_'+c);
+    if(inp){const v=parseInt(inp.value)||0;if(v>0)manualOverrides[c]=v;}
+  });
+  document.getElementById('manual-section-b').innerHTML='';
+  document.getElementById('manual-section').innerHTML='';
+  render(nameA,by,bm,bd,isFX);
+  doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,by,bm,bd,isFX);
+}
+
+function toggleDual(){
+  dualMode=!dualMode;
+  document.getElementById('dual-input').style.display=dualMode?'block':'none';
+  const btn=document.getElementById('dual-btn');
+  if(dualMode){btn.innerHTML='❌ 取消雙重比對模式';btn.classList.add('on');}
+  else{btn.innerHTML='👫 雙重比對模式（夫妻 / 兩人）';btn.classList.remove('on');
+    document.getElementById('results-b').style.display='none';
+    document.getElementById('comparison-result').style.display='none';}
+}
+
+function getPalaceYearsActive(grids,age,chars,isFX){
+  const hasWai=isFX?chars.length>=4:chars.length>=3;
+  const pals=[{name:'① 命宮',val:grids.zong},{name:'② 父母宮',val:grids.tian},{name:'③ 疾惡宮',val:grids.ren},{name:'④ 奴僕宮',val:grids.di}];
+  if(hasWai)pals.push({name:'⑤ 遷移宮',val:grids.wai});
+  return pals.filter(p=>getPalaceYears(p.val).has(age)).map(p=>p.name);
+}
+
+function getPersonData(name,by,bm,bd,isFX){
+  const chars=Array.from(name);
+  let s,n1,n2,n3;
+  if(isFX){s=getS(chars[0]);n1=getS(chars[1]);n2=chars[2]?getS(chars[2]):0;n3=chars[3]?getS(chars[3]):0;}
+  else{s=getS(chars[0]);n1=chars[1]?getS(chars[1]):0;n2=chars[2]?getS(chars[2]):0;n3=0;}
+  const grids=calcGrids(s,n1,n2,n3,isFX);
+  const age=calcAge(by,bm,bd);
+  return{name,by,bm,bd,isFX,chars,grids,age,s,n1,n2,n3};
+}
+
+function doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,byA,bmA,bdA,isFXA){
+  const dataB=getPersonData(nameB,byB,bmB,bdB,isFXB);
+  const dataA=getPersonData(nameA,byA,bmA,bdA,isFXA);
+  document.getElementById('person-b-name').textContent=nameB;
+  renderContext='_b';
+  renderAge(dataB.age,byB,bmB,bdB,getAgeRange(byB,bmB,bdB));
+  lastSvgB=renderDiagram(dataB.chars,dataB.grids,dataB.s,dataB.n1,dataB.n2,dataB.n3,isFXB);
+  renderActivationNote(dataB.grids,dataB.age,dataB.chars,isFXB);
+  renderFlowYear(dataB.grids.zong,dataB.age,nameB);
+  renderPalaces(dataB.grids,byB,dataB.age);
+  renderContext='';
+  document.getElementById('results-b').style.display='block';
+  renderComparison(dataA,dataB);
+  document.getElementById('comparison-result').style.display='block';
+  document.getElementById('comparison-result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderComparison(dataA,dataB){
+  const curROC=TODAY.getFullYear()-1911;
+  const fyA=calcFlowYear(dataA.grids.zong,dataA.age);
+  const fyB=calcFlowYear(dataB.grids.zong,dataB.age);
+
+  // ── 兩人命格圖並列 ──
+  let html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div>
+      <div style="text-align:center;font-weight:bold;color:#8B1A1A;margin-bottom:6px;font-size:.92em">👤 ${dataA.name}（${dataA.age}歲）</div>
+      <div style="overflow-x:auto">${lastSvgA}</div>
+    </div>
+    <div>
+      <div style="text-align:center;font-weight:bold;color:#1a3a6b;margin-bottom:6px;font-size:.92em">👤 ${dataB.name}（${dataB.age}歲）</div>
+      <div style="overflow-x:auto">${lastSvgB}</div>
+    </div>
+  </div>`;
+
+  // ── 流年運程對比 ──
+  html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px" class="dual-summary-grid">
+    <div style="background:#fff8f0;border:1px solid #e8d0a0;border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:.78em;color:var(--sub);margin-bottom:4px">流年運程</div>
+      <div style="background:${fyA.stage.color};color:white;padding:5px 16px;border-radius:20px;display:inline-block;font-weight:bold;font-size:1.05em">${fyA.stage.name}（${fyA.stage.mod}）</div>
+      <div style="font-size:.8em;color:#666;margin-top:6px">${fyA.stage.desc}</div>
+    </div>
+    <div style="background:#f0f4ff;border:1px solid #c0d0f0;border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:.78em;color:var(--sub);margin-bottom:4px">流年運程</div>
+      <div style="background:${fyB.stage.color};color:white;padding:5px 16px;border-radius:20px;display:inline-block;font-weight:bold;font-size:1.05em">${fyB.stage.name}（${fyB.stage.mod}）</div>
+      <div style="font-size:.8em;color:#666;margin-top:6px">${fyB.stage.desc}</div>
+    </div>
+  </div>`;
+
+  // ── 宮位發動現況對比 ──
+  const nowA=getPalaceYearsActive(dataA.grids,dataA.age,dataA.chars,dataA.isFX);
+  const nxtA=getPalaceYearsActive(dataA.grids,dataA.age+1,dataA.chars,dataA.isFX);
+  const nowB=getPalaceYearsActive(dataB.grids,dataB.age,dataB.chars,dataB.isFX);
+  const nxtB=getPalaceYearsActive(dataB.grids,dataB.age+1,dataB.chars,dataB.isFX);
+  html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px" class="dual-summary-grid">
+    <div style="background:#fff5f5;border:1px solid #f0d0d0;border-radius:8px;padding:12px">
+      ${nowA.length?`<div style="margin-bottom:4px"><span style="background:#8B1A1A;color:#f5e6c8;padding:2px 8px;border-radius:8px;font-size:.78em">🔥 正在發動</span>${nowA.map(n=>`<span style="color:#8B1A1A;font-weight:bold;font-size:.85em;margin-left:6px">${n}</span>`).join('')}</div>`:''}
+      ${nxtA.length?`<div><span style="background:#5a3e08;color:#f5e6c8;padding:2px 8px;border-radius:8px;font-size:.78em">⚡ 明年發動</span>${nxtA.map(n=>`<span style="color:#7a5430;font-weight:bold;font-size:.85em;margin-left:6px">${n}</span>`).join('')}</div>`:''}
+      ${!nowA.length&&!nxtA.length?'<div style="color:#bbb;font-size:.85em">目前無宮位發動</div>':''}
+    </div>
+    <div style="background:#f0f4ff;border:1px solid #c0d0f0;border-radius:8px;padding:12px">
+      ${nowB.length?`<div style="margin-bottom:4px"><span style="background:#1a3a6b;color:#e0eaff;padding:2px 8px;border-radius:8px;font-size:.78em">🔥 正在發動</span>${nowB.map(n=>`<span style="color:#1a3a6b;font-weight:bold;font-size:.85em;margin-left:6px">${n}</span>`).join('')}</div>`:''}
+      ${nxtB.length?`<div><span style="background:#0e2050;color:#e0eaff;padding:2px 8px;border-radius:8px;font-size:.78em">⚡ 明年發動</span>${nxtB.map(n=>`<span style="color:#1a4a8b;font-weight:bold;font-size:.85em;margin-left:6px">${n}</span>`).join('')}</div>`:''}
+      ${!nowB.length&&!nxtB.length?'<div style="color:#bbb;font-size:.85em">目前無宮位發動</div>':''}
+    </div>
+  </div>`;
+
+  function getPalaceEvents(data){
+    const{grids,by,chars,isFX}=data;
+    const hasWai=isFX?chars.length>=4:chars.length>=3;
+    const pals=[{name:'① 命宮',grid:grids.zong,type:'命宮'},{name:'② 父母宮',grid:grids.tian,type:'父母宮'},{name:'③ 疾惡宮',grid:grids.ren,type:'疾惡宮'},{name:'④ 奴僕宮',grid:grids.di,type:'奴僕宮'}];
+    if(hasWai)pals.push({name:'⑤ 遷移宮',grid:grids.wai,type:'遷移宮'});
+    const ev={};
+    for(const p of pals){const ages=calcPalaceAges(p.grid,p.type);for(const age of ages){const yr=by+age-1;if(!ev[yr])ev[yr]=[];ev[yr].push(p.name);}}
+    return ev;
+  }
+  const evA=getPalaceEvents(dataA),evB=getPalaceEvents(dataB);
+
+  const overlapYrs=[];
+  for(let yr=curROC;yr<=curROC+25;yr++){if((evA[yr]||[]).length>0&&(evB[yr]||[]).length>0)overlapYrs.push(yr);}
+  if(overlapYrs.length){
+    html+=`<div style="background:#fff8e0;border:1px solid #e0c040;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.88em">
+      <b style="color:#7a5000">🔥 未來雙人同時發動年（民國）：</b>
+      ${overlapYrs.slice(0,12).map(yr=>`<span style="background:#ffd700;color:#4a3000;padding:2px 10px;border-radius:10px;margin:2px;display:inline-block;font-weight:bold">${yr}年</span>`).join('')}
+      ${overlapYrs.length>12?`<span style="color:#aaa;font-size:.85em"> 等共 ${overlapYrs.length} 年</span>`:''}
+    </div>`;
+  }
+
+  html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.85em">
+    <thead><tr>
+      <th style="background:#f0f2f5;padding:7px;border:1px solid #ddd;text-align:center;width:100px">民國年</th>
+      <th style="background:#fff0f0;padding:7px;border:1px solid #ddd;text-align:center">👤 ${dataA.name}</th>
+      <th style="background:#f0f2ff;padding:7px;border:1px solid #ddd;text-align:center">👤 ${dataB.name}</th>
+    </tr></thead><tbody>`;
+  for(let yr=curROC-1;yr<=curROC+20;yr++){
+    const aEv=evA[yr]||[],bEv=evB[yr]||[];
+    const isCur=yr===curROC,isOv=aEv.length>0&&bEv.length>0;
+    const bg=isOv?'background:linear-gradient(90deg,#ffe060,#ffcc00)':isCur?'background:#fffde0':'';
+    const ageA=yr-dataA.by+1,ageB=yr-dataB.by+1;
+    html+=`<tr style="${bg}">
+      <td style="padding:5px 8px;text-align:center;border:1px solid #eee;white-space:nowrap;font-size:.88em">
+        ${yr}<span style="color:#999;font-size:.78em;margin-left:3px">(${yr+1911})</span>
+        ${isCur?'<br><span style="color:#8B1A1A;font-size:.72em;font-weight:bold">▶今年</span>':''}
+        ${isOv&&!isCur?'<br><span style="color:#9a6000;font-size:.72em;font-weight:bold">⚡重疊</span>':''}
+      </td>
+      <td style="padding:5px 8px;text-align:center;border:1px solid #eee">
+        ${aEv.length?aEv.map(n=>`<span style="color:#8B1A1A;font-size:.82em;font-weight:bold">${n}</span>`).join('<br>')+`<span style="font-size:.7em;color:#aaa;display:block">${ageA}歲</span>`:`<span style="color:#ddd;font-size:.78em">${ageA}歲</span>`}
+      </td>
+      <td style="padding:5px 8px;text-align:center;border:1px solid #eee">
+        ${bEv.length?bEv.map(n=>`<span style="color:#1a3a6b;font-size:.82em;font-weight:bold">${n}</span>`).join('<br>')+`<span style="font-size:.7em;color:#aaa;display:block">${ageB}歲</span>`:`<span style="color:#ddd;font-size:.78em">${ageB}歲</span>`}
+      </td>
+    </tr>`;
+  }
+  html+='</tbody></table></div>';
+  document.getElementById('comparison-content').innerHTML=html;
 }
 </script>
 </body>
