@@ -936,11 +936,11 @@ function renderComparison(dataA,dataB){
   let html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
     <div>
       <div style="text-align:center;font-weight:bold;color:#8B1A1A;margin-bottom:6px;font-size:.92em">👤 ${dataA.name}（${dataA.age}歲）</div>
-      <div style="overflow-x:auto">${lastSvgA}</div>
+      <div class="svg-zoomable" onclick="openSvgModal(this.querySelector('svg'))" title="點擊放大" style="overflow-x:auto">${lastSvgA}</div>
     </div>
     <div>
       <div style="text-align:center;font-weight:bold;color:#1a3a6b;margin-bottom:6px;font-size:.92em">👤 ${dataB.name}（${dataB.age}歲）</div>
-      <div style="overflow-x:auto">${lastSvgB}</div>
+      <div class="svg-zoomable" onclick="openSvgModal(this.querySelector('svg'))" title="點擊放大" style="overflow-x:auto">${lastSvgB}</div>
     </div>
   </div>`;
 
