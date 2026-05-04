@@ -132,16 +132,16 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
       <div class="ig">
         <div class="if">
           <label for="name_b">姓名（2〜4個字）</label>
-          <input type="text" id="name_b" name="name_b" autocomplete="on" placeholder="例：林志玲" maxlength="4">
+          <input type="text" id="name_b" name="name_b" autocomplete="on" placeholder="例：林志玲" maxlength="4" oninput="saveForm()">
         </div>
         <div class="if">
           <label>出生年月日（民國）</label>
           <div class="bdate">
-            <input type="text" inputmode="numeric" pattern="[0-9]*" id="by_b" name="birth_year_b" autocomplete="on" placeholder="年" maxlength="3" style="max-width:65px" oninput="validateDate(this,'year')">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="by_b" name="birth_year_b" autocomplete="on" placeholder="年" maxlength="3" style="max-width:65px" oninput="validateDate(this,'year');saveForm()">
             <span>/</span>
-            <input type="text" inputmode="numeric" pattern="[0-9]*" id="bm_b" name="birth_month_b" autocomplete="on" placeholder="月" maxlength="2" style="max-width:55px" oninput="validateDate(this,'month')">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="bm_b" name="birth_month_b" autocomplete="on" placeholder="月" maxlength="2" style="max-width:55px" oninput="validateDate(this,'month');saveForm()">
             <span>/</span>
-            <input type="text" inputmode="numeric" pattern="[0-9]*" id="bd_b" name="birth_day_b" autocomplete="on" placeholder="日" maxlength="2" style="max-width:55px" oninput="validateDate(this,'day')">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="bd_b" name="birth_day_b" autocomplete="on" placeholder="日" maxlength="2" style="max-width:55px" oninput="validateDate(this,'day');saveForm()">
           </div>
         </div>
       </div>
@@ -308,6 +308,11 @@ function saveForm(){
     localStorage.setItem('jb_bm',document.getElementById('bm').value);
     localStorage.setItem('jb_bd',document.getElementById('bd').value);
     localStorage.setItem('jb_fuxing',document.getElementById('fuxing').checked?'1':'0');
+    localStorage.setItem('jb_name_b',document.getElementById('name_b').value);
+    localStorage.setItem('jb_by_b',document.getElementById('by_b').value);
+    localStorage.setItem('jb_bm_b',document.getElementById('bm_b').value);
+    localStorage.setItem('jb_bd_b',document.getElementById('bd_b').value);
+    localStorage.setItem('jb_fuxing_b',document.getElementById('fuxing_b').checked?'1':'0');
   }catch(e){}
 }
 function loadForm(){
@@ -322,6 +327,16 @@ function loadForm(){
     if(bm)document.getElementById('bm').value=bm;
     if(bd)document.getElementById('bd').value=bd;
     if(fx)document.getElementById('fuxing').checked=fx==='1';
+    const nb=localStorage.getItem('jb_name_b');
+    const byb=localStorage.getItem('jb_by_b');
+    const bmb=localStorage.getItem('jb_bm_b');
+    const bdb=localStorage.getItem('jb_bd_b');
+    const fxb=localStorage.getItem('jb_fuxing_b');
+    if(nb)document.getElementById('name_b').value=nb;
+    if(byb)document.getElementById('by_b').value=byb;
+    if(bmb)document.getElementById('bm_b').value=bmb;
+    if(bdb)document.getElementById('bd_b').value=bdb;
+    if(fxb)document.getElementById('fuxing_b').checked=fxb==='1';
   }catch(e){}
 }
 window.addEventListener('DOMContentLoaded',loadForm);
