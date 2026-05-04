@@ -802,7 +802,7 @@ const FLOW_STAGES=[
 
 function calcFlowYear(zongVal,age){
   const units=zongVal%10;
-  const offset=(age%10-units+10)%10;
+  const offset=(age%10-units+10+3)%10;
   return{stage:FLOW_STAGES[offset],offset,units};
 }
 
@@ -845,7 +845,7 @@ function renderFlowYear(zongVal,age,name){
       <b>近五年運程：</b><br>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
         ${[-2,-1,0,1,2].map(d=>{
-          const a=age+d,o=(a%10-units+10)%10,st=FLOW_STAGES[o];
+          const a=age+d,o=(a%10-units+10+3)%10,st=FLOW_STAGES[o];
           const isc=d===0;
           return`<span style="padding:3px 9px;border-radius:12px;background:${isc?st.color:'#f0e8d0'};color:${isc?'white':st.color};font-weight:${isc?'bold':'normal'};border:1px solid ${st.color}">${a}歲 ${st.name}</span>`;
         }).join('')}
