@@ -91,7 +91,7 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
 #svg-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out}
 #svg-modal.open{display:flex}
 #svg-modal-inner{background:#fff8f0;border-radius:16px;padding:24px;max-width:90vw;max-height:90vh;overflow:auto;box-shadow:0 8px 40px rgba(0,0,0,.4);cursor:default}
-#svg-modal-inner svg{width:min(80vw,80vh);height:min(80vw,80vh)}
+#svg-modal-inner svg{width:85vw;height:auto;max-height:82vh}
 .cmp-card-title{color:#1a3a6b;border-bottom-color:#4a7ab5}
 .person-b-title{color:#1a3a6b;border-bottom-color:#4a7ab5}
 </style>
@@ -636,7 +636,7 @@ function renderDiagram(chars,grids,s,n1,n2,n3,isFX){
 
   sv+=`</g>`;
   sv+='</svg>';
-  targetEl('mingge-diagram').innerHTML=sv;
+  targetEl('mingge-diagram').innerHTML=`<div class="svg-zoomable" onclick="openSvgModal(this.querySelector('svg'))" title="點擊放大">${sv}</div>`;
   return sv;
 }
 
