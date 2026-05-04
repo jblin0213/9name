@@ -734,19 +734,16 @@ function renderPalaces(g,by,currentAge){
     {name:'⑦ 子女宮',grid:g.di},
     {name:'⑧ 夫妻宮',grid:g.di},
   ];
+  const currentROC=new Date().getFullYear()-1911;
   let html='<div class="pgrid8">';
   for(const p of confirmed){
     const ages=calcPalaceAges(p.grid,p.type);
-    let nowIdx=-1;
-    for(let i=0;i<ages.length;i++){
-      if(currentAge>=ages[i]&&currentAge<(ages[i+1]||999)){nowIdx=i;break;}
-    }
     html+=`<div class="pcard">
       <div class="phdr">${p.name}</div>
       <table class="ptbl"><thead><tr><th>發動年齡</th><th>民國年</th></tr></thead><tbody>`;
     for(let i=0;i<ages.length;i++){
       const a=ages[i],rocY=by+a-1;
-      const isPast=currentAge>=(ages[i+1]||999),isNow=i===nowIdx,isNext=a===currentAge+1;
+      const isNow=rocY===currentROC,isNext=rocY===currentROC+1,isPast=rocY<currentROC;
       html+=`<tr class="${isNow?'now':isNext?'next':isPast?'past':''}"><td>${a} 歲</td><td>${rocY} 年 <span style="font-size:.8em;opacity:.7">(${rocY+1911})</span></td></tr>`;
     }
     html+=`</tbody></table></div>`;
