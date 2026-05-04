@@ -504,22 +504,22 @@ function renderGrids(g,chars,isFX){
   if(isFX){
     const s1=chars[0],s2=chars[1],n1=chars[2]||'',n2=chars[3]||'';
     rows=[
-      {name:'天格',val:g.tian,desc:`${s1}＋${s2}（複姓兩字之和，不加虛一）`},
-      {name:'人格',val:g.ren, desc:`天格(${g.tian})＋名一${n1?'('+n1+')':''}＝${g.tian}＋${n1?getS(n1):0}`},
-      {name:'地格',val:g.di,  desc:n2?`名一(${n1})＋名二(${n2})`:`名一(${n1})＋1`},
-      {name:'外格',val:g.wai, desc:n2?`名二(${n2})＋1`:'固定為 1'},
-      {name:'總格',val:g.zong,desc:'全名筆劃總和'},
+      {name:'② 父母宮',val:g.tian,desc:`${s1}＋${s2}（複姓兩字之和，不加虛一）`},
+      {name:'③ 疾惡宮',val:g.ren, desc:`父母宮(${g.tian})＋名一${n1?'('+n1+')':''}＝${g.tian}＋${n1?getS(n1):0}`},
+      {name:'④ 奴僕宮',val:g.di,  desc:n2?`名一(${n1})＋名二(${n2})`:`名一(${n1})＋1`},
+      {name:'⑤ 遷移宮',val:g.wai, desc:n2?`名二(${n2})＋1`:'固定為 1'},
+      {name:'① 命宮',  val:g.zong,desc:'全名筆劃總和'},
     ];
   }else{
     rows=[
-      {name:'天格',val:g.tian,desc:`姓氏(${chars[0]})＋1（虛一）`},
-      {name:'人格',val:g.ren, desc:chars[1]?`姓(${chars[0]})＋名一(${chars[1]})`:'-'},
-      {name:'地格',val:g.di,  desc:chars[2]?`名一(${chars[1]})＋名二(${chars[2]})`:`名一(${chars[1]})＋1`},
-      {name:'外格',val:g.wai, desc:chars[2]?`名二(${chars[2]})＋1`:'固定為 1'},
-      {name:'總格',val:g.zong,desc:'全名筆劃總和'},
+      {name:'② 父母宮',val:g.tian,desc:`姓氏(${chars[0]})＋1（虛一）`},
+      {name:'③ 疾惡宮',val:g.ren, desc:chars[1]?`姓(${chars[0]})＋名一(${chars[1]})`:'-'},
+      {name:'④ 奴僕宮',val:g.di,  desc:chars[2]?`名一(${chars[1]})＋名二(${chars[2]})`:`名一(${chars[1]})＋1`},
+      {name:'⑤ 遷移宮',val:g.wai, desc:chars[2]?`名二(${chars[2]})＋1`:'固定為 1'},
+      {name:'① 命宮',  val:g.zong,desc:'全名筆劃總和'},
     ];
   }
-  let html=`<table class="grid5"><thead><tr><th>格別</th><th>格數</th><th>五行</th><th>計算說明</th></tr></thead><tbody>`;
+  let html=`<table class="grid5"><thead><tr><th>宮位</th><th>格數</th><th>五行</th><th>計算說明</th></tr></thead><tbody>`;
   for(const r of rows){
     const el=element(r.val),cls=ELEMENT_CLASS[el];
     html+=`<tr><td><b>${r.name}</b></td><td style="font-size:1.3em;font-weight:bold">${r.val}</td>
@@ -591,16 +591,16 @@ function renderWuXing(g){
 /* ── 九宮發動年齡（8宮位）── */
 function renderPalaces(g,by,currentAge){
   const confirmed=[
-    {name:'① 命宮', grid:g.zong,sub:`總格 ${g.zong}`,type:'命宮'},
-    {name:'② 父母宮',grid:g.tian,sub:`天格 ${g.tian}`,type:'父母宮'},
-    {name:'③ 疾惡宮',grid:g.ren, sub:`人格 ${g.ren}`, type:'疾惡宮'},
-    {name:'④ 奴僕宮',grid:g.di,  sub:`地格 ${g.di}`,  type:'奴僕宮'},
+    {name:'① 命宮', grid:g.zong,type:'命宮'},
+    {name:'② 父母宮',grid:g.tian,type:'父母宮'},
+    {name:'③ 疾惡宮',grid:g.ren, type:'疾惡宮'},
+    {name:'④ 奴僕宮',grid:g.di,  type:'奴僕宮'},
   ];
   const pending=[
-    {name:'⑤ 遷移宮',grid:g.wai,sub:`外格 ${g.wai}`},
-    {name:'⑥ 財宮',  grid:g.ren,sub:`人格 ${g.ren}`},
-    {name:'⑦ 子女宮',grid:g.di, sub:`地格 ${g.di}`},
-    {name:'⑧ 夫妻宮',grid:g.di, sub:`地格 ${g.di}`},
+    {name:'⑤ 遷移宮',grid:g.wai},
+    {name:'⑥ 財宮',  grid:g.ren},
+    {name:'⑦ 子女宮',grid:g.di},
+    {name:'⑧ 夫妻宮',grid:g.di},
   ];
   let html='<div class="pgrid8">';
   for(const p of confirmed){
@@ -610,7 +610,7 @@ function renderPalaces(g,by,currentAge){
       if(currentAge>=ages[i]&&currentAge<(ages[i+1]||999)){nowIdx=i;break;}
     }
     html+=`<div class="pcard">
-      <div class="phdr">${p.name} <small style="font-size:.8em;opacity:.8">（${p.sub}）</small></div>
+      <div class="phdr">${p.name}</div>
       <table class="ptbl"><thead><tr><th>發動年齡</th><th>民國年</th></tr></thead><tbody>`;
     for(let i=0;i<ages.length;i++){
       const a=ages[i],rocY=by+a-1;
@@ -622,7 +622,7 @@ function renderPalaces(g,by,currentAge){
   for(const p of pending){
     const el=element(p.grid),cls=ELEMENT_CLASS[el];
     html+=`<div class="pcard">
-      <div class="phdr" style="background:linear-gradient(135deg,#5a3e08,#9a6e10)">${p.name} <small style="font-size:.8em;opacity:.8">（${p.sub}）</small></div>
+      <div class="phdr" style="background:linear-gradient(135deg,#5a3e08,#9a6e10)">${p.name}</div>
       <div style="padding:18px;text-align:center">
         <div style="font-size:1.4em;font-weight:bold;margin-bottom:6px">${p.grid} <span class="eb ${cls}">${el}</span></div>
         <div style="font-size:.8em;color:#aaa;margin-top:8px">發動年表待補充</div>
