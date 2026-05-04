@@ -963,26 +963,31 @@ function renderComparison(dataA,dataB){
 
   html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.85em">
     <thead><tr>
-      <th style="background:#f0f2f5;padding:7px;border:1px solid #ddd;text-align:center;width:100px">民國年</th>
-      <th style="background:#fff0f0;padding:7px;border:1px solid #ddd;text-align:center">👤 ${dataA.name}</th>
-      <th style="background:#f0f2ff;padding:7px;border:1px solid #ddd;text-align:center">👤 ${dataB.name}</th>
+      <th style="background:#f0f2f5;padding:7px;border:1px solid #ddd;text-align:center;width:90px">民國年</th>
+      <th style="background:#fff0f0;padding:7px;border:1px solid #ddd;text-align:center">👤 ${dataA.name}<br><span style="font-size:.75em;font-weight:normal;color:#aaa">流年 / 發動宮位</span></th>
+      <th style="background:#f0f2ff;padding:7px;border:1px solid #ddd;text-align:center">👤 ${dataB.name}<br><span style="font-size:.75em;font-weight:normal;color:#aaa">流年 / 發動宮位</span></th>
     </tr></thead><tbody>`;
   for(let yr=curROC-1;yr<=curROC+20;yr++){
     const aEv=evA[yr]||[],bEv=evB[yr]||[];
     const isCur=yr===curROC,isOv=aEv.length>0&&bEv.length>0;
     const bg=isOv?'background:linear-gradient(90deg,#ffe060,#ffcc00)':isCur?'background:#fffde0':'';
     const ageA=yr-dataA.by+1,ageB=yr-dataB.by+1;
+    const fyA2=calcFlowYear(dataA.grids.zong,ageA),fyB2=calcFlowYear(dataB.grids.zong,ageB);
     html+=`<tr style="${bg}">
-      <td style="padding:5px 8px;text-align:center;border:1px solid #eee;white-space:nowrap;font-size:.88em">
-        ${yr}<span style="color:#999;font-size:.78em;margin-left:3px">(${yr+1911})</span>
-        ${isCur?'<br><span style="color:#8B1A1A;font-size:.72em;font-weight:bold">▶今年</span>':''}
-        ${isOv&&!isCur?'<br><span style="color:#9a6000;font-size:.72em;font-weight:bold">⚡重疊</span>':''}
+      <td style="padding:5px 8px;text-align:center;border:1px solid #eee;white-space:nowrap;font-size:.85em">
+        ${yr}<span style="color:#999;font-size:.75em;margin-left:2px">(${yr+1911})</span>
+        ${isCur?'<br><span style="color:#8B1A1A;font-size:.7em;font-weight:bold">▶今年</span>':''}
+        ${isOv&&!isCur?'<br><span style="color:#9a6000;font-size:.7em;font-weight:bold">⚡重疊</span>':''}
       </td>
       <td style="padding:5px 8px;text-align:center;border:1px solid #eee">
-        ${aEv.length?aEv.map(n=>`<span style="color:#8B1A1A;font-size:.82em;font-weight:bold">${n}</span>`).join('<br>')+`<span style="font-size:.7em;color:#aaa;display:block">${ageA}歲</span>`:`<span style="color:#ddd;font-size:.78em">${ageA}歲</span>`}
+        <span style="background:${fyA2.stage.color};color:white;padding:1px 6px;border-radius:8px;font-size:.75em;font-weight:bold">${fyA2.stage.name}</span>
+        ${aEv.length?'<br>'+aEv.map(n=>`<span style="color:#8B1A1A;font-size:.78em;font-weight:bold">${n}</span>`).join('<br>'):''}
+        <span style="font-size:.68em;color:#aaa;display:block">${ageA}歲</span>
       </td>
       <td style="padding:5px 8px;text-align:center;border:1px solid #eee">
-        ${bEv.length?bEv.map(n=>`<span style="color:#1a3a6b;font-size:.82em;font-weight:bold">${n}</span>`).join('<br>')+`<span style="font-size:.7em;color:#aaa;display:block">${ageB}歲</span>`:`<span style="color:#ddd;font-size:.78em">${ageB}歲</span>`}
+        <span style="background:${fyB2.stage.color};color:white;padding:1px 6px;border-radius:8px;font-size:.75em;font-weight:bold">${fyB2.stage.name}</span>
+        ${bEv.length?'<br>'+bEv.map(n=>`<span style="color:#1a3a6b;font-size:.78em;font-weight:bold">${n}</span>`).join('<br>'):''}
+        <span style="font-size:.68em;color:#aaa;display:block">${ageB}歲</span>
       </td>
     </tr>`;
   }
