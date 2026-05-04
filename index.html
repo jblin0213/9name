@@ -92,7 +92,7 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
 <body>
 <header>
   <h1>⊹ 九宮姓名筆劃查詢 ⊹</h1>
-  <p>輸入姓名與出生年月日，即可查詢五格筆劃與九宮發動年</p>
+  <p>輸入姓名與出生年月日，即可查詢命格筆劃與九宮發動年</p>
 </header>
 <main>
   <div class="card">
@@ -795,7 +795,7 @@ const FLOW_STAGES=[
 
 function calcFlowYear(zongVal,age){
   const units=zongVal%10;
-  const offset=(age%10-units+10+3)%10;
+  const offset=(age%10-units+10)%10;
   return{stage:FLOW_STAGES[offset],offset,units};
 }
 
