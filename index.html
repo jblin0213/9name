@@ -17,8 +17,11 @@ main{max-width:880px;margin:0 auto;padding:18px}
 .ig{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .if{display:flex;flex-direction:column;gap:6px}
 label{font-size:.88em;color:var(--sub);font-weight:bold}
-input[type=text],input[type=number]{border:2px solid var(--border);border-radius:6px;padding:10px 13px;font-size:1.05em;font-family:inherit;color:var(--text);transition:border-color .2s;background:#fffef8}
+input[type=text]{border:2px solid var(--border);border-radius:6px;padding:10px 13px;font-size:1.05em;font-family:inherit;color:var(--text);transition:border-color .2s;background:#fffef8}
 input:focus{outline:none;border-color:var(--red)}
+input.input-err{border-color:#cc2200!important;background:#fff5f5!important}
+.input-err-msg{color:#cc2200;font-size:.8em;margin-top:3px;display:none}
+.input-err-msg.show{display:block}
 .bdate{display:flex;gap:7px;align-items:center}
 .bdate input{flex:1}
 .bdate span{color:var(--sub);font-weight:bold;font-size:1.1em}
@@ -102,12 +105,13 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
       <div class="if">
         <label>出生年月日（民國）</label>
         <div class="bdate">
-          <input type="number" id="by" name="birth_year" autocomplete="on" placeholder="年" min="1" max="120" style="max-width:65px">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="by" name="birth_year" autocomplete="on" placeholder="年" maxlength="3" style="max-width:65px" oninput="validateDate(this,'year')">
           <span>/</span>
-          <input type="number" id="bm" name="birth_month" autocomplete="on" placeholder="月" min="1" max="12" style="max-width:55px">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="bm" name="birth_month" autocomplete="on" placeholder="月" maxlength="2" style="max-width:55px" oninput="validateDate(this,'month')">
           <span>/</span>
-          <input type="number" id="bd" name="birth_day" autocomplete="on" placeholder="日" min="1" max="31" style="max-width:55px">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="bd" name="birth_day" autocomplete="on" placeholder="日" maxlength="2" style="max-width:55px" oninput="validateDate(this,'day')">
         </div>
+        <div id="date-err" class="input-err-msg"></div>
       </div>
     </div>
     <div class="fuxing-row">
@@ -126,11 +130,11 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
         <div class="if">
           <label>出生年月日（民國）</label>
           <div class="bdate">
-            <input type="number" id="by_b" name="birth_year_b" autocomplete="on" placeholder="年" min="1" max="120" style="max-width:65px">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="by_b" name="birth_year_b" autocomplete="on" placeholder="年" maxlength="3" style="max-width:65px" oninput="validateDate(this,'year')">
             <span>/</span>
-            <input type="number" id="bm_b" name="birth_month_b" autocomplete="on" placeholder="月" min="1" max="12" style="max-width:55px">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="bm_b" name="birth_month_b" autocomplete="on" placeholder="月" maxlength="2" style="max-width:55px" oninput="validateDate(this,'month')">
             <span>/</span>
-            <input type="number" id="bd_b" name="birth_day_b" autocomplete="on" placeholder="日" min="1" max="31" style="max-width:55px">
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="bd_b" name="birth_day_b" autocomplete="on" placeholder="日" maxlength="2" style="max-width:55px" oninput="validateDate(this,'day')">
           </div>
         </div>
       </div>
@@ -314,6 +318,19 @@ function loadForm(){
   }catch(e){}
 }
 window.addEventListener('DOMContentLoaded',loadForm);
+
+/* ── 日期驗證 ── */
+function validateDate(el,type){
+  el.value=el.value.replace(/[^0-9]/g,'');
+  const v=parseInt(el.value)||0;
+  let err='';
+  if(type==='month'&&el.value.length>0&&(v<1||v>12))err='月份需介於 1〜12';
+  if(type==='day'&&el.value.length>0&&(v<1||v>31))err='日期需介於 1〜31';
+  if(type==='year'&&el.value.length>0&&(v<1||v>120))err='民國年需介於 1〜120';
+  el.classList.toggle('input-err',!!err);
+  const errEl=el.closest('.if')?.querySelector('.input-err-msg')||document.getElementById('date-err');
+  if(errEl){errEl.textContent=err;errEl.classList.toggle('show',!!err);}
+}
 
 /* ── 查詢入口 ── */
 function doQuery(){
@@ -789,7 +806,7 @@ function renderFlowYear(zongVal,age,name){
   let sv=`<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:240px;display:block;margin:0 auto">`;
   for(let i=0;i<N;i++){
     const s=FLOW_STAGES[i];
-    const a0=i*step+Math.PI/2,a1=(i+1)*step+Math.PI/2;
+    const a0=i*step+Math.PI/2-step/2,a1=(i+1)*step+Math.PI/2-step/2;
     const x0=CX+RI*Math.cos(a0),y0=CY+RI*Math.sin(a0);
     const x1=CX+RO*Math.cos(a0),y1=CY+RO*Math.sin(a0);
     const x2=CX+RO*Math.cos(a1),y2=CY+RO*Math.sin(a1);
