@@ -445,6 +445,30 @@ const WUXING_POS={
   '遷移宮':{label:'外在形象・社交磁場',木:'給人積極向上的印象，社交帶領性強，易成為核心人物',火:'給人熱情有活力的印象，社交吸引力強，人緣廣',土:'給人可靠穩重的印象，社交信任感高，適合長期關係',金:'給人嚴謹專業的印象，社交有分量，令人尊重',水:'給人聰明靈活的印象，社交多變，善於不同場合'},
 };
 
+/* 財宮・先天關係（命宮 vs 父母宮）經營法則 */
+const JINGYING_TIAN={
+  '陰性生':{tag:'得資源型',title:'先天磁場：得到資源',desc:'「得到資源」是您人生的起步，所以您要懂得「惜福」與「接受」，也要懂得和長輩、上司保持良好的人際關係；且要以學習的心態去面對上層的人。「對上要尊」是您今生的座右銘。',warn:'不要讓長輩、上司的熱臉貼您的冷屁股，更不要常常表現出比長輩能幹的行為。'},
+  '陰性剋':{tag:'被提拔型',title:'先天磁場：被提拔照顧',desc:'被提拔與照顧是您先天的磁場。因此您要懂得運用與接受，更要認知所謂「知遇之恩」的可貴，千萬不可輕易放棄。「機會」總是會來眷顧您；然而，敏感度和積極的表現則是您最該注意的法則。',warn:'不要忽視長輩與上司的存在，要懂得「受人點水之恩，將報之以泉湧」。'},
+  '陽性生':{tag:'奉獻型',title:'先天磁場：主動奉獻',desc:'「奉獻」是您的起步，您要懂得主動表現知識、能力及所學專長；先力求表現來獲得長輩、上司的認可，並且要建立好與上層的人際關係。只問耕耘、不計較所得。',warn:'對長輩、上司、主管不要有太多意見，更不要輕易反駁上面的意見。'},
+  '陽性剋':{tag:'追尋表現型',title:'先天磁場：表現與追尋',desc:'「表現」與「追尋」是您先天呈現出來的磁場；因此您除了要懂得知識、專長以外，還要會追尋成功的上位者，當成「偶像」或學習的目標；且要秉持著敬仰的態度和長輩相處。',warn:'可以表現您的長才，但要預防「功高震主」，反抗、叛逆是您的致命傷。'},
+  '平宮':{tag:'崇拜追隨型',title:'先天磁場：崇拜與追隨',desc:'「崇拜」和「追隨」是您先天磁場；因此您要懂得用崇拜的心態去追隨那些有成就的長輩（貴人），抱著輔佐的精神與之相處；「氣質」與「內涵」是您最該注意的一環，伴隨長輩、上司之左右是您今生經營法則的起步。',warn:'搖擺不定、缺乏忠心、叛逆不服從，將阻礙您提升層次。'},
+};
+/* 夫妻宮・後天關係（命宮 vs 奴僕宮）經營法則 */
+const JINGYING_DI={
+  '陰性生':{tag:'獲助力型',title:'後天磁場：得到支持助力',desc:'「支持」和「助力」是您在後天環境中最容易得到的資源。只要您懂得善用「人才」與「人力」，借力使力、唯才是用，並且秉持著感恩的心對待別人；處事態度熱情主動，做為後天的經營法則，您的成功是可預見的。',warn:'自私自利、被動、消極將是您的致命傷。'},
+  '陰性剋':{tag:'凝聚人脈型',title:'後天磁場：人脈凝聚信賴',desc:'人脈的「凝聚」和「信賴」是您在後天環境中最有利的磁場感應。然而主動的爭取和珍惜這種資源卻是您最該注意的環節。如果您懂得用「回饋心」和積極的態度做為後天的經營法則，您將有意想不到的收穫。',warn:'太過於被動、不積極或不屑一顧是您的致命傷。'},
+  '陽性生':{tag:'付出照顧型',title:'後天磁場：付出與照顧',desc:'付出與照顧是您今生的責任，與屬下相處要懂得以身作則；以帶動式的經營方式為今生的法則。',warn:'不要一廂情願的付出給對您沒有幫助，甚至於可能會傷害您的人。'},
+  '陽性剋':{tag:'用心經營型',title:'後天磁場：關心用心經營',desc:'「關心他們」和「用心經營」是您今生的天職。除了在職場與事業上您必需很用心外；與人相處上的關心與寬容，更是您最該具有的條件。如果您懂得用先投資再回收的「經營學」做為後天的經營法則，您將很容易成功。',warn:'感性能「源源長長」，過度理性或嚴苛會失去一切。'},
+  '平宮':{tag:'魅力形象型',title:'後天磁場：魅力與形象',desc:'「魅力」和「形象」是您在後天的環境中最具有一股磁場感應；當然您也要有相當的才華與能力；如果您能稍加用心和努力，您將比任何人更容易有吸引力。「風度」和「修養」是您最該持有的行為，配合言出必行做為您後天的經營法則，您的成就會加倍的。',warn:'可以隨和、不能隨便，光說不練將是您最大的致命傷。'},
+};
+function _jingyingKey(rel){
+  if(rel.type==='受生')   return '陰性生';
+  if(rel.type==='陰性剋') return '陰性剋';
+  if(rel.type==='相生')   return '陽性生';
+  if(rel.type==='陽性剋') return '陽性剋';
+  return '平宮';
+}
+
 function getStrokes(ch){return DB[ch.trim()]||null;}
 function element(n){return ELEMENT_MAP[n%10];}
 function getS(c){return manualOverrides[c]||getStrokes(c)||1;}
@@ -1021,14 +1045,40 @@ function renderPalaces(g,by,currentAge){
     }
     html+=`</tbody></table></div>`;
   }
+  const eZ=element(g.zong),eT=element(g.tian),eD=element(g.di);
+  const tianRel=wxRel(eZ,eT),diRel=wxRel(eZ,eD);
+  const tianKey=_jingyingKey(tianRel),diKey=_jingyingKey(diRel);
+  const tianData=JINGYING_TIAN[tianKey],diData=JINGYING_DI[diKey];
   for(const p of pending){
     const el=element(p.grid),cls=ELEMENT_CLASS[el];
+    let extra='';
+    if(p.name==='⑥ 財宮'&&tianData){
+      const bc=ELEMENT_COLOR[eZ];
+      extra=`<div style="margin:10px 12px 12px;padding:10px 12px;background:#fffbe8;border-left:3px solid ${bc};border-radius:0 6px 6px 0;text-align:left">
+        <div style="font-size:.72em;color:#aaa;margin-bottom:4px">先天關係（35歲前）・長輩上司磁場</div>
+        <div style="display:inline-block;background:${bc};color:#fff;font-size:.75em;padding:2px 8px;border-radius:8px;margin-bottom:6px;font-weight:bold">${tianData.tag}</div>
+        <div style="font-size:.8em;font-weight:bold;color:${bc};margin-bottom:4px">${tianData.title}</div>
+        <div style="font-size:.8em;color:#3a2000;line-height:1.7;margin-bottom:6px">${tianData.desc}</div>
+        <div style="font-size:.78em;color:#7a3000;background:#fff3e0;border-left:2px solid #C8981A;padding:4px 8px;border-radius:0 4px 4px 0">⚠ 切記：${tianData.warn}</div>
+      </div>`;
+    }
+    if(p.name==='⑧ 夫妻宮'&&diData){
+      const bc=ELEMENT_COLOR[eZ];
+      extra=`<div style="margin:10px 12px 12px;padding:10px 12px;background:#fffbe8;border-left:3px solid ${bc};border-radius:0 6px 6px 0;text-align:left">
+        <div style="font-size:.72em;color:#aaa;margin-bottom:4px">後天關係（35歲後）・親友下屬磁場</div>
+        <div style="display:inline-block;background:${bc};color:#fff;font-size:.75em;padding:2px 8px;border-radius:8px;margin-bottom:6px;font-weight:bold">${diData.tag}</div>
+        <div style="font-size:.8em;font-weight:bold;color:${bc};margin-bottom:4px">${diData.title}</div>
+        <div style="font-size:.8em;color:#3a2000;line-height:1.7;margin-bottom:6px">${diData.desc}</div>
+        <div style="font-size:.78em;color:#7a3000;background:#fff3e0;border-left:2px solid #C8981A;padding:4px 8px;border-radius:0 4px 4px 0">⚠ 切記：${diData.warn}</div>
+      </div>`;
+    }
     html+=`<div class="pcard">
       <div class="phdr" style="background:linear-gradient(135deg,#5a3e08,#9a6e10)">${p.name}</div>
-      <div style="padding:18px;text-align:center">
+      <div style="padding:14px 12px 6px;text-align:center">
         <div style="font-size:1.4em;font-weight:bold;margin-bottom:6px">${p.grid} <span class="eb ${cls}">${el}</span></div>
-        <div style="font-size:.8em;color:#aaa;margin-top:8px">發動年表待補充</div>
+        ${!extra?'<div style="font-size:.8em;color:#aaa;margin-top:8px">發動年表待補充</div>':''}
       </div>
+      ${extra}
     </div>`;
   }
   html+='</div>';
