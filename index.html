@@ -322,6 +322,10 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
       <div id="flowyear-section_b"></div>
     </div>
     <div class="card">
+      <div class="card-title">✦ 流年機會點</div>
+      <div id="jihui-section_b"></div>
+    </div>
+    <div class="card">
       <div class="card-title">✦ 九宮發動年齡</div>
       <div id="palace-tables_b"></div>
       <div class="note">▲ 標示「▶」的列為目前正在發動的宮位週期。</div>
@@ -1141,9 +1145,10 @@ function calcJihuiInfo(gongNum,xb){
   return JIHUI_INFO[col];
 }
 
-function renderJihuiDian(grids,age){
+function renderJihuiDian(grids,age,ctx){
+  ctx=ctx||'';
   const rocy=new Date().getFullYear()-1911;
-  const el=targetEl('jihui-section');
+  const el=document.getElementById('jihui-section'+ctx);
   if(!el)return;
   const palaces=[
     {label:'命宮',  val:grids.zong},
@@ -1152,61 +1157,63 @@ function renderJihuiDian(grids,age){
     {label:'奴僕宮',val:grids.di},
     {label:'遷移宮',val:grids.wai},
   ];
-  window._jihuiPalaces=palaces;
+  window['_jihuiPalaces'+ctx]=palaces;
   const fy=calcFlowYear(grids.zong,age||0);
-  window._jihuiFlowName=fy.stage.name;
+  window['_jihuiFlowName'+ctx]=fy.stage.name;
   el.innerHTML=`
     <div style="margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <select id="jihui-type" onchange="jihuiTypeChange()" style="padding:5px 8px;border:1px solid #c8981a;border-radius:6px;background:#fffdf5;color:#4a2a00;font-size:.88em">
+      <select id="jihui-type${ctx}" onchange="jihuiTypeChange('${ctx}')" style="padding:5px 8px;border:1px solid #c8981a;border-radius:6px;background:#fffdf5;color:#4a2a00;font-size:.88em">
         <option value="roc">民國年（台灣）</option>
         <option value="ce">西元年（國外）</option>
         <option value="prc">中共建國年（中國）</option>
       </select>
-      <input id="jihui-yr" type="number" value="${rocy}" min="1" max="9999"
-        oninput="updateJihuiDian()"
+      <input id="jihui-yr${ctx}" type="number" value="${rocy}" min="1" max="9999"
+        oninput="updateJihuiDian('${ctx}')"
         style="width:72px;padding:5px 8px;border:1px solid #c8981a;border-radius:6px;background:#fffdf5;color:#4a2a00;font-size:.9em;text-align:center">
-      <span id="jihui-xb" style="font-size:.85em;color:#8B1A1A;font-weight:bold"></span>
+      <span id="jihui-xb${ctx}" style="font-size:.85em;color:#8B1A1A;font-weight:bold"></span>
     </div>
-    <div id="jihui-rows"></div>
+    <div id="jihui-rows${ctx}"></div>
     <div style="margin-top:10px;font-size:.75em;color:#aaa;line-height:1.6">
       ＊台灣用民國年／出國用西元年／中國用中共建國年（1949起算）
     </div>`;
-  updateJihuiDian();
+  updateJihuiDian(ctx);
 }
 
-function jihuiTypeChange(){
-  const typeEl=document.getElementById('jihui-type');
-  const yrEl=document.getElementById('jihui-yr');
+function jihuiTypeChange(ctx){
+  ctx=ctx||'';
+  const typeEl=document.getElementById('jihui-type'+ctx);
+  const yrEl=document.getElementById('jihui-yr'+ctx);
   if(!typeEl||!yrEl)return;
   const t=typeEl.value,yr=parseInt(yrEl.value)||1;
-  // convert displayed year when switching
   if(t==='roc'&&typeEl.dataset.prev==='ce')   yrEl.value=yr-1911;
-  else if(t==='roc'&&typeEl.dataset.prev==='prc') yrEl.value=yr+1911-1948; // PRC→CE→ROC
+  else if(t==='roc'&&typeEl.dataset.prev==='prc') yrEl.value=yr+1911-1948;
   else if(t==='ce'&&typeEl.dataset.prev==='roc')  yrEl.value=yr+1911;
   else if(t==='ce'&&typeEl.dataset.prev==='prc')  yrEl.value=yr+1948;
   else if(t==='prc'&&typeEl.dataset.prev==='roc') yrEl.value=yr+1911-1948;
   else if(t==='prc'&&typeEl.dataset.prev==='ce')  yrEl.value=yr-1948;
   typeEl.dataset.prev=t;
-  updateJihuiDian();
+  updateJihuiDian(ctx);
 }
 
-function updateJihuiDian(){
-  const typeEl=document.getElementById('jihui-type');
-  const yrEl=document.getElementById('jihui-yr');
-  const xbEl=document.getElementById('jihui-xb');
-  const rowsEl=document.getElementById('jihui-rows');
+function updateJihuiDian(ctx){
+  ctx=ctx||'';
+  const typeEl=document.getElementById('jihui-type'+ctx);
+  const yrEl=document.getElementById('jihui-yr'+ctx);
+  const xbEl=document.getElementById('jihui-xb'+ctx);
+  const rowsEl=document.getElementById('jihui-rows'+ctx);
   if(!typeEl||!yrEl||!xbEl||!rowsEl)return;
   if(!typeEl.dataset.prev)typeEl.dataset.prev=typeEl.value;
   const yr=parseInt(yrEl.value)||1;
   const xb=calcSumDigit(yr);
   const typeName={'roc':'民國','ce':'西元','prc':'中共建國'}[typeEl.value]||'';
   xbEl.textContent=`${typeName}${yr}年 → 相併數 ${xb}`;
-  if(!window._jihuiPalaces)return;
+  const palaces=window['_jihuiPalaces'+ctx];
+  if(!palaces)return;
   let html='<div style="display:flex;flex-direction:column;gap:8px">';
-  for(const p of window._jihuiPalaces){
+  for(const p of palaces){
     if(!p.val||p.val<1)continue;
     const info=calcJihuiInfo(p.val,xb);
-    const fn=window._jihuiFlowName||'';
+    const fn=window['_jihuiFlowName'+ctx]||'';
     const jk=fn?JAHUI_KUTSU[fn+'/'+info.name]:null;
     html+=`<div style="padding:10px 14px;background:${info.bg};border-radius:8px;border-left:4px solid ${info.color};margin-bottom:2px">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -1274,6 +1281,7 @@ function doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,byA,bmA,bdA,isFXA){
   lastSvgB=renderDiagram(dataB.chars,dataB.grids,dataB.s,dataB.n1,dataB.n2,dataB.n3,isFXB);
   renderActivationNote(dataB.grids,dataB.age,dataB.chars,isFXB);
   renderFlowYear(dataB.grids.zong,dataB.age,nameB);
+  renderJihuiDian(dataB.grids,dataB.age,'_b');
   renderPalaces(dataB.grids,byB,dataB.age);
   renderContext='';
   document.getElementById('results-b').style.display='block';
