@@ -1482,10 +1482,38 @@ function _saveStrokeLS(){
   try{localStorage.setItem('jb_strokes',JSON.stringify(manualOverrides));}catch(e){}
 }
 
+let _strokeAuthed=false;
+
 function openStrokeMgr(){
+  if(_strokeAuthed){_openStrokeMgrPanel();return;}
+  document.getElementById('stroke-login-modal').style.display='flex';
+  document.getElementById('stroke-login-user').value='';
+  document.getElementById('stroke-login-pass').value='';
+  setTimeout(()=>document.getElementById('stroke-login-user').focus(),100);
+}
+function _openStrokeMgrPanel(){
   document.getElementById('stroke-mgr-modal').style.display='flex';
   document.getElementById('stroke-search').value='';
   renderStrokeMgrTable('');
+}
+function strokeLoginSubmit(){
+  const u=document.getElementById('stroke-login-user').value.trim();
+  const p=document.getElementById('stroke-login-pass').value;
+  if(u==='jblin'&&p==='abby1260'){
+    _strokeAuthed=true;
+    document.getElementById('stroke-login-modal').style.display='none';
+    document.getElementById('stroke-login-err').style.display='none';
+    _openStrokeMgrPanel();
+  }else{
+    document.getElementById('stroke-login-err').style.display='block';
+    document.getElementById('stroke-login-pass').value='';
+    document.getElementById('stroke-login-pass').focus();
+  }
+}
+function strokeLoginKeydown(e){if(e.key==='Enter')strokeLoginSubmit();}
+function closeStrokeLogin(){
+  document.getElementById('stroke-login-modal').style.display='none';
+  document.getElementById('stroke-login-err').style.display='none';
 }
 function closeStrokeMgr(){
   document.getElementById('stroke-mgr-modal').style.display='none';
@@ -1586,6 +1614,29 @@ function importStrokes(){
   <div id="svg-modal-inner">
     <div style="text-align:right;margin-bottom:8px">
       <button onclick="closeSvgModal()" style="background:none;border:none;font-size:1.4em;cursor:pointer;color:#7a5430">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- 筆劃管理後台 登入 Modal -->
+<div id="stroke-login-modal" onclick="if(event.target===this)closeStrokeLogin()"
+  style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10001;align-items:center;justify-content:center">
+  <div style="background:#fffdf5;border-radius:14px;padding:32px 28px;width:min(88vw,360px);box-shadow:0 8px 40px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:16px">
+    <div style="text-align:center;font-size:1.1em;font-weight:bold;color:#8B1A1A;letter-spacing:2px;border-bottom:2px solid #C8981A;padding-bottom:10px">🔐 管理後台登入</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <label style="font-size:.88em;color:#7a5430">帳號</label>
+      <input id="stroke-login-user" type="text" autocomplete="username" onkeydown="strokeLoginKeydown(event)"
+        style="padding:9px 12px;border:1px solid #ccc;border-radius:6px;font-size:.95em">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <label style="font-size:.88em;color:#7a5430">密碼</label>
+      <input id="stroke-login-pass" type="password" autocomplete="current-password" onkeydown="strokeLoginKeydown(event)"
+        style="padding:9px 12px;border:1px solid #ccc;border-radius:6px;font-size:.95em">
+    </div>
+    <div id="stroke-login-err" style="display:none;color:#cc2200;font-size:.85em;text-align:center">帳號或密碼錯誤，請再試一次</div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="closeStrokeLogin()" style="background:#eee;color:#555;border:none;border-radius:6px;padding:8px 18px;cursor:pointer;font-size:.9em">取消</button>
+      <button onclick="strokeLoginSubmit()" style="background:#8B1A1A;color:#fff;border:none;border-radius:6px;padding:8px 22px;cursor:pointer;font-size:.9em;font-weight:bold">登入</button>
     </div>
   </div>
 </div>
