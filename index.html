@@ -380,6 +380,63 @@ const SHENG={木:'火',火:'土',土:'金',金:'水',水:'木'};
 const KE={木:'土',土:'水',水:'火',火:'金',金:'木'};
 const TODAY=new Date();
 
+/* ── 思考基因查詢表（父母宮×疾惡宮）── */
+const WUXING_GENE={
+  '木生火(陽性)':{tag:'求新求變型',desc:'強烈的自我意識、思緒敏銳、有自信、有創意及求新求變，擅於發揮創意優勢',warn:'易造成人格不穩定及叛逆，好高騖遠，要懂得收斂'},
+  '木生火(陰性)':{tag:'潛藏獨立型',desc:'潛藏的自我意識、不服輸、獨立自主及喜愛新思緒，要懂得運用環境塑造自己',warn:'過於保守的思緒可能造成疑慮特性，要面對壓力勇敢突破'},
+  '土生金(陽性)':{tag:'承接守業型',desc:'追隨、承接、守業、求穩定的思考基因，先天具備安定形思維，環境對其影響很大',warn:'不要太守舊，要自我訓練「變通」，良好的教育與訓練非常重要'},
+  '土生金(陰性)':{tag:'規律穩定型',desc:'潛藏性的穩定思維，具有規律性、執著和懂得承接，是守業形的良好基因',warn:'要預防太過執著和死板，把握時機發揮「變通」本能'},
+  '水生木(陽性)':{tag:'幕僚軍師型',desc:'聰明、反應快，善於假設、分析、多意見，懂得展現聰明才智，是攀附形高手和絕佳特助',warn:'不要常常表現小聰明、幻想力過強、做投機的事，以及怕壓力'},
+  '水生木(陰性)':{tag:'謀略借力型',desc:'潛藏的聰明、多思、愛思索、善用謀略，可成為幕僚軍師和企劃人才，懂得借力使力',warn:'若有投機心思、喜歡故作神秘或好挑剔的毛病，將在操作上扣分'},
+  '火生土(陽性)':{tag:'掌控說服型',desc:'強烈的掌控性思維，懂得配合抓時機，說服力與影響力強，忠誠度高，前半段操作容易過關',warn:'要懂得控制情緒，不要太容易激動和急躁，這將帶來殺傷力'},
+  '火生土(陰性)':{tag:'細心應變型',desc:'潛藏性自我保護主義、安全感高、學習精神好、應變力強，懂得迎合掌握時機，塑造特助祕書的最佳特質',warn:'要修飾過度的「自我防禦性」以及下意識的不滿情緒'},
+  '金生水(陽性)':{tag:'堅毅護主型',desc:'強烈的堅定毅力、善於思考、模仿、護主功能及堅持，耐力忠心任勞任怨，最容易塑造成上位者喜愛的主管或屬下',warn:'必需預防太堅持理念而犯上，要懂得適時妥協'},
+  '金生水(陰性)':{tag:'研究說服型',desc:'潛藏性的研究、摸索思維、心思細密和善於溝通說服，很容易得長輩任用或栽培',warn:'不要太過善變，心思穩定才能累積信任'},
+  '金剋木(陽性)':{tag:'改革創新型',desc:'改革形思考基因，聰明敏銳、自主性強、不信邪、喜歡汰舊換新，敢冒險敢改革，是塑造創新管理者或創業者的重要因素',warn:'不要太得意忘形、誇大其詞，要加一點冷靜和深藏不露'},
+  '金剋木(陰性)':{tag:'主導管理型',desc:'主導性思考基因，主觀意識強、果斷力強，思考敏銳，喜歡新事物、求新求變，是塑造管理者的重要特質',warn:'避免太過自大、好高騖遠，以及過度冷漠無情'},
+  '木剋土(陽性)':{tag:'整理執行型',desc:'整理形思考基因，追隨、接受指令、堅持理念、善於講道理，最適合穩定環境的管理人員',warn:'不要讓自己變成「小鋼炮」頂撞大王，或是「唬弄大王」'},
+  '木剋土(陰性)':{tag:'制度規劃型',desc:'計劃性思考基因，內斂、隱藏、堅守制度、善於規劃，是塑造「制度式管理者」的最好條件',warn:'千萬不可太過固執或堅持己見，要主動追隨和溝通'},
+  '土剋水(陽性)':{tag:'輔佐樂天型',desc:'輔佐、樂天的思考基因，懂得迎合上意、組合傳達、有幻想力、善於辯駁，最容易獲得貴人眷顧',warn:'不要常常模糊焦點或者想多行少'},
+  '土剋水(陰性)':{tag:'機會設計型',desc:'分析設計型思考基因，聰明反應快、規劃設計好、保守不死板，善於把握天時，是「機會主義者」的最好條件',warn:'一定要預防「大意失荊州」、得意忘形'},
+  '水剋火(陽性)':{tag:'感性熱忱型',desc:'感性形思考基因，對上熱忱忠心、懂得迎合上意、提出意見，反應快會隨機應變，是塑造最佳特助和第二把交椅的最好條件',warn:'避免情緒化或三分鐘熱度'},
+  '水剋火(陰性)':{tag:'變通經商型',desc:'變通形思考基因，聰明活躍、思緒變通，學習力強、善於分析判斷轉變，是塑造「經商形」人才的最好條件',warn:'一定要避免心浮氣躁'},
+  '火剋金(陽性)':{tag:'研究分析型',desc:'研究分析形思考基因，善於分析判斷和推理，對興趣之事積極投入，具說服力，是理論派、實力派，是長輩最喜愛培植的特助顧問',warn:'不要強詞奪理或逆向行事'},
+  '火剋金(陰性)':{tag:'謹慎摸索型',desc:'謹慎多思形思考基因，善於摸索研究，對熟悉事物反應快，對新事物謹慎小心，吸收為己用，不斷積累實力',warn:'不要猶豫不決、反覆不定'},
+  '木比木':{tag:'木同旺',desc:'虛心向學、能屈能伸，思考穩重，會考慮清楚再行動',warn:'光說不練，有時會臨陣脫逃，缺乏行動力'},
+  '火比火':{tag:'火同旺',desc:'思考邏輯獨特，有質感，注重氣派，是完美主義者',warn:'太沉醉在自我邏輯中，欠缺配合度，容易半途而廢'},
+  '土比土':{tag:'土同旺',desc:'個性非常隨和，跟每個人都合得來，行為模式溫和配合',warn:'被牽著鼻子走，沒主見，沒什麼危機意識'},
+  '金比金':{tag:'金同旺',desc:'心思細密、謹言慎行，沉得住氣，做事很小心、面面俱到',warn:'想太多讓人猜不透，有時會掩飾自己的錯誤'},
+  '水比水':{tag:'水同旺',desc:'數理天份強，邏輯能力好，做事小心謹慎，很少粗心大意',warn:'講話太直言不諱，有時因太小心眼而愛計較'},
+};
+
+/* ── 行為基因查詢表（疾惡宮×奴僕宮，key=兩字拼接）── */
+const WUXING_BEHAVIOR={
+  '火木':{desc:'責任心強，會把責任扛在自己身上，幫別人解決困難',warn:'太愛自尊、面子，脾氣火爆'},
+  '土火':{desc:'做事效率好，積極賣力，懂得展現實力',warn:'太缺乏安全感，有強大的佔有慾，會排斥外來的'},
+  '土金':{desc:'個性耿直，做事執著、認真負責，是可靠的執行者',warn:'不大敢冒險突破，有時會畏畏縮縮'},
+  '水金':{desc:'做事肯吃苦耐勞，很會與人溝通，溝通效果好',warn:'得失心太重，失去了會有崩潰的危機'},
+  '木水':{desc:'行事風格穩定、不急不緩，圓融處理人際關係',warn:'較禁不起失敗，壓力太大無法承受時會崩潰'},
+  '木金':{desc:'做事敢衝敢拼，不怕壓力與困苦，行動力強',warn:'太過果斷、做事主觀，要踢到鐵板才會收手'},
+  '木土':{desc:'個性穩重獨立、有責任感，有自己的理念',warn:'不會解釋與溝通，往往過於堅持己見'},
+  '水土':{desc:'隨和好相處，做事配合度高，平易近人',warn:'記憶力不大好，容易忘東忘西，也較懶得動'},
+  '火水':{desc:'行事熱心積極，對朋友有正義感，勇於承擔',warn:'心浮氣躁沒有耐心，常常三分鐘熱度'},
+  '金火':{desc:'處理事情謹慎小心，有把握才會去做，穩中求勝',warn:'表面上配合，但實際上卻愛唱反調'},
+  '木木':{desc:'做事穩穩的，會考慮清楚再去做，可靠穩定',warn:'平常用嘴巴叫別人做，很少自己實際行動'},
+  '土土':{desc:'行為模式屬於溫和派，又很會配合，人緣好',warn:'沒有什麼危機意識，有點怕壓力大'},
+  '金金':{desc:'做事很小心，能夠面面俱到，嚴謹細心',warn:'會掩飾自己錯誤，有時會搞到無法收拾'},
+  '火火':{desc:'很有質感，注重氣派，是個完美主義者，有品味',warn:'欠缺配合度，缺乏持續力，容易半途而廢'},
+  '水水':{desc:'做事小心謹慎，很少有粗心大意的情況，細心',warn:'有時因太過小心眼而變成愛計較'},
+};
+
+/* ── 五格宮位×五行描述 ── */
+const WUXING_POS={
+  '命宮':{label:'整體命格',木:'生命動能充沛，有理想抱負，自律進取，喜歡突破創新',火:'熱情積極，表現欲旺，魅力四射，情緒起伏需注意管理',土:'穩重可靠，守信重義，腳踏實地，人際基礎紮實',金:'意志堅定，嚴謹執行，有原則有底線，抗壓力強',水:'聰明多謀，應變靈活，善溝通，人生靠智慧取勝'},
+  '父母宮':{label:'先天基因・長輩緣',木:'先天具理想性格，長輩緣佳，易獲提攜，具帶領潛力',火:'先天帶熱忱，長輩喜愛，但要注意管理情緒與節奏',土:'先天穩重誠信，易獲長輩信任，適合守業與承接',金:'先天嚴謹執行，上司欣賞，但注意勿過於固執呆板',水:'先天聰慧善謀，長輩看重，要避免耍小聰明或投機'},
+  '疾惡宮':{label:'核心人格・思考基因',木:'核心性格積極求進，思緒清晰，有目標有規劃',火:'核心性格熱情衝勁，直覺敏銳，情感豐富',土:'核心性格穩定包容，踏實耐勞，可靠性高',金:'核心性格果決嚴謹，抗壓力強，講求效率',水:'核心性格機智靈活，善於觀察，應變迅速'},
+  '奴僕宮':{label:'行為基因・下屬緣',木:'行事有條理，帶人注重發展，下屬喜歡跟隨',火:'行事積極帶動力，下屬喜你熱忱，但節奏要控制',土:'行事穩健守規，帶人包容，部屬信任度高',金:'行事嚴格要求，下屬執行力強，紀律佳',水:'行事靈活變通，下屬感受自由，但需注意方向引導'},
+  '遷移宮':{label:'外在形象・社交磁場',木:'給人積極向上的印象，社交帶領性強，易成為核心人物',火:'給人熱情有活力的印象，社交吸引力強，人緣廣',土:'給人可靠穩重的印象，社交信任感高，適合長期關係',金:'給人嚴謹專業的印象，社交有分量，令人尊重',水:'給人聰明靈活的印象，社交多變，善於不同場合'},
+};
+
 function getStrokes(ch){return DB[ch.trim()]||null;}
 function element(n){return ELEMENT_MAP[n%10];}
 function getS(c){return manualOverrides[c]||getStrokes(c)||1;}
@@ -847,72 +904,84 @@ function renderGrids(g,chars,isFX){
       {name:'① 命宮',  val:g.zong,desc:'全名筆劃總和'},
     ];
   }
-  let html=`<table class="grid5"><thead><tr><th>宮位</th><th>格數</th><th>五行</th><th>計算說明</th></tr></thead><tbody>`;
+  let html=`<table class="grid5"><thead><tr><th>宮位</th><th>格數</th><th>五行</th><th>計算說明 ・ 命格解析</th></tr></thead><tbody>`;
   for(const r of rows){
     const el=element(r.val),cls=ELEMENT_CLASS[el];
-    html+=`<tr><td><b>${r.name}</b></td><td style="font-size:1.3em;font-weight:bold">${r.val}</td>
+    const posKey=r.name.replace(/^[①-⑤]\s*/,'');
+    const pos=WUXING_POS[posKey];
+    const elDesc=pos?pos[el]:'';
+    html+=`<tr>
+      <td><b>${r.name}</b>${pos?`<div style="font-size:.72em;color:#9a7040;margin-top:2px">${pos.label}</div>`:''}
+      </td>
+      <td style="font-size:1.3em;font-weight:bold;text-align:center">${r.val}</td>
       <td><span class="eb ${cls}">${el}</span></td>
-      <td style="text-align:left;font-size:.88em;color:var(--sub)">${r.desc}</td></tr>`;
+      <td style="text-align:left">
+        <div style="font-size:.82em;color:var(--sub)">${r.desc}</div>
+        ${elDesc?`<div style="font-size:.84em;color:#3a2000;margin-top:5px;padding:5px 8px;background:#fffbe8;border-left:3px solid ${ELEMENT_COLOR[el]};border-radius:0 5px 5px 0">${elDesc}</div>`:''}
+      </td>
+    </tr>`;
   }
   html+='</tbody></table>';
   document.getElementById('five-grids').innerHTML=html;
 }
 
 /* ── 五行生剋分析 ── */
+function _wxGeneKey(ea,eb,rel){
+  if(rel.type==='相生')  return `${ea}生${eb}(陽性)`;
+  if(rel.type==='受生')  return `${eb}生${ea}(陰性)`;
+  if(rel.type==='陽性剋') return `${ea}剋${eb}(陽性)`;
+  if(rel.type==='陰性剋') return `${eb}剋${ea}(陰性)`;
+  if(rel.type==='比旺')  return `${ea}比${ea}`;
+  return '';
+}
 function renderWuXing(g){
   const eT=element(g.tian),eR=element(g.ren),eD=element(g.di);
-  const EC=ELEMENT_CLASS;
-  const pairs=[
-    {l:'② 父母宮',r:'③ 疾惡宮',ea:eT,eb:eR,note:'思想功能'},
-    {l:'③ 疾惡宮',r:'④ 奴僕宮',ea:eR,eb:eD,note:'行動功能',hi:true},
-  ];
-  let html=`<div class="wx-grid" style="grid-template-columns:1fr 1fr;max-width:480px">`;
-  for(const p of pairs){
-    const r=wxRel(p.ea,p.eb);
-    const bdr=p.hi?'border:2px solid #cc2200;background:#fff8f8':'';
-    html+=`<div class="wx-card" style="${bdr}">
-      <div class="wt" style="font-size:.88em;font-weight:bold;color:var(--red)">${p.note}</div>
-      <div class="we" style="margin-top:6px">
-        <span class="eb ${EC[p.ea]}">${p.ea}</span>
-        <span style="color:#aaa;font-size:.78em;margin-top:2px">${p.l}</span>
+  const EC=ELEMENT_CLASS,EC2=ELEMENT_COLOR;
+
+  // ── 思考基因（父母宮 × 疾惡宮）──
+  const tr=wxRel(eT,eR);
+  const tkKey=_wxGeneKey(eT,eR,tr);
+  const tk=WUXING_GENE[tkKey];
+
+  // ── 行為基因（疾惡宮 × 奴僕宮）──
+  const mr=wxRel(eR,eD);
+  const bvKey=eR+eD;
+  const bv=WUXING_BEHAVIOR[bvKey];
+
+  function geneCard(title,icon,labelA,ea,relObj,labelB,eb,geneData,relKey){
+    const borderColor=EC2[ea];
+    return `<div style="background:#fff;border:1px solid #e8d5a3;border-radius:10px;padding:14px 16px;border-top:4px solid ${borderColor}">
+      <div style="font-size:.9em;font-weight:bold;color:${borderColor};margin-bottom:10px;letter-spacing:1px">${icon} ${title}</div>
+      <!-- 宮位生剋圖示 -->
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <span class="eb ${EC[ea]}">${ea}</span>
+          <span style="font-size:.72em;color:#aaa">${labelA}</span>
+        </div>
+        <div style="color:#aaa;font-size:1.1em;padding:0 2px">${relObj.sym}</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <span class="eb ${EC[eb]}">${eb}</span>
+          <span style="font-size:.72em;color:#aaa">${labelB}</span>
+        </div>
+        <span class="wrel ${relObj.cls}" style="margin-left:4px">${relObj.desc||relObj.type}</span>
       </div>
-      <div style="color:#aaa;font-size:1.1em;margin:4px 0">${r.sym}</div>
-      <div class="we">
-        <span class="eb ${EC[p.eb]}">${p.eb}</span>
-        <span style="color:#aaa;font-size:.78em;margin-top:2px">${p.r}</span>
-      </div>
-      <span class="wrel ${r.cls}" style="margin-top:6px">${r.desc||r.type}</span>
+      ${geneData?`
+      <!-- 類型標籤 -->
+      <div style="display:inline-block;background:${borderColor};color:#fff;font-size:.78em;padding:2px 10px;border-radius:10px;margin-bottom:8px;font-weight:bold">▶ ${geneData.tag}</div>
+      <!-- 描述 -->
+      <div style="font-size:.85em;color:#3a2000;line-height:1.8;margin-bottom:8px">${geneData.desc}</div>
+      <!-- 注意 -->
+      <div style="font-size:.82em;color:#7a3000;background:#fff8e8;border-left:3px solid #C8981A;padding:5px 10px;border-radius:0 5px 5px 0">
+        ⚠ 注意：${geneData.warn}
+      </div>`
+      :`<div style="font-size:.82em;color:#aaa">（此組合查無對應資料）</div>`}
     </div>`;
   }
-  html+=`</div>`;
 
-  // 思想功能解說
-  const tr=wxRel(eT,eR);
-  const thinkMap={
-    '陽性剋':`父母宮(${eT})剋疾惡宮(${eR})，陽性 — 思維主動、以攻為守`,
-    '陰性剋':`疾惡宮(${eR})剋父母宮(${eT})，陰性 — 思維守勢、沉穩內斂`,
-    '相生':`父母宮(${eT})生疾惡宮(${eR})，相生 — 思維順暢、得到滋養`,
-    '受生':`疾惡宮(${eR})生父母宮(${eT})，受生 — 思維穩健、反哺根基`,
-    '比旺':`父母宮疾惡宮同為${eT}，比旺 — 思維穩定持中`,
-  };
-  const thinkDesc=thinkMap[tr.type]||'';
-  if(thinkDesc){
-    html+=`<div class="note" style="margin-top:10px">▶ <b>思想功能：</b>${thinkDesc}</div>`;
-  }
-
-  // 行動功能解說
-  const mr=wxRel(eR,eD);
-  const actMap={
-    '陽性剋':`疾惡宮(${eR})剋奴僕宮(${eD})，陽性 — 行動主動積極、以攻為守`,
-    '陰性剋':`奴僕宮(${eD})剋疾惡宮(${eR})，陰性 — 行動守勢應對、以守代攻`,
-    '相生':`疾惡宮(${eR})生奴僕宮(${eD})，相生 — 行動順勢而為、發展順暢`,
-    '受生':`奴僕宮(${eD})生疾惡宮(${eR})，受生 — 行動得到支撐、貴人相助`,
-    '比旺':`疾惡宮奴僕宮同為${eR}，比旺 — 行動性格穩定、持中守正`,
-  };
-  const actDesc=actMap[mr.type]||'';
-  if(actDesc){
-    html+=`<div class="note" style="margin-top:6px;border-left-color:#cc2200">▶ <b>行動功能：</b>${actDesc}</div>`;
-  }
+  const html=`<div style="display:flex;flex-direction:column;gap:12px">
+    ${geneCard('思考基因','🧠','父母宮',eT,tr,'疾惡宮',eR,tk,tkKey)}
+    ${geneCard('行為基因','⚡','疾惡宮',eR,mr,'奴僕宮',eD,bv,bvKey)}
+  </div>`;
   document.getElementById('wuxing-analysis').innerHTML=html;
 }
 
