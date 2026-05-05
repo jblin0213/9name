@@ -485,7 +485,7 @@ function marriageType(eR,eD,gRen,gDi){
   const rel=wxRel(eR,eD);
   if(rel.type==='相生') return '旺象';
   if(rel.type==='受生') return '淡象';
-  if(rel.type==='比旺') return (gRen%2===gDi%2)?'平雙':'陰陽雙';
+  if(rel.type==='比旺') return (calcSumDigit(gRen)%2===calcSumDigit(gDi)%2)?'平雙':'陰陽雙';
   const ke5=[['金','木'],['木','土'],['土','水'],['水','火'],['火','金']];
   for(const[a,b] of ke5){
     if((eR===a&&eD===b)||(eR===b&&eD===a)) return `破象${a}剋${b}`;
@@ -502,7 +502,9 @@ const CAIQITYPE={
   '機運正財':{desc:'你的財氣呈現很強的「機運正財」特性，屬動型重於開創，吸引人的力量很強，讓人感覺有人緣且機運比人好。往外拓展延伸力量很大，從事連鎖事業、金融業、靠組織發展都很適合。賺錢機會和努力有極度密切關係，先自我要求，從基礎根本做起。',warn:'當你心無所求時，也是窮困來臨時。要培養賺錢的企圖心，不可生平無大志。'},
 };
 function caiQiType(gRen,gDi){
-  const d=Math.abs(calcSumDigit(gRen)-calcSumDigit(gDi))%5;
+  const a=calcSumDigit(gRen),b=calcSumDigit(gDi);
+  const raw=Math.abs(a-b);
+  const d=Math.min(raw,9-raw);
   return ['名氣暗財','能力暗財','能力正財','機運暗財','機運正財'][d];
 }
 
@@ -1120,7 +1122,7 @@ function renderPalaces(g,by,currentAge){
   }
   // ⑥ 財帛宮
   {
-    const eR=element(g.ren),eD=element(g.di);
+    const eR=element(calcSumDigit(g.ren)),eD=element(calcSumDigit(g.di));
     const qiType=caiQiType(g.ren,g.di);
     const qi=CAIQITYPE[qiType];
     const kuKey=caiKuType(eD,eR);
@@ -1147,7 +1149,7 @@ function renderPalaces(g,by,currentAge){
   }
   // ⑧ 夫妻宮
   {
-    const eR=element(g.ren),eD=element(g.di);
+    const eR=element(calcSumDigit(g.ren)),eD=element(calcSumDigit(g.di));
     const mKey=marriageType(eR,eD,g.ren,g.di);
     const m=MARRIAGE_PALACE[mKey];
     const typeColor=m?({'生形':'#2a7a2a','雙象':'#1a5a8b','破象':'#8B1A1A'}[m.type]||'#5a3e08'):'#5a3e08';
