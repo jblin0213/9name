@@ -1225,7 +1225,7 @@ function updateJihuiDian(ctx){
           <span style="color:${info.color};font-weight:bold">${info.season}・${info.dir}・${info.time}</span>　${info.desc}
         </div>
       </div>
-      ${jk?`<div style="margin-top:6px;padding:5px 10px;background:rgba(255,255,255,.6);border-radius:6px;font-size:.82em;color:#4a2a00">
+      ${jk&&p.label==='命宮'?`<div style="margin-top:6px;padding:5px 10px;background:rgba(255,255,255,.6);border-radius:6px;font-size:.82em;color:#4a2a00">
         <span style="color:#8B1A1A;font-weight:bold">【${fn}/${info.name}・${jk.gua}】</span>　<span style="font-style:italic;color:#5a3010">「${jk.kutsu}」</span>
       </div>`:''}
     </div>`;
