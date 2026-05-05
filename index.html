@@ -205,13 +205,10 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
   <span>安裝 App</span>
 </div>
 
-<!-- iOS 點擊後彈出說明氣泡 -->
-<div id="ios-tip" style="display:none;position:fixed;bottom:72px;right:16px;z-index:1001;background:#2c1a0a;color:#f5e6c8;border-radius:12px;padding:14px 16px;font-family:'Noto Serif TC',serif;font-size:.82em;line-height:1.7;box-shadow:0 4px 20px rgba(0,0,0,.45);max-width:230px;border:1px solid #C8981A">
-  <div style="font-weight:bold;margin-bottom:6px;color:#C8981A">📲 加入主畫面</div>
-  <div>點 Safari 下方 <strong>分享 ⬆</strong></div>
-  <div>→ 選「<strong>加入主畫面</strong>」</div>
-  <div>→ 點右上角「<strong>新增</strong>」</div>
-  <div style="margin-top:8px;text-align:right"><button onclick="document.getElementById('ios-tip').style.display='none'" style="background:none;border:none;color:#C8981A;cursor:pointer;font-size:.88em">知道了 ✕</button></div>
+<!-- 安裝說明氣泡（Android / iOS 共用，內容由 JS 動態填入） -->
+<div id="install-tip" style="display:none;position:fixed;bottom:72px;right:16px;z-index:1001;background:#2c1a0a;color:#f5e6c8;border-radius:12px;padding:14px 16px;font-family:'Noto Serif TC',serif;font-size:.82em;line-height:1.8;box-shadow:0 4px 20px rgba(0,0,0,.45);max-width:240px;border:1px solid #C8981A">
+  <div id="install-tip-content"></div>
+  <div style="margin-top:8px;text-align:right"><button onclick="document.getElementById('install-tip').style.display='none'" style="background:none;border:none;color:#C8981A;cursor:pointer;font-size:.88em">知道了 ✕</button></div>
   <div style="position:absolute;bottom:-8px;right:32px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid #C8981A"></div>
 </div>
 <main>
@@ -1215,11 +1212,25 @@ function handlePwaClick(){
       if(r.outcome==='accepted') _fab().style.display='none';
       _pwaPrompt=null;
     });
-  } else {
-    // iOS 或尚未取得 prompt：顯示手動說明氣泡
-    const tip=document.getElementById('ios-tip');
-    tip.style.display=tip.style.display==='block'?'none':'block';
+    return;
   }
+  // 沒有 prompt（iOS 或 Android 尚未觸發）→ 顯示手動說明
+  const tip=document.getElementById('install-tip');
+  const content=document.getElementById('install-tip-content');
+  if(tip.style.display==='block'){tip.style.display='none';return;}
+  if(isIOS()){
+    content.innerHTML='<div style="font-weight:bold;margin-bottom:6px;color:#C8981A">📲 加入主畫面（iPhone）</div>'
+      +'<div>① 點 Safari 下方 <strong>分享 ⬆</strong></div>'
+      +'<div>② 選「<strong>加入主畫面</strong>」</div>'
+      +'<div>③ 右上角點「<strong>新增</strong>」</div>';
+  } else {
+    content.innerHTML='<div style="font-weight:bold;margin-bottom:6px;color:#C8981A">📲 加入主畫面（Android）</div>'
+      +'<div>① 點瀏覽器右上角 <strong>⋮</strong></div>'
+      +'<div>② 選「<strong>新增至主畫面</strong>」</div>'
+      +'<div>　或「<strong>安裝應用程式</strong>」</div>'
+      +'<div>③ 點「<strong>新增</strong>」確認</div>';
+  }
+  tip.style.display='block';
 }
 
 // Android Chrome 準備好時存起來備用
