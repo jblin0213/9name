@@ -253,6 +253,10 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
           <input type="radio" name="rel_type" value="partner" onchange="setRelType(this.value)" style="display:none">
           🤝 合夥
         </label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;background:#f0f4ff;color:inherit;border:1px solid #c0d0f0;border-radius:20px;padding:4px 12px;font-size:.85em;transition:all .2s" id="rel-btn-friend">
+          <input type="radio" name="rel_type" value="friend" onchange="setRelType(this.value)" style="display:none">
+          👫 朋友
+        </label>
       </div>
       <div class="ig">
         <div class="if">
@@ -623,15 +627,16 @@ let relationshipType='lover';
 function setRelType(v){
   relationshipType=v;
   const cfg={
-    lover:{btn:'rel-btn-lover',bg:'#8B1A1A',border:'#8B1A1A'},
-    married:{btn:'rel-btn-married',bg:'#8B1A1A',border:'#8B1A1A'},
-    partner:{btn:'rel-btn-partner',bg:'#1a3a6b',border:'#1a3a6b'}
+    lover:{btn:'rel-btn-lover',bg:'#8B1A1A',border:'#8B1A1A',def:'#fff0f0',defBorder:'#e0b0b0'},
+    married:{btn:'rel-btn-married',bg:'#8B1A1A',border:'#8B1A1A',def:'#fff0f0',defBorder:'#e0b0b0'},
+    partner:{btn:'rel-btn-partner',bg:'#1a3a6b',border:'#1a3a6b',def:'#f0f4ff',defBorder:'#c0d0f0'},
+    friend:{btn:'rel-btn-friend',bg:'#1a3a6b',border:'#1a3a6b',def:'#f0f4ff',defBorder:'#c0d0f0'}
   };
-  ['lover','married','partner'].forEach(k=>{
+  ['lover','married','partner','friend'].forEach(k=>{
     const el=document.getElementById('rel-btn-'+k);
     if(!el)return;
     if(k===v){el.style.background=cfg[k].bg;el.style.color='white';el.style.borderColor=cfg[k].border;}
-    else{el.style.background=k==='partner'?'#f0f4ff':'#fff0f0';el.style.color='inherit';el.style.borderColor=k==='partner'?'#c0d0f0':'#e0b0b0';}
+    else{el.style.background=cfg[k].def;el.style.color='inherit';el.style.borderColor=cfg[k].defBorder;}
   });
 }
 
