@@ -1204,37 +1204,36 @@ if('serviceWorker' in navigator){
 let _pwaPrompt=null;
 const _fab=()=>document.getElementById('pwa-fab');
 
+function isMobile(){return/android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);}
 function isIOS(){return/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;}
 function isInStandaloneMode(){return window.navigator.standalone||window.matchMedia('(display-mode: standalone)').matches;}
 
 function handlePwaClick(){
   if(_pwaPrompt){
-    // Android：觸發系統安裝對話框
     _pwaPrompt.prompt();
     _pwaPrompt.userChoice.then(r=>{
       if(r.outcome==='accepted') _fab().style.display='none';
       _pwaPrompt=null;
     });
-  } else if(isIOS()){
-    // iOS：顯示操作說明氣泡
+  } else {
+    // iOS 或尚未取得 prompt：顯示手動說明氣泡
     const tip=document.getElementById('ios-tip');
     tip.style.display=tip.style.display==='block'?'none':'block';
   }
 }
 
-// Android：等到瀏覽器準備好，才顯示安裝按鈕
+// Android Chrome 準備好時存起來備用
 window.addEventListener('beforeinstallprompt',e=>{
   e.preventDefault();
   _pwaPrompt=e;
-  if(!isInStandaloneMode()) _fab().style.display='flex';
 });
 
 // 安裝完成後隱藏按鈕
 window.addEventListener('appinstalled',()=>{ _fab().style.display='none'; });
 
-// iOS：直接顯示安裝按鈕（不會有 beforeinstallprompt）
+// 手機裝置且非已安裝模式，直接顯示按鈕
 window.addEventListener('load',()=>{
-  if(isIOS()&&!isInStandaloneMode()) _fab().style.display='flex';
+  if(isMobile()&&!isInStandaloneMode()) _fab().style.display='flex';
 });
 </script>
 <div id="svg-modal" onclick="if(event.target===this)closeSvgModal()">
