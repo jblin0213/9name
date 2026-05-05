@@ -419,21 +419,21 @@ const WUXING_GENE={
 
 /* ── 行為基因查詢表（疾惡宮×奴僕宮，key=兩字拼接）── */
 const WUXING_BEHAVIOR={
-  '火木':{desc:'責任心強，會把責任扛在自己身上，幫別人解決困難',warn:'太愛自尊、面子，脾氣火爆'},
-  '土火':{desc:'做事效率好，積極賣力，懂得展現實力',warn:'太缺乏安全感，有強大的佔有慾，會排斥外來的'},
-  '土金':{desc:'個性耿直，做事執著、認真負責，是可靠的執行者',warn:'不大敢冒險突破，有時會畏畏縮縮'},
-  '水金':{desc:'做事肯吃苦耐勞，很會與人溝通，溝通效果好',warn:'得失心太重，失去了會有崩潰的危機'},
-  '木水':{desc:'行事風格穩定、不急不緩，圓融處理人際關係',warn:'較禁不起失敗，壓力太大無法承受時會崩潰'},
-  '木金':{desc:'做事敢衝敢拼，不怕壓力與困苦，行動力強',warn:'太過果斷、做事主觀，要踢到鐵板才會收手'},
-  '木土':{desc:'個性穩重獨立、有責任感，有自己的理念',warn:'不會解釋與溝通，往往過於堅持己見'},
-  '水土':{desc:'隨和好相處，做事配合度高，平易近人',warn:'記憶力不大好，容易忘東忘西，也較懶得動'},
-  '火水':{desc:'行事熱心積極，對朋友有正義感，勇於承擔',warn:'心浮氣躁沒有耐心，常常三分鐘熱度'},
-  '金火':{desc:'處理事情謹慎小心，有把握才會去做，穩中求勝',warn:'表面上配合，但實際上卻愛唱反調'},
-  '木木':{desc:'做事穩穩的，會考慮清楚再去做，可靠穩定',warn:'平常用嘴巴叫別人做，很少自己實際行動'},
-  '土土':{desc:'行為模式屬於溫和派，又很會配合，人緣好',warn:'沒有什麼危機意識，有點怕壓力大'},
-  '金金':{desc:'做事很小心，能夠面面俱到，嚴謹細心',warn:'會掩飾自己錯誤，有時會搞到無法收拾'},
-  '火火':{desc:'很有質感，注重氣派，是個完美主義者，有品味',warn:'欠缺配合度，缺乏持續力，容易半途而廢'},
-  '水水':{desc:'做事小心謹慎，很少有粗心大意的情況，細心',warn:'有時因太過小心眼而變成愛計較'},
+  '火木':{tag:'責任承擔型',desc:'責任心強，會把責任扛在自己身上，幫別人解決困難',warn:'太愛自尊、面子，脾氣火爆'},
+  '土火':{tag:'積極展現型',desc:'做事效率好，積極賣力，懂得展現實力',warn:'太缺乏安全感，有強大的佔有慾，會排斥外來的'},
+  '土金':{tag:'耿直執行型',desc:'個性耿直，做事執著、認真負責，是可靠的執行者',warn:'不大敢冒險突破，有時會畏畏縮縮'},
+  '水金':{tag:'耐勞溝通型',desc:'做事肯吃苦耐勞，很會與人溝通，溝通效果好',warn:'得失心太重，失去了會有崩潰的危機'},
+  '木水':{tag:'圓融穩定型',desc:'行事風格穩定、不急不緩，圓融處理人際關係',warn:'較禁不起失敗，壓力太大無法承受時會崩潰'},
+  '木金':{tag:'衝勁行動型',desc:'做事敢衝敢拼，不怕壓力與困苦，行動力強',warn:'太過果斷、做事主觀，要踢到鐵板才會收手'},
+  '木土':{tag:'穩重堅持型',desc:'個性穩重獨立、有責任感，有自己的理念',warn:'不會解釋與溝通，往往過於堅持己見'},
+  '水土':{tag:'隨和配合型',desc:'隨和好相處，做事配合度高，平易近人',warn:'記憶力不大好，容易忘東忘西，也較懶得動'},
+  '火水':{tag:'熱心正義型',desc:'行事熱心積極，對朋友有正義感，勇於承擔',warn:'心浮氣躁沒有耐心，常常三分鐘熱度'},
+  '金火':{tag:'謹慎穩進型',desc:'處理事情謹慎小心，有把握才會去做，穩中求勝',warn:'表面上配合，但實際上卻愛唱反調'},
+  '木木':{tag:'穩健思慮型',desc:'做事穩穩的，會考慮清楚再去做，可靠穩定',warn:'平常用嘴巴叫別人做，很少自己實際行動'},
+  '土土':{tag:'溫和協調型',desc:'行為模式屬於溫和派，又很會配合，人緣好',warn:'沒有什麼危機意識，有點怕壓力大'},
+  '金金':{tag:'嚴謹細心型',desc:'做事很小心，能夠面面俱到，嚴謹細心',warn:'會掩飾自己錯誤，有時會搞到無法收拾'},
+  '火火':{tag:'完美質感型',desc:'很有質感，注重氣派，是個完美主義者，有品味',warn:'欠缺配合度，缺乏持續力，容易半途而廢'},
+  '水水':{tag:'謹慎細緻型',desc:'做事小心謹慎，很少有粗心大意的情況，細心',warn:'有時因太過小心眼而變成愛計較'},
 };
 
 /* ── 五格宮位×五行描述 ── */
@@ -967,24 +967,53 @@ function _wxGeneKey(ea,eb,rel){
   return '';
 }
 function renderWuXing(g,ctx=''){
-  const eT=element(g.tian),eR=element(g.ren),eD=element(g.di);
+  const eT=element(g.tian),eR=element(g.ren),eD=element(g.di),eZ=element(g.zong);
   const EC=ELEMENT_CLASS,EC2=ELEMENT_COLOR;
 
-  // ── 思考基因（父母宮 × 疾惡宮）──
   const tr=wxRel(eT,eR);
   const tkKey=_wxGeneKey(eT,eR,tr);
   const tk=WUXING_GENE[tkKey];
 
-  // ── 行為基因（疾惡宮 × 奴僕宮）──
   const mr=wxRel(eR,eD);
   const bvKey=eR+eD;
   const bv=WUXING_BEHAVIOR[bvKey];
 
-  function geneCard(title,icon,labelA,ea,relObj,labelB,eb,geneData,relKey){
+  // 財帛宮 先天關係（命宮 vs 父母宮）
+  const tianRel=wxRel(eZ,eT);
+  const tianData=JINGYING_TIAN[_jingyingKey(tianRel)];
+
+  // 夫妻宮 後天關係（命宮 vs 奴僕宮）
+  const diRel=wxRel(eZ,eD);
+  const diData=JINGYING_DI[_jingyingKey(diRel)];
+
+  function jingSection(palName,period,relObj,eA,eB,data){
+    if(!data)return'';
+    const bc=EC2[eA];
+    return`<div style="margin-top:14px;padding-top:12px;border-top:1px dashed #e0c870">
+      <div style="font-size:.76em;color:#9a7040;font-weight:bold;margin-bottom:8px;letter-spacing:.5px">◈ ${palName}・${period}</div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+          <span class="eb ${EC[eA]}">${eA}</span>
+          <span style="font-size:.68em;color:#aaa">命宮</span>
+        </div>
+        <span style="color:#aaa;font-size:1em">${relObj.sym}</span>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+          <span class="eb ${EC[eB]}">${eB}</span>
+          <span style="font-size:.68em;color:#aaa">${eA===eT?'父母宮':'奴僕宮'}</span>
+        </div>
+        <span class="wrel ${relObj.cls}">${relObj.desc||relObj.type}</span>
+      </div>
+      <div style="display:inline-block;background:${bc};color:#fff;font-size:.75em;padding:2px 8px;border-radius:8px;margin-bottom:6px;font-weight:bold">${data.tag}</div>
+      <div style="font-size:.8em;font-weight:bold;color:${bc};margin-bottom:4px">${data.title}</div>
+      <div style="font-size:.8em;color:#3a2000;line-height:1.75;margin-bottom:6px">${data.desc}</div>
+      <div style="font-size:.78em;color:#7a3000;background:#fff8e8;border-left:2px solid #C8981A;padding:4px 8px;border-radius:0 4px 4px 0">⚠ 切記：${data.warn}</div>
+    </div>`;
+  }
+
+  function geneCard(title,icon,labelA,ea,relObj,labelB,eb,geneData,extra){
     const borderColor=EC2[ea];
     return `<div style="background:#fff;border:1px solid #e8d5a3;border-radius:10px;padding:14px 16px;border-top:4px solid ${borderColor}">
       <div style="font-size:.9em;font-weight:bold;color:${borderColor};margin-bottom:10px;letter-spacing:1px">${icon} ${title}</div>
-      <!-- 宮位生剋圖示 -->
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
         <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
           <span class="eb ${EC[ea]}">${ea}</span>
@@ -998,21 +1027,19 @@ function renderWuXing(g,ctx=''){
         <span class="wrel ${relObj.cls}" style="margin-left:4px">${relObj.desc||relObj.type}</span>
       </div>
       ${geneData?`
-      <!-- 類型標籤 -->
       <div style="display:inline-block;background:${borderColor};color:#fff;font-size:.78em;padding:2px 10px;border-radius:10px;margin-bottom:8px;font-weight:bold">▶ ${geneData.tag}</div>
-      <!-- 描述 -->
       <div style="font-size:.85em;color:#3a2000;line-height:1.8;margin-bottom:8px">${geneData.desc}</div>
-      <!-- 注意 -->
-      <div style="font-size:.82em;color:#7a3000;background:#fff8e8;border-left:3px solid #C8981A;padding:5px 10px;border-radius:0 5px 5px 0">
-        ⚠ 注意：${geneData.warn}
-      </div>`
+      <div style="font-size:.82em;color:#7a3000;background:#fff8e8;border-left:3px solid #C8981A;padding:5px 10px;border-radius:0 5px 5px 0">⚠ 注意：${geneData.warn}</div>`
       :`<div style="font-size:.82em;color:#aaa">（此組合查無對應資料）</div>`}
+      ${extra||''}
     </div>`;
   }
 
   const html=`<div style="display:flex;flex-direction:column;gap:12px">
-    ${geneCard('思考基因','🧠','父母宮',eT,tr,'疾惡宮',eR,tk,tkKey)}
-    ${geneCard('行為基因','⚡','疾惡宮',eR,mr,'奴僕宮',eD,bv,bvKey)}
+    ${geneCard('思考基因','🧠','父母宮',eT,tr,'疾惡宮',eR,tk,
+      jingSection('⑥ 財帛宮','先天關係（35歲前）・長輩上司磁場',tianRel,eZ,eT,tianData))}
+    ${geneCard('行為基因','⚡','疾惡宮',eR,mr,'奴僕宮',eD,bv,
+      jingSection('⑧ 夫妻宮','後天關係（35歲後）・親友下屬磁場',diRel,eZ,eD,diData))}
   </div>`;
   document.getElementById('wuxing-analysis'+ctx).innerHTML=html;
 }
@@ -1026,9 +1053,7 @@ function renderPalaces(g,by,currentAge){
     {name:'④ 奴僕宮',grid:g.di,  type:'奴僕宮'},
   ];
   const pending=[
-    {name:'⑤ 遷移宮',grid:g.wai},
-    {name:'⑥ 財宮',  grid:g.ren},
-    {name:'⑦ 子女宮',grid:g.di},
+    {name:'⑥ 財帛宮',grid:g.ren},
     {name:'⑧ 夫妻宮',grid:g.di},
   ];
   const currentROC=new Date().getFullYear()-1911;
@@ -1045,40 +1070,14 @@ function renderPalaces(g,by,currentAge){
     }
     html+=`</tbody></table></div>`;
   }
-  const eZ=element(g.zong),eT=element(g.tian),eD=element(g.di);
-  const tianRel=wxRel(eZ,eT),diRel=wxRel(eZ,eD);
-  const tianKey=_jingyingKey(tianRel),diKey=_jingyingKey(diRel);
-  const tianData=JINGYING_TIAN[tianKey],diData=JINGYING_DI[diKey];
   for(const p of pending){
     const el=element(p.grid),cls=ELEMENT_CLASS[el];
-    let extra='';
-    if(p.name==='⑥ 財宮'&&tianData){
-      const bc=ELEMENT_COLOR[eZ];
-      extra=`<div style="margin:10px 12px 12px;padding:10px 12px;background:#fffbe8;border-left:3px solid ${bc};border-radius:0 6px 6px 0;text-align:left">
-        <div style="font-size:.72em;color:#aaa;margin-bottom:4px">先天關係（35歲前）・長輩上司磁場</div>
-        <div style="display:inline-block;background:${bc};color:#fff;font-size:.75em;padding:2px 8px;border-radius:8px;margin-bottom:6px;font-weight:bold">${tianData.tag}</div>
-        <div style="font-size:.8em;font-weight:bold;color:${bc};margin-bottom:4px">${tianData.title}</div>
-        <div style="font-size:.8em;color:#3a2000;line-height:1.7;margin-bottom:6px">${tianData.desc}</div>
-        <div style="font-size:.78em;color:#7a3000;background:#fff3e0;border-left:2px solid #C8981A;padding:4px 8px;border-radius:0 4px 4px 0">⚠ 切記：${tianData.warn}</div>
-      </div>`;
-    }
-    if(p.name==='⑧ 夫妻宮'&&diData){
-      const bc=ELEMENT_COLOR[eZ];
-      extra=`<div style="margin:10px 12px 12px;padding:10px 12px;background:#fffbe8;border-left:3px solid ${bc};border-radius:0 6px 6px 0;text-align:left">
-        <div style="font-size:.72em;color:#aaa;margin-bottom:4px">後天關係（35歲後）・親友下屬磁場</div>
-        <div style="display:inline-block;background:${bc};color:#fff;font-size:.75em;padding:2px 8px;border-radius:8px;margin-bottom:6px;font-weight:bold">${diData.tag}</div>
-        <div style="font-size:.8em;font-weight:bold;color:${bc};margin-bottom:4px">${diData.title}</div>
-        <div style="font-size:.8em;color:#3a2000;line-height:1.7;margin-bottom:6px">${diData.desc}</div>
-        <div style="font-size:.78em;color:#7a3000;background:#fff3e0;border-left:2px solid #C8981A;padding:4px 8px;border-radius:0 4px 4px 0">⚠ 切記：${diData.warn}</div>
-      </div>`;
-    }
     html+=`<div class="pcard">
       <div class="phdr" style="background:linear-gradient(135deg,#5a3e08,#9a6e10)">${p.name}</div>
-      <div style="padding:14px 12px 6px;text-align:center">
+      <div style="padding:18px;text-align:center">
         <div style="font-size:1.4em;font-weight:bold;margin-bottom:6px">${p.grid} <span class="eb ${cls}">${el}</span></div>
-        ${!extra?'<div style="font-size:.8em;color:#aaa;margin-top:8px">發動年表待補充</div>':''}
+        <div style="font-size:.8em;color:#aaa;margin-top:6px">詳見五行生剋分析</div>
       </div>
-      ${extra}
     </div>`;
   }
   html+='</div>';
