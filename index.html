@@ -517,8 +517,8 @@ const CAIKUTYPE={
 };
 function caiKuType(eD,eR){
   const rel=wxRel(eD,eR);
-  if(rel.type==='相生'||rel.type==='比旺') return '旺';
-  if(rel.type==='受生') return '洩';
+  if(rel.type==='受生'||rel.type==='比旺') return '旺';
+  if(rel.type==='相生') return '洩';
   if(rel.type==='陰性剋') return '破';
   return '劫';
 }
