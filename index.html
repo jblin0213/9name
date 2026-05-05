@@ -1728,10 +1728,42 @@ function renderComparison(dataA,dataB){
         ${badge(hasLai,'有來電',laiDesc(),'#e67e22')}
         ${badge(xingAtoB||xingBtoA,'形影不離',xingDesc(),'#c0392b')}
         ${badge(xingAtoB||xingBtoA,'最愛',zuiDesc(),'#8B1A1A')}
-        ${badge(hasZuoRu,'坐入夫妻宮',zuoDesc(),'#2980b9')}
         ${badge(hasShuang,'雙象',shuangDesc(),'#8e44ad')}
         ${badge(duiGong,'對宮對流','雙向相生最強','#27ae60')}
       </div>
+    </div>`;
+  }
+
+  // ── 坐入分析（所有關係類型）──
+  {
+    const gRenA=dataA.grids.ren,gDiA=dataA.grids.di,gZongA=dataA.grids.zong;
+    const gRenB=dataB.grids.ren,gDiB=dataB.grids.di,gZongB=dataB.grids.zong;
+    const sdRenA=calcSumDigit(gRenA),sdDiA=calcSumDigit(gDiA),sdZongA=calcSumDigit(gZongA);
+    const sdRenB=calcSumDigit(gRenB),sdDiB=calcSumDigit(gDiB),sdZongB=calcSumDigit(gZongB);
+    const zuoRen_AtoB=(sdRenA===sdDiB);
+    const zuoZong_AtoB=(sdZongA===sdDiB);
+    const zuoRen_BtoA=(sdRenB===sdDiA);
+    const zuoZong_BtoA=(sdZongB===sdDiA);
+    const hasZuoRu=zuoRen_AtoB||zuoZong_AtoB||zuoRen_BtoA||zuoZong_BtoA;
+    const isRomantic=(relationshipType==='lover'||relationshipType==='married');
+    const zuoLabel=isRomantic?'坐入夫妻宮':'坐入關係';
+    const zuoColor=isRomantic?'#8B1A1A':'#1a3a6b';
+    const zuoBg=isRomantic?'#fffaf5':'#f0f4ff';
+    const zuoBorder=isRomantic?'#e8d0a0':'#c0d0f0';
+    const zuoRows=[];
+    if(zuoRen_AtoB)zuoRows.push(`<div style="background:rgba(255,255,255,.6);border-radius:6px;padding:4px 8px;font-size:.85em"><b style="color:#8B1A1A">${dataA.name}</b><span style="color:#999;font-size:.85em">（疾惡氣化 ${sdRenA}）</span> 坐入 <b style="color:#1a3a6b">${dataB.name}</b><span style="color:#999;font-size:.85em">（奴僕氣化 ${sdDiB}）</span></div>`);
+    if(zuoZong_AtoB)zuoRows.push(`<div style="background:rgba(255,255,255,.6);border-radius:6px;padding:4px 8px;font-size:.85em"><b style="color:#8B1A1A">${dataA.name}</b><span style="color:#999;font-size:.85em">（命宮氣化 ${sdZongA}）</span> 坐入 <b style="color:#1a3a6b">${dataB.name}</b><span style="color:#999;font-size:.85em">（奴僕氣化 ${sdDiB}）</span></div>`);
+    if(zuoRen_BtoA)zuoRows.push(`<div style="background:rgba(255,255,255,.6);border-radius:6px;padding:4px 8px;font-size:.85em"><b style="color:#1a3a6b">${dataB.name}</b><span style="color:#999;font-size:.85em">（疾惡氣化 ${sdRenB}）</span> 坐入 <b style="color:#8B1A1A">${dataA.name}</b><span style="color:#999;font-size:.85em">（奴僕氣化 ${sdDiA}）</span></div>`);
+    if(zuoZong_BtoA)zuoRows.push(`<div style="background:rgba(255,255,255,.6);border-radius:6px;padding:4px 8px;font-size:.85em"><b style="color:#1a3a6b">${dataB.name}</b><span style="color:#999;font-size:.85em">（命宮氣化 ${sdZongB}）</span> 坐入 <b style="color:#8B1A1A">${dataA.name}</b><span style="color:#999;font-size:.85em">（奴僕氣化 ${sdDiA}）</span></div>`);
+    html+=`<div style="background:${zuoBg};border:1px solid ${zuoBorder};border-radius:10px;padding:12px 14px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:${hasZuoRu?'8px':'0'}">
+        <span>🪑</span>
+        <span style="font-weight:bold;color:${zuoColor};font-size:.9em">${zuoLabel}分析</span>
+        ${hasZuoRu
+          ?`<span style="background:${zuoColor};color:white;padding:1px 9px;border-radius:10px;font-size:.76em">✓ 有${zuoLabel}</span>`
+          :`<span style="color:#bbb;font-size:.8em">無${zuoLabel}關係</span>`}
+      </div>
+      ${hasZuoRu?`<div style="display:flex;flex-direction:column;gap:4px">${zuoRows.join('')}</div>`:''}
     </div>`;
   }
 
