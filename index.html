@@ -1090,10 +1090,8 @@ function renderWuXing(g,ctx=''){
   }
 
   const html=`<div style="display:flex;flex-direction:column;gap:12px">
-    ${geneCard('思考基因','🧠','父母宮',eT,tr,'疾惡宮',eR,tk,
-      jingSection('⑥ 財帛宮','先天關係（35歲前）・長輩上司磁場',tianRel,eZ,eT,'父母宮',tianData))}
-    ${geneCard('行為基因','⚡','疾惡宮',eR,mr,'奴僕宮',eD,bv,
-      jingSection('⑧ 夫妻宮','後天關係（35歲後）・親友下屬磁場',diRel,eZ,eD,'奴僕宮',diData))}
+    ${geneCard('思考基因','🧠','父母宮',eT,tr,'疾惡宮',eR,tk,'')}
+    ${geneCard('行為基因','⚡','疾惡宮',eR,mr,'奴僕宮',eD,bv,'')}
   </div>`;
   document.getElementById('wuxing-analysis'+ctx).innerHTML=html;
 }
