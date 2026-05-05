@@ -515,12 +515,18 @@ const CAIKUTYPE={
   '破':{tag:'財庫破相',desc:'你的財庫通路傾向「破相」，財庫出現破洞，某些時段可能碰到較大的財務損傷。雖然庫破但你的賺錢能力很強，必須積極踏實多增加收入，懂得把財富囤積起來。',warn:'千萬不可亂投資，尤其是沒把握的事業或具投機性的事。親友金錢往來要特別小心，不要幫人調度。不可奢侈浪費，貪婪投機是一生中最大的致命傷。'},
   '劫':{tag:'財庫劫相',desc:'你的財庫通路傾向「劫相」，財務容易碰到意外損傷，甚至受周邊環境影響流失在投機或賭注過大的投資上。積極經營出知名度，財富反而容易累積起來。',warn:'「守財」是你今生該學的功課，謹慎評估親友的金錢往來邀請。不可亂投資尤其是具賭性或高風險的投資。挑選伴侶要特別注意，若配偶愛賭亂投資你就跟著被劫。'},
 };
-function caiKuType(eD,eR){
+/* 財庫用 Map B：1,2=木 3,4=火 5,6=土 7,8=金 9,0=水（末位數） */
+const ELEMENT_MAP_KU=['水','木','木','火','火','土','土','金','金','水'];
+function elementKu(n){return ELEMENT_MAP_KU[n%10];}
+function caiKuType(gDi,gRen){
+  const eD=elementKu(gDi),eR=elementKu(gRen);
   const rel=wxRel(eD,eR);
-  if(rel.type==='受生'||rel.type==='比旺') return '旺';
-  if(rel.type==='相生') return '洩';
-  if(rel.type==='陰性剋') return '破';
-  return '劫';
+  if(rel.type==='比旺') return (gDi%10===gRen%10)?'劫':'旺'; // 數字相同→劫，陰陽不同→旺
+  if(rel.type==='相生') return '旺';   // 庫位(奴僕)生財宮(疾惡)
+  if(rel.type==='受生') return '洩';   // 財宮(疾惡)生庫位(奴僕)
+  if(rel.type==='陽性剋') return '旺'; // 庫位(奴僕)剋財宮(疾惡)
+  if(rel.type==='陰性剋') return '破'; // 財宮(疾惡)剋庫位(奴僕)
+  return '旺';
 }
 
 function getStrokes(ch){return DB[ch.trim()]||null;}
@@ -1123,7 +1129,7 @@ function renderPalaces(g,by,currentAge){
     const eR=element(calcSumDigit(g.ren)),eD=element(calcSumDigit(g.di));
     const qiType=caiQiType(g.ren,g.di);
     const qi=CAIQITYPE[qiType];
-    const kuKey=caiKuType(eD,eR);
+    const kuKey=caiKuType(g.di,g.ren);
     const ku=CAIKUTYPE[kuKey];
     const qiColor={'名氣暗財':'#8B1A1A','能力暗財':'#1a5a8b','能力正財':'#2a7a2a','機運暗財':'#7a3a8b','機運正財':'#8b6a1a'}[qiType]||'#5a3e08';
     const kuColor={'旺':'#2a7a2a','洩':'#8b6a1a','破':'#cc4400','劫':'#8B1A1A'}[kuKey]||'#5a3e08';
