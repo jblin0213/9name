@@ -590,7 +590,7 @@ function render(name,by,bm,bd,isFX){
   lastSvgA=renderDiagram(chars,grids,s,n1,n2,n3,isFX);
   renderActivationNote(grids,age,chars,isFX);
   renderFlowYear(grids.zong,age,name);
-  renderJihuiDian(grids);
+  renderJihuiDian(grids,age);
   renderGrids(grids,chars,isFX);
   renderWuXing(grids);
   renderPalaces(grids,by,age);
@@ -1036,6 +1036,99 @@ const JIHUI_INFO=[
   {name:'絕',season:'春末',    time:'上午',  dir:'東南', desc:'奉獻付出，活展四射',     color:'#7a1a8b',bg:'#f8eefb'},
 ];
 
+const JAHUI_KUTSU={
+  '胎/名':{gua:'太極卦',kutsu:'四象氣集太極宮，亂搶亂得一場空'},
+  '胎/財':{gua:'套牢卦',kutsu:'落葉時節求此卦，進的籠中出得難'},
+  '胎/官':{gua:'承接卦',kutsu:'承接一切看前例，若是二胎必大吉'},
+  '胎/利':{gua:'作夢卦',kutsu:'曙光一現乍見天，就恐造成南柯夢'},
+  '胎/交':{gua:'天地卦',kutsu:'天地分清要正氣，脫胎換骨平地起'},
+  '胎/敗':{gua:'求藏卦',kutsu:'昏天地暗事難解，求藏容易求脫難'},
+  '胎/衰':{gua:'回報卦',kutsu:'福德氣象專造地，得到佛緣搶不及'},
+  '胎/煞':{gua:'流產卦',kutsu:'煩煩雜雜是生機，要搶必有胎落地'},
+  '胎/絕':{gua:'小利卦',kutsu:'活氣出現暗顯機，少接無傷造有利'},
+  '養/名':{gua:'兩儀卦',kutsu:'陰陽兩儀交互替，年初不順年冬吉'},
+  '養/財':{gua:'守成卦',kutsu:'問說諸是如何辦，只言守成可平安'},
+  '養/官':{gua:'貪心卦',kutsu:'氣壓下降非真蹟，貪心不足撐破皮'},
+  '養/利':{gua:'驚險卦',kutsu:'徐徐苦果佈滿天，渡得有驚確無險'},
+  '養/交':{gua:'轉機卦',kutsu:'天窗一開新鮮氣，仲夏過後大轉機'},
+  '養/敗':{gua:'投機卦',kutsu:'黑暗煞神包圍中，投得短機虧雙空'},
+  '養/衰':{gua:'賜福卦',kutsu:'天官賜福在年初，喜事可遇禍不求'},
+  '養/煞':{gua:'額外卦',kutsu:'紛紛爭爭外相親，多得一份苦煞心'},
+  '養/絕':{gua:'空歡卦',kutsu:'處處天象皆是虛，皆得招來空歡喜'},
+  '長生/名':{gua:'小得卦',kutsu:'天上星星仙女花，撿得小利得小發'},
+  '長生/財':{gua:'正財卦',kutsu:'暗暗吸收緩緩落，閣內成長賺的多'},
+  '長生/官':{gua:'無尾卦',kutsu:'呱呱落地袍與官，定是溥儀或劉嬋'},
+  '長生/利':{gua:'奮鬥卦',kutsu:'聞雞起舞見祖逖，圖強有成靠自己'},
+  '長生/交':{gua:'苦成卦',kutsu:'辛苦成長各參半，更上層樓在後段'},
+  '長生/敗':{gua:'是非卦',kutsu:'暗夜偷生異地喜，奈何回鄉滿成雨'},
+  '長生/衰':{gua:'再生卦',kutsu:'天顯神蹟來相助，求得重生現江湖'},
+  '長生/煞':{gua:'假象卦',kutsu:'內有困象外有機，恐是一片假象起'},
+  '長生/絕':{gua:'圖圍卦',kutsu:'四面楚歌十面伏，衝出重圍江東哭'},
+  '冠帶/名':{gua:'名望卦',kutsu:'威震九州是二爺，光芒四射怕引蝶'},
+  '冠帶/財':{gua:'抑制卦',kutsu:'下了金牌壓岳飛，沖天之志要收回'},
+  '冠帶/官':{gua:'升官卦',kutsu:'盜得玉璽助帝王，獲得兵符又加冠'},
+  '冠帶/利':{gua:'破財卦',kutsu:'看是一片好地帶，左挖右墾總破財'},
+  '冠帶/交':{gua:'追損卦',kutsu:'日正當中我當紅，夸父追日飲長空'},
+  '冠帶/敗':{gua:'過氣卦',kutsu:'黑夜魑魅飄忽忽，一將功臣萬骨枯'},
+  '冠帶/衰':{gua:'不誠卦',kutsu:'神仙護佑誠心客，枉然獨闖難有格'},
+  '冠帶/煞':{gua:'忙碌卦',kutsu:'帥喜印來將要旗，一夫當關萬人敵'},
+  '冠帶/絕':{gua:'斷後卦',kutsu:'世外桃源似奇蹟，忙得前段無後期'},
+  '臨官/名':{gua:'名聲卦',kutsu:'機到同時運當前，二郎神邊哮天犬'},
+  '臨官/財':{gua:'曇花卦',kutsu:'撥得雲開見月圓，就怕好景曇花現'},
+  '臨官/官':{gua:'兼差卦',kutsu:'機會出現有兩三，寧可雙兼不要轉'},
+  '臨官/利':{gua:'追擊卦',kutsu:'春雨綿綿偶晴天，趁勝追擊在當前'},
+  '臨官/交':{gua:'翻身卦',kutsu:'魚躍龍門新身換，除舊佈新得滿貫'},
+  '臨官/敗':{gua:'盜取卦',kutsu:'寒夜深深行急急，若非盜取亦投機'},
+  '臨官/衰':{gua:'祖德卦',kutsu:'二品官爵諸君要，主上有德貴人罩'},
+  '臨官/煞':{gua:'苦度卦',kutsu:'前有惡煞後有虎，此關渡得真辛苦'},
+  '臨官/絕':{gua:'奔馳卦',kutsu:'赤兔神駒風和配，日奔千里不覺累'},
+  '帝旺/名':{gua:'登峰卦',kutsu:'登峰謙卑可造極，求名得名利得利'},
+  '帝旺/財':{gua:'努力卦',kutsu:'金銀財寶在地底，努力挖掘莫猜疑'},
+  '帝旺/官':{gua:'強敵卦',kutsu:'更上層樓已艱辛，奈何又現程咬金'},
+  '帝旺/利':{gua:'無果卦',kutsu:'一片荒涼無邊際，種得花果古來稀'},
+  '帝旺/交':{gua:'虛實卦',kutsu:'高峰轉變有時機，前段當實後段虛'},
+  '帝旺/敗':{gua:'遭忌卦',kutsu:'運上天道氣落地，亢龍有悔遭人忌'},
+  '帝旺/衰':{gua:'奇蹟卦',kutsu:'不管機會排第幾，此去前程有奇蹟'},
+  '帝旺/煞':{gua:'接替卦',kutsu:'加官晉爵是天意，死了君王我接替'},
+  '帝旺/絕':{gua:'根基卦',kutsu:'想再多闖新天地，一切成敗看根基'},
+  '衰/名':{gua:'因果卦',kutsu:'機運當強論成敗，努力回顧前五載'},
+  '衰/財':{gua:'忌貪卦',kutsu:'有氣無力節節退，貪得無厭必自毀'},
+  '衰/官':{gua:'栽培卦',kutsu:'升官機會前等待，求得貴人把我栽'},
+  '衰/利':{gua:'退隱卦',kutsu:'緩緩衰退名難再，不如修道或吃齋'},
+  '衰/交':{gua:'外鄉卦',kutsu:'此卦不動會倦怠，往外發展兩冬開'},
+  '衰/敗':{gua:'衰敗卦',kutsu:'有人說我是鰲拜，氣數將近年底來'},
+  '衰/衰':{gua:'短發卦',kutsu:'老怕空名利不來，中年達官無三載'},
+  '衰/煞':{gua:'能力卦',kutsu:'機會是好也是壞，看我賢能或庸才'},
+  '衰/絕':{gua:'回收卦',kutsu:'此段回收財官利，持續努力會升級'},
+  '病/名':{gua:'良臣卦',kutsu:'眾星拱月可上任，左右護法得良臣'},
+  '病/財':{gua:'經營卦',kutsu:'七分利來三分債，堅守經營可旺財'},
+  '病/官':{gua:'圖利卦',kutsu:'原封不動難相處，轉變必有利可圖'},
+  '病/利':{gua:'失蹄卦',kutsu:'今日風采不足惜，四戰三敗馬失蹄'},
+  '病/交':{gua:'不定卦',kutsu:'多雲陣雨不定天，早敗年底晚三年'},
+  '病/敗':{gua:'多病卦',kutsu:'體弱多病又老邁，雪上加霜真無奈'},
+  '病/衰':{gua:'變節卦',kutsu:'錦上添花雖封侯，變節之心以難收'},
+  '病/煞':{gua:'賠本卦',kutsu:'安排設計來召親，賠了夫人又折兵'},
+  '病/絕':{gua:'斷足卦',kutsu:'交錯朋友失雙腿，借問足下可問誰'},
+  '死/名':{gua:'功名卦',kutsu:'日月同光有奇蹟，但求功名不求利'},
+  '死/財':{gua:'斷頭卦',kutsu:'堅守資源在本洲，強行出擊必斷頭'},
+  '死/官':{gua:'層級卦',kutsu:'龍有龍形虎有步，老鼠最盛在暗處'},
+  '死/利':{gua:'野心卦',kutsu:'鵲巢易主鳩來佔，野心勃勃速成難'},
+  '死/交':{gua:'轉世卦',kutsu:'山窮水盡疑無路，柳暗花明又一村'},
+  '死/敗':{gua:'暗渡卦',kutsu:'暗渡陳倉免遭殃，惡名昭彰在本鄉'},
+  '死/衰':{gua:'機運卦',kutsu:'機運貴人南與西，尊上親下做幾許'},
+  '死/煞':{gua:'無依卦',kutsu:'曾經風雲功已過，今恐貶官又加鎖'},
+  '死/絕':{gua:'放棄卦',kutsu:'放棄一切覓新路，怎知此步會大輸'},
+  '絕/名':{gua:'虛名卦',kutsu:'有人送終有人拱，徒有虛名一場空'},
+  '絕/財':{gua:'包袱卦',kutsu:'引狼入室變包袱，沉迷最愛必大輸'},
+  '絕/官':{gua:'困灘卦',kutsu:'龍困乾涸難伸展，養精蓄銳勿上灘'},
+  '絕/利':{gua:'未開卦',kutsu:'今想還陽又何奈，只是生門打不開'},
+  '絕/交':{gua:'過時卦',kutsu:'飛龍在天已過時，再闖天關必有失'},
+  '絕/敗':{gua:'烏雲卦',kutsu:'陷入泥沼無支撐，又逢滿天烏雲層'},
+  '絕/衰':{gua:'貴人卦',kutsu:'我本無心再期待，怎知貴人要安排'},
+  '絕/煞':{gua:'忠誠卦',kutsu:'人生自古誰無死，留取丹心照汗青'},
+  '絕/絕':{gua:'靜觀卦',kutsu:'不及不忙靜觀望，守住舊業勝新闖'},
+};
+
 function calcSumDigit(n){
   n=parseInt(n)||0;
   while(n>9){n=String(n).split('').reduce((a,b)=>a+ +b,0);}
@@ -1048,7 +1141,7 @@ function calcJihuiInfo(gongNum,xb){
   return JIHUI_INFO[col];
 }
 
-function renderJihuiDian(grids){
+function renderJihuiDian(grids,age){
   const rocy=new Date().getFullYear()-1911;
   const el=targetEl('jihui-section');
   if(!el)return;
@@ -1060,6 +1153,8 @@ function renderJihuiDian(grids){
     {label:'遷移宮',val:grids.wai},
   ];
   window._jihuiPalaces=palaces;
+  const fy=calcFlowYear(grids.zong,age||0);
+  window._jihuiFlowName=fy.stage.name;
   el.innerHTML=`
     <div style="margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <select id="jihui-type" onchange="jihuiTypeChange()" style="padding:5px 8px;border:1px solid #c8981a;border-radius:6px;background:#fffdf5;color:#4a2a00;font-size:.88em">
@@ -1111,13 +1206,20 @@ function updateJihuiDian(){
   for(const p of window._jihuiPalaces){
     if(!p.val||p.val<1)continue;
     const info=calcJihuiInfo(p.val,xb);
-    html+=`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:${info.bg};border-radius:8px;border-left:4px solid ${info.color}">
-      <div style="min-width:50px;font-size:.85em;color:#7a5430;font-weight:bold">${p.label}</div>
-      <div style="min-width:26px;font-size:.8em;color:#bbb;text-align:center">(${p.val})</div>
-      <div style="background:${info.color};color:white;padding:4px 13px;border-radius:16px;font-weight:bold;font-size:1.05em;min-width:36px;text-align:center">${info.name}</div>
-      <div style="flex:1;font-size:.82em;color:#4a2a00;line-height:1.55">
-        <span style="color:${info.color};font-weight:bold">${info.season}・${info.dir}・${info.time}</span><br>${info.desc}
+    const fn=window._jihuiFlowName||'';
+    const jk=fn?JAHUI_KUTSU[fn+'/'+info.name]:null;
+    html+=`<div style="padding:10px 14px;background:${info.bg};border-radius:8px;border-left:4px solid ${info.color};margin-bottom:2px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="min-width:50px;font-size:.85em;color:#7a5430;font-weight:bold">${p.label}</div>
+        <div style="min-width:26px;font-size:.8em;color:#bbb;text-align:center">(${p.val})</div>
+        <div style="background:${info.color};color:white;padding:4px 13px;border-radius:16px;font-weight:bold;font-size:1.05em;min-width:36px;text-align:center">${info.name}</div>
+        <div style="font-size:.82em;color:#4a2a00">
+          <span style="color:${info.color};font-weight:bold">${info.season}・${info.dir}・${info.time}</span>　${info.desc}
+        </div>
       </div>
+      ${jk?`<div style="margin-top:6px;padding:5px 10px;background:rgba(255,255,255,.6);border-radius:6px;font-size:.82em;color:#4a2a00">
+        <span style="color:#8B1A1A;font-weight:bold">【${fn}/${info.name}・${jk.gua}】</span>　<span style="font-style:italic;color:#5a3010">「${jk.kutsu}」</span>
+      </div>`:''}
     </div>`;
   }
   html+='</div>';
@@ -1215,6 +1317,7 @@ function renderComparison(dataA,dataB){
           <span style="font-size:.78em;color:${jh.color};font-weight:bold">${jh.season}・${jh.dir}</span>
         </div>
         <div style="font-size:.78em;color:#666;margin-top:4px">${jh.desc}</div>
+        ${(()=>{const k=JAHUI_KUTSU[fy.stage.name+'/'+jh.name];return k?`<div style="margin-top:6px;padding:5px 10px;background:rgba(255,255,255,.55);border-radius:6px;font-size:.8em;color:#4a2a00"><span style="color:#8B1A1A;font-weight:bold">【${fy.stage.name}/${jh.name}・${k.gua}】</span><br><span style="font-style:italic">「${k.kutsu}」</span></div>`:'';})()}
       </div>
     </div>`;
   }
