@@ -450,6 +450,7 @@ function wxRel(a,b){
 }
 
 let manualOverrides={};
+try{Object.assign(manualOverrides,JSON.parse(localStorage.getItem('jb_strokes')||'{}'));}catch(e){}
 let renderContext='';
 function targetEl(id){return document.getElementById(id+renderContext);}
 let dualMode=true;
@@ -1475,6 +1476,111 @@ window.addEventListener('appinstalled',()=>{ _fab().style.display='none'; });
 window.addEventListener('load',()=>{
   if(isMobile()&&!isInStandaloneMode()) _fab().style.display='flex';
 });
+
+/* ── 筆劃管理後台 ── */
+function _saveStrokeLS(){
+  try{localStorage.setItem('jb_strokes',JSON.stringify(manualOverrides));}catch(e){}
+}
+
+function openStrokeMgr(){
+  document.getElementById('stroke-mgr-modal').style.display='flex';
+  document.getElementById('stroke-search').value='';
+  renderStrokeMgrTable('');
+}
+function closeStrokeMgr(){
+  document.getElementById('stroke-mgr-modal').style.display='none';
+}
+
+function renderStrokeMgrTable(q){
+  q=(q||'').trim();
+  // 合併 DB + overrides 產生完整清單（override 優先）
+  const merged={};
+  Object.keys(DB).forEach(k=>merged[k]={n:DB[k],src:'DB'});
+  Object.keys(manualOverrides).forEach(k=>merged[k]={n:manualOverrides[k],src:'自訂'});
+  let keys=Object.keys(merged).sort();
+  if(q) keys=keys.filter(k=>k.includes(q)||String(merged[k].n).includes(q));
+  const tbody=document.getElementById('stroke-tbody');
+  if(!keys.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:#999;padding:12px">查無結果</td></tr>';return;}
+  tbody.innerHTML=keys.map(ch=>{
+    const {n,src}=merged[ch];
+    const badge=src==='自訂'
+      ?'<span style="background:#8B1A1A;color:#fff;border-radius:4px;padding:1px 6px;font-size:.78em">自訂</span>'
+      :'<span style="background:#ddd;color:#555;border-radius:4px;padding:1px 6px;font-size:.78em">DB</span>';
+    const delBtn=src==='自訂'
+      ?`<button onclick="deleteStrokeOverride('${ch}')" style="background:none;border:1px solid #cc2200;color:#cc2200;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:.82em">刪除</button>`
+      :'';
+    return `<tr>
+      <td style="text-align:center;font-size:1.2em;font-weight:bold">${ch}</td>
+      <td style="text-align:center">
+        <input type="number" min="1" max="99" value="${n}" id="si_${ch.codePointAt(0)}"
+          style="width:60px;text-align:center;border:1px solid #ccc;border-radius:4px;padding:3px">
+      </td>
+      <td style="text-align:center">${badge}</td>
+      <td style="text-align:center;display:flex;gap:6px;justify-content:center;align-items:center">
+        <button onclick="saveStrokeOverride('${ch}',document.getElementById('si_${ch.codePointAt(0)}').value)"
+          style="background:#8B1A1A;color:#fff;border:none;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:.82em">儲存</button>
+        ${delBtn}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function saveStrokeOverride(ch,val){
+  const n=parseInt(val,10);
+  if(!ch||isNaN(n)||n<1||n>99){alert('筆劃數請輸入 1–99');return;}
+  manualOverrides[ch]=n;
+  _saveStrokeLS();
+  const q=document.getElementById('stroke-search').value;
+  renderStrokeMgrTable(q);
+}
+
+function deleteStrokeOverride(ch){
+  delete manualOverrides[ch];
+  _saveStrokeLS();
+  const q=document.getElementById('stroke-search').value;
+  renderStrokeMgrTable(q);
+}
+
+function addStrokeChar(){
+  const ch=(document.getElementById('stroke-add-ch').value||'').trim();
+  const n=parseInt(document.getElementById('stroke-add-n').value,10);
+  if(!ch||ch.length!==1){alert('請輸入一個漢字');return;}
+  if(isNaN(n)||n<1||n>99){alert('筆劃數請輸入 1–99');return;}
+  manualOverrides[ch]=n;
+  _saveStrokeLS();
+  document.getElementById('stroke-add-ch').value='';
+  document.getElementById('stroke-add-n').value='';
+  document.getElementById('stroke-search').value=ch;
+  renderStrokeMgrTable(ch);
+}
+
+function exportStrokes(){
+  const blob=new Blob([JSON.stringify(manualOverrides,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='jb_strokes_backup.json';
+  a.click();
+}
+
+function importStrokes(){
+  const input=document.createElement('input');
+  input.type='file';input.accept='.json';
+  input.onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      try{
+        const data=JSON.parse(ev.target.result);
+        Object.assign(manualOverrides,data);
+        _saveStrokeLS();
+        renderStrokeMgrTable(document.getElementById('stroke-search').value);
+        alert('匯入成功，共 '+Object.keys(data).length+' 筆');
+      }catch(err){alert('JSON 格式錯誤');}
+    };
+    r.readAsText(f);
+  };
+  input.click();
+}
 </script>
 <div id="svg-modal" onclick="if(event.target===this)closeSvgModal()">
   <div id="svg-modal-inner">
@@ -1482,6 +1588,57 @@ window.addEventListener('load',()=>{
       <button onclick="closeSvgModal()" style="background:none;border:none;font-size:1.4em;cursor:pointer;color:#7a5430">✕</button>
     </div>
   </div>
+</div>
+
+<!-- 筆劃管理後台 Modal -->
+<div id="stroke-mgr-modal" onclick="if(event.target===this)closeStrokeMgr()"
+  style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;align-items:center;justify-content:center">
+  <div style="background:#fffdf5;border-radius:14px;padding:24px;width:min(92vw,680px);max-height:88vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:14px">
+    <!-- 標題列 -->
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #C8981A;padding-bottom:10px">
+      <span style="font-size:1.1em;font-weight:bold;color:#8B1A1A;letter-spacing:2px">✎ 筆劃管理後台</span>
+      <button onclick="closeStrokeMgr()" style="background:none;border:none;font-size:1.4em;cursor:pointer;color:#7a5430">✕</button>
+    </div>
+    <!-- 搜尋列 + 工具按鈕 -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input id="stroke-search" type="text" placeholder="搜尋漢字或筆劃數…" maxlength="10"
+        oninput="renderStrokeMgrTable(this.value)"
+        style="flex:1;min-width:120px;padding:7px 12px;border:1px solid #ccc;border-radius:6px;font-size:.95em">
+      <button onclick="exportStrokes()" style="background:#3a6ea5;color:#fff;border:none;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:.88em">⬇ 匯出</button>
+      <button onclick="importStrokes()" style="background:#5a8a5a;color:#fff;border:none;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:.88em">⬆ 匯入</button>
+    </div>
+    <!-- 新增字元 -->
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff8e8;border:1px solid #e8d5a3;border-radius:8px;padding:10px 14px">
+      <span style="font-size:.88em;color:#7a5430;white-space:nowrap">新增／修正：</span>
+      <input id="stroke-add-ch" type="text" placeholder="輸入漢字" maxlength="1"
+        style="width:64px;text-align:center;padding:6px;border:1px solid #ccc;border-radius:6px;font-size:1.1em">
+      <input id="stroke-add-n" type="number" min="1" max="99" placeholder="筆劃"
+        style="width:70px;text-align:center;padding:6px;border:1px solid #ccc;border-radius:6px">
+      <button onclick="addStrokeChar()" style="background:#8B1A1A;color:#fff;border:none;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:.9em">新增</button>
+    </div>
+    <!-- 資料表 -->
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.9em">
+        <thead>
+          <tr style="background:#f5e8d0;color:#5a3d1e">
+            <th style="padding:8px;border-bottom:2px solid #e8d5a3;width:60px">字</th>
+            <th style="padding:8px;border-bottom:2px solid #e8d5a3;width:80px">筆劃數</th>
+            <th style="padding:8px;border-bottom:2px solid #e8d5a3;width:70px">來源</th>
+            <th style="padding:8px;border-bottom:2px solid #e8d5a3">操作</th>
+          </tr>
+        </thead>
+        <tbody id="stroke-tbody">
+          <tr><td colspan="4" style="text-align:center;color:#999;padding:16px">請輸入搜尋字詞</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:.78em;color:#aaa;text-align:right">自訂筆劃儲存於本機，重新整理後仍保留</div>
+  </div>
+</div>
+
+<!-- 隱藏的筆劃管理入口 -->
+<div style="text-align:center;padding:10px 0 20px">
+  <a onclick="openStrokeMgr()" style="color:#d8c8a8;font-size:.72em;cursor:pointer;user-select:none;text-decoration:none;opacity:.45;letter-spacing:1px">筆劃管理</a>
 </div>
 </body>
 </html>
