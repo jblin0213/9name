@@ -469,6 +469,58 @@ function _jingyingKey(rel){
   return '平宮';
 }
 
+/* 婚姻宮九象（疾惡宮 vs 奴僕宮） */
+const MARRIAGE_PALACE={
+  '旺象':{tag:'付出型（愛人）',type:'生形',desc:'天生對另一半包容付出，是疼老公疼老婆的代表。你會心甘情願為對方作牛作馬，拿另一半沒辦法，不管對方怎麼要求你都會包容聽從，比較寵溺對方。',warn:'小心付出過多讓對方予取予求，要懂得設立界線。'},
+  '淡象':{tag:'被愛型（受愛）',type:'生形',desc:'往往是對方付出給自己，踏入婚姻的步調比一般人來得晚。感情上比較被動，老是在等人來愛，年紀越大對愛情會看得越淡。另一半對你是付出較多、真正無怨無悔的類型。',warn:'要適當回饋對方，讓彼此達到感情平衡，才能天長地久。'},
+  '平雙':{tag:'理性觀察型（平雙）',type:'雙象',desc:'愛情的理性主義者，對愛情的觀察期很長，不會輕易投入感情。若與對方緣盡，還會再去找下一個，可能會有兩次以上的緣份。婚姻宮組合可能會經歷兩次。',warn:'不要因為太理性錯過真愛，適時表達感情很重要。'},
+  '陰陽雙':{tag:'感性衝動型（陰陽雙）',type:'雙象',desc:'愛情的感性主義者，把愛情看得很重，往往過於感性而盲目選擇了伴侶，導致日後感情斷裂，容易受到傷害。一不小心就會愛得很深、無法自拔。',warn:'保持理性才能選到好對象，避免衝動造成感情的斷裂。'},
+  '破象金剋木':{tag:'挑戰傳統型',type:'破象',desc:'比較容易對感情產生不同一般的情愫，勇於挑戰傳統，緣份比較容易有姐弟戀或辦公室戀情。對於愛情敢愛敢恨，不管感情路有多難走，都一定要突破難關。',warn:''},
+  '破象木剋土':{tag:'相欠債型',type:'破象',desc:'就像「相欠債」的關係，讓你想賴也賴不掉的情債。喜歡時時刻刻黏在一起，付出的感情無怨無悔。要避免聚少離多的情形，雙方才能讓感情走得更順。',warn:''},
+  '破象土剋水':{tag:'順遂姻緣型',type:'破象',desc:'在所有婚姻宮現象中，姻緣路最為順遂。只要懷著感恩、珍惜的心，要選擇一個好對象並不是件難事。',warn:''},
+  '破象水剋火':{tag:'一見鐘情型',type:'破象',desc:'就像五行水剋火一樣的熱情奔放、敢愛敢恨，比較容易產生一見鐘情的戀情。',warn:''},
+  '破象火剋金':{tag:'猶豫不決型',type:'破象',desc:'踏進婚姻的過程非常不穩定，總是挑三揀四不讓人看穿自己的心意。對於愛情會口是心非、猶豫不決，一旦愛上了就非常死心眼。',warn:''},
+};
+function marriageType(eR,eD,gRen,gDi){
+  const rel=wxRel(eR,eD);
+  if(rel.type==='相生') return '旺象';
+  if(rel.type==='受生') return '淡象';
+  if(rel.type==='比旺') return (gRen%2===gDi%2)?'平雙':'陰陽雙';
+  const ke5=[['金','木'],['木','土'],['土','水'],['水','火'],['火','金']];
+  for(const[a,b] of ke5){
+    if((eR===a&&eD===b)||(eR===b&&eD===a)) return `破象${a}剋${b}`;
+  }
+  return '旺象';
+}
+
+/* 財氣五種（|單數(疾惡) - 單數(奴僕)| % 5） */
+const CAIQITYPE={
+  '名氣暗財':{desc:'你的財氣以「名聲財」為核心，知名度越高財氣越旺。在公司或團體中要懂得秀自己、表演、賣弄知名度，有吸引人的特色加上人際關係好才會發。你跟賭有緣，但碰賭輸得很慘；可經營與賭相關行業（如投資顧問），但自己絕對不能沉迷賭博。',warn:'不要存有投機或貪婪的念頭，一生要遠離「賭」字，否則財氣將全部被破壞。'},
+  '能力暗財':{desc:'你的財氣呈現「實力所得財」和「附加價值財」雙重特性。你在勞務所得方面財氣甚旺，必須一步一腳印踏實賺取，不可投機取巧。你做一可得二，附加價值高人一等，但不要多學不精或隨便改行。',warn:'不是投機財，不可用投機心態賺錢，一定要憑實力所得，否則得不償失。'},
+  '能力正財':{desc:'你的財氣呈現強烈的「專業能力財」特性。你在工作事業或專業領域才能很強，大家容易認同你的能力，屬於專業實力派，掌控性強。只要肯吃苦夠勤勞、集中心思在工作上，勞務所得一定比別人多。懶散是你財氣的致命傷。',warn:'你有專業能力財，但並無暗財氣，請不要有投機心態，更不能投入賭博，這兩樣是大忌。'},
+  '機運暗財':{desc:'你的財氣呈現非常旺的「機會暗財」特性，屬保守守型，附加價值在所有格局中最高，聞錢的方向特別準。財氣和外來機會（貴人引財路）密切相關，要人緣好、結交有錢人。你帶有藝路格，可從事歌唱表演、藝術創作、舞蹈等相關工作。投資理財是今生最需具備的能力，以錢滾錢累積財富。',warn:'賺錢機會比別人強，但「人緣」同等重要，不要輕易破壞人際關係。'},
+  '機運正財':{desc:'你的財氣呈現很強的「機運正財」特性，屬動型重於開創，吸引人的力量很強，讓人感覺有人緣且機運比人好。往外拓展延伸力量很大，從事連鎖事業、金融業、靠組織發展都很適合。賺錢機會和努力有極度密切關係，先自我要求，從基礎根本做起。',warn:'當你心無所求時，也是窮困來臨時。要培養賺錢的企圖心，不可生平無大志。'},
+};
+function caiQiType(gRen,gDi){
+  const d=Math.abs(calcSumDigit(gRen)-calcSumDigit(gDi))%5;
+  return ['名氣暗財','能力暗財','能力正財','機運暗財','機運正財'][d];
+}
+
+/* 財庫四象（wxRel(奴僕, 疾惡)） */
+const CAIKUTYPE={
+  '旺':{tag:'財庫旺相',desc:'恭喜！你的財庫傾向「旺相」，比較容易把財囤積起來，賺到的錢較不會被劫財或流失，是最佳財庫格局。運好時投資錯誤率低，周邊貴人多會幫你賺錢，不太容易拖你下水。',warn:'膽識與積極是你最需具備的條件，被動和懶惰就是庫旺的致命傷。投資與回報成正比，要主動爭取機會，不要「只進不出」或過於吝嗇小氣。'},
+  '洩':{tag:'財庫洩方',desc:'你的財庫通路屬「洩方」，不太容易把賺得的財富囤積起來，總在某些時候因周邊環境或親友因素讓財庫打開流失。但老天一定會給你超強的賺錢能力，賺錢本事比別人大！',warn:'「開源」比「節流」重要，選擇最保守的投資方式（定存儲蓄、穩定基金、不動產），避免高風險投資。帶洩者運不好時容易衝動，三思而後行，不可因貪念亂投資。'},
+  '破':{tag:'財庫破相',desc:'你的財庫通路傾向「破相」，財庫出現破洞，某些時段可能碰到較大的財務損傷。雖然庫破但你的賺錢能力很強，必須積極踏實多增加收入，懂得把財富囤積起來。',warn:'千萬不可亂投資，尤其是沒把握的事業或具投機性的事。親友金錢往來要特別小心，不要幫人調度。不可奢侈浪費，貪婪投機是一生中最大的致命傷。'},
+  '劫':{tag:'財庫劫相',desc:'你的財庫通路傾向「劫相」，財務容易碰到意外損傷，甚至受周邊環境影響流失在投機或賭注過大的投資上。積極經營出知名度，財富反而容易累積起來。',warn:'「守財」是你今生該學的功課，謹慎評估親友的金錢往來邀請。不可亂投資尤其是具賭性或高風險的投資。挑選伴侶要特別注意，若配偶愛賭亂投資你就跟著被劫。'},
+};
+function caiKuType(eD,eR){
+  const rel=wxRel(eD,eR);
+  if(rel.type==='相生'||rel.type==='比旺') return '旺';
+  if(rel.type==='受生') return '洩';
+  if(rel.type==='陰性剋') return '破';
+  return '劫';
+}
+
 function getStrokes(ch){return DB[ch.trim()]||null;}
 function element(n){return ELEMENT_MAP[n%10];}
 function getS(c){return manualOverrides[c]||getStrokes(c)||1;}
@@ -986,7 +1038,7 @@ function renderWuXing(g,ctx=''){
   const diRel=wxRel(eZ,eD);
   const diData=JINGYING_DI[_jingyingKey(diRel)];
 
-  function jingSection(palName,period,relObj,eA,eB,data){
+  function jingSection(palName,period,relObj,eA,eB,palB,data){
     if(!data)return'';
     const bc=EC2[eA];
     return`<div style="margin-top:14px;padding-top:12px;border-top:1px dashed #e0c870">
@@ -999,9 +1051,9 @@ function renderWuXing(g,ctx=''){
         <span style="color:#aaa;font-size:1em">${relObj.sym}</span>
         <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
           <span class="eb ${EC[eB]}">${eB}</span>
-          <span style="font-size:.68em;color:#aaa">${eA===eT?'父母宮':'奴僕宮'}</span>
+          <span style="font-size:.68em;color:#aaa">${palB}</span>
         </div>
-        <span class="wrel ${relObj.cls}">${relObj.desc||relObj.type}</span>
+        <span class="wrel ${relObj.cls}">${relObj.type}</span>
       </div>
       <div style="display:inline-block;background:${bc};color:#fff;font-size:.75em;padding:2px 8px;border-radius:8px;margin-bottom:6px;font-weight:bold">${data.tag}</div>
       <div style="font-size:.8em;font-weight:bold;color:${bc};margin-bottom:4px">${data.title}</div>
@@ -1037,9 +1089,9 @@ function renderWuXing(g,ctx=''){
 
   const html=`<div style="display:flex;flex-direction:column;gap:12px">
     ${geneCard('思考基因','🧠','父母宮',eT,tr,'疾惡宮',eR,tk,
-      jingSection('⑥ 財帛宮','先天關係（35歲前）・長輩上司磁場',tianRel,eZ,eT,tianData))}
+      jingSection('⑥ 財帛宮','先天關係（35歲前）・長輩上司磁場',tianRel,eZ,eT,'父母宮',tianData))}
     ${geneCard('行為基因','⚡','疾惡宮',eR,mr,'奴僕宮',eD,bv,
-      jingSection('⑧ 夫妻宮','後天關係（35歲後）・親友下屬磁場',diRel,eZ,eD,diData))}
+      jingSection('⑧ 夫妻宮','後天關係（35歲後）・親友下屬磁場',diRel,eZ,eD,'奴僕宮',diData))}
   </div>`;
   document.getElementById('wuxing-analysis'+ctx).innerHTML=html;
 }
@@ -1051,10 +1103,6 @@ function renderPalaces(g,by,currentAge){
     {name:'② 父母宮',grid:g.tian,type:'父母宮'},
     {name:'③ 疾惡宮',grid:g.ren, type:'疾惡宮'},
     {name:'④ 奴僕宮',grid:g.di,  type:'奴僕宮'},
-  ];
-  const pending=[
-    {name:'⑥ 財帛宮',grid:g.ren},
-    {name:'⑧ 夫妻宮',grid:g.di},
   ];
   const currentROC=new Date().getFullYear()-1911;
   let html='<div class="pgrid8">';
@@ -1070,13 +1118,48 @@ function renderPalaces(g,by,currentAge){
     }
     html+=`</tbody></table></div>`;
   }
-  for(const p of pending){
-    const el=element(p.grid),cls=ELEMENT_CLASS[el];
+  // ⑥ 財帛宮
+  {
+    const eR=element(g.ren),eD=element(g.di);
+    const qiType=caiQiType(g.ren,g.di);
+    const qi=CAIQITYPE[qiType];
+    const kuKey=caiKuType(eD,eR);
+    const ku=CAIKUTYPE[kuKey];
+    const qiColor={'名氣暗財':'#8B1A1A','能力暗財':'#1a5a8b','能力正財':'#2a7a2a','機運暗財':'#7a3a8b','機運正財':'#8b6a1a'}[qiType]||'#5a3e08';
+    const kuColor={'旺':'#2a7a2a','洩':'#8b6a1a','破':'#cc4400','劫':'#8B1A1A'}[kuKey]||'#5a3e08';
     html+=`<div class="pcard">
-      <div class="phdr" style="background:linear-gradient(135deg,#5a3e08,#9a6e10)">${p.name}</div>
-      <div style="padding:18px;text-align:center">
-        <div style="font-size:1.4em;font-weight:bold;margin-bottom:6px">${p.grid} <span class="eb ${cls}">${el}</span></div>
-        <div style="font-size:.8em;color:#aaa;margin-top:6px">詳見五行生剋分析</div>
+      <div class="phdr">⑥ 財帛宮</div>
+      <div style="padding:14px 12px">
+        <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed #e0c870">
+          <div style="font-size:.75em;color:#9a7040;font-weight:bold;margin-bottom:5px">◈ 財氣類型</div>
+          <div style="display:inline-block;background:${qiColor};color:#fff;font-size:.75em;padding:2px 10px;border-radius:10px;margin-bottom:6px;font-weight:bold">${qiType}</div>
+          <div style="font-size:.82em;color:#3a2000;line-height:1.7;margin-bottom:${qi.warn?'5px':'0'}">${qi.desc}</div>
+          ${qi.warn?`<div style="font-size:.78em;color:#7a3000;background:#fff8e8;border-left:2px solid #C8981A;padding:4px 8px;border-radius:0 4px 4px 0">⚠ 切記：${qi.warn}</div>`:''}
+        </div>
+        <div>
+          <div style="font-size:.75em;color:#9a7040;font-weight:bold;margin-bottom:5px">◈ 先天財庫</div>
+          <div style="display:inline-block;background:${kuColor};color:#fff;font-size:.75em;padding:2px 10px;border-radius:10px;margin-bottom:6px;font-weight:bold">${ku.tag}</div>
+          <div style="font-size:.82em;color:#3a2000;line-height:1.7;margin-bottom:5px">${ku.desc}</div>
+          <div style="font-size:.78em;color:#7a3000;background:#fff8e8;border-left:2px solid #C8981A;padding:4px 8px;border-radius:0 4px 4px 0">⚠ 切記：${ku.warn}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+  // ⑧ 夫妻宮
+  {
+    const eR=element(g.ren),eD=element(g.di);
+    const mKey=marriageType(eR,eD,g.ren,g.di);
+    const m=MARRIAGE_PALACE[mKey];
+    const typeColor=m?({'生形':'#2a7a2a','雙象':'#1a5a8b','破象':'#8B1A1A'}[m.type]||'#5a3e08'):'#5a3e08';
+    html+=`<div class="pcard">
+      <div class="phdr">⑧ 夫妻宮</div>
+      <div style="padding:14px 12px">
+        ${m?`
+        <div style="display:inline-block;background:${typeColor};color:#fff;font-size:.75em;padding:2px 10px;border-radius:10px;margin-bottom:6px;font-weight:bold">${m.tag}</div>
+        <div style="font-size:.78em;color:#9a7040;font-weight:bold;margin-bottom:6px">${mKey}</div>
+        <div style="font-size:.82em;color:#3a2000;line-height:1.7;margin-bottom:${m.warn?'5px':'0'}">${m.desc}</div>
+        ${m.warn?`<div style="font-size:.78em;color:#7a3000;background:#fff8e8;border-left:2px solid #C8981A;padding:4px 8px;border-radius:0 4px 4px 0">⚠ 切記：${m.warn}</div>`:''}
+        `:`<div style="font-size:.82em;color:#aaa">（此組合查無對應資料）</div>`}
       </div>
     </div>`;
   }
