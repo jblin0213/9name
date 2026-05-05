@@ -326,6 +326,14 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
       <div id="jihui-section_b"></div>
     </div>
     <div class="card">
+      <div class="card-title">✦ 五格分析</div>
+      <div id="five-grids_b"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">✦ 五行生剋分析</div>
+      <div id="wuxing-analysis_b"></div>
+    </div>
+    <div class="card">
       <div class="card-title">✦ 九宮發動年齡</div>
       <div id="palace-tables_b"></div>
       <div class="note">▲ 標示「▶」的列為目前正在發動的宮位週期。</div>
@@ -884,7 +892,7 @@ function renderActivationNote(grids,age,chars,isFX){
 }
 
 /* ── 五格分析表 ── */
-function renderGrids(g,chars,isFX){
+function renderGrids(g,chars,isFX,ctx=''){
   let rows;
   if(isFX){
     const s1=chars[0],s2=chars[1],n1=chars[2]||'',n2=chars[3]||'';
@@ -922,7 +930,7 @@ function renderGrids(g,chars,isFX){
     </tr>`;
   }
   html+='</tbody></table>';
-  document.getElementById('five-grids').innerHTML=html;
+  document.getElementById('five-grids'+ctx).innerHTML=html;
 }
 
 /* ── 五行生剋分析 ── */
@@ -934,7 +942,7 @@ function _wxGeneKey(ea,eb,rel){
   if(rel.type==='比旺')  return `${ea}比${ea}`;
   return '';
 }
-function renderWuXing(g){
+function renderWuXing(g,ctx=''){
   const eT=element(g.tian),eR=element(g.ren),eD=element(g.di);
   const EC=ELEMENT_CLASS,EC2=ELEMENT_COLOR;
 
@@ -982,7 +990,7 @@ function renderWuXing(g){
     ${geneCard('思考基因','🧠','父母宮',eT,tr,'疾惡宮',eR,tk,tkKey)}
     ${geneCard('行為基因','⚡','疾惡宮',eR,mr,'奴僕宮',eD,bv,bvKey)}
   </div>`;
-  document.getElementById('wuxing-analysis').innerHTML=html;
+  document.getElementById('wuxing-analysis'+ctx).innerHTML=html;
 }
 
 /* ── 九宮發動年齡（8宮位）── */
@@ -1352,6 +1360,8 @@ function doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,byA,bmA,bdA,isFXA){
   renderActivationNote(dataB.grids,dataB.age,dataB.chars,isFXB);
   renderFlowYear(dataB.grids.zong,dataB.age,nameB);
   renderJihuiDian(dataB.grids,dataB.age,'_b');
+  renderGrids(dataB.grids,dataB.chars,isFXB,'_b');
+  renderWuXing(dataB.grids,'_b');
   renderPalaces(dataB.grids,byB,dataB.age);
   renderContext='';
   document.getElementById('results-b').style.display='block';
