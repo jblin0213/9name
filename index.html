@@ -955,16 +955,16 @@ function renderPalaces(g,by,currentAge){
 
 /* ── 流年運程 ── */
 const FLOW_STAGES=[
-  {name:'胎',  mod:'醞釀運',desc:'醞釀新能量，厚積薄發',color:'#2a4a8b'},
-  {name:'養',  mod:'吸收運',desc:'吸收能量，學習充電',color:'#1a6a6a'},
-  {name:'長生',mod:'長生運',desc:'新生開始，充滿朝氣',color:'#1a8b4a'},
-  {name:'冠帶',mod:'開創運',desc:'穩步發展，踏實前進',color:'#2a7a2a'},
-  {name:'臨官',mod:'發展運',desc:'能量爆發，大展拳腳',color:'#1a6a1a'},
-  {name:'帝旺',mod:'巔峰運',desc:'人生巔峰，最強盛期',color:'#c8981a'},
-  {name:'衰',  mod:'老化運',desc:'走下坡，需收斂蓄力',color:'#8a5a00'},
-  {name:'病',  mod:'病變運',desc:'身心受阻，慎防損失',color:'#cc4400'},
-  {name:'死',  mod:'停滯運',desc:'最低潮，諸事不順',  color:'#8B1A1A'},
-  {name:'絕',  mod:'幻滅運',desc:'谷底，轉機即將到來',color:'#5a0e7a'},
+  {name:'胎',  mod:'醞釀運',desc:'醞釀新能量，厚積薄發',color:'#2a4a8b',kutsu:'蓄勢待發，謀定後動'},
+  {name:'養',  mod:'吸收運',desc:'吸收能量，學習充電',  color:'#1a6a6a',kutsu:'充電蓄力，學習積累'},
+  {name:'長生',mod:'長生運',desc:'新生開始，充滿朝氣',  color:'#1a8b4a',kutsu:'萬象更新，生機盎然'},
+  {name:'冠帶',mod:'開創運',desc:'穩步發展，踏實前進',  color:'#2a7a2a',kutsu:'穩紮穩打，步步高升'},
+  {name:'臨官',mod:'發展運',desc:'能量爆發，大展拳腳',  color:'#1a6a1a',kutsu:'一飛沖天，大展拳腳'},
+  {name:'帝旺',mod:'巔峰運',desc:'人生巔峰，最強盛期',  color:'#c8981a',kutsu:'登峰造極，名利雙收'},
+  {name:'衰',  mod:'老化運',desc:'走下坡，需收斂蓄力',  color:'#8a5a00',kutsu:'盛極必衰，低調收斂'},
+  {name:'病',  mod:'病變運',desc:'身心受阻，慎防損失',  color:'#cc4400',kutsu:'風波不斷，慎防破財'},
+  {name:'死',  mod:'停滯運',desc:'最低潮，諸事不順',    color:'#8B1A1A',kutsu:'萬事俱寂，靜守待春'},
+  {name:'絕',  mod:'幻滅運',desc:'谷底，轉機即將到來',  color:'#5a0e7a',kutsu:'否極泰來，破舊立新'},
 ];
 
 function calcFlowYear(zongVal,age){
@@ -1198,17 +1198,29 @@ function renderComparison(dataA,dataB){
   </div>`;
 
   // ── 流年運程對比 ──
+  const xbNow=calcSumDigit(curROC);
+  const jhA=calcJihuiInfo(dataA.grids.zong,xbNow);
+  const jhB=calcJihuiInfo(dataB.grids.zong,xbNow);
+  function compFlowCard(fy,jh,bg,border){
+    return`<div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:.75em;color:var(--sub);margin-bottom:5px">流年運程</div>
+      <div style="background:${fy.stage.color};color:white;padding:5px 16px;border-radius:20px;display:inline-block;font-weight:bold;font-size:1.05em">${fy.stage.name}（${fy.stage.mod}）</div>
+      <div style="font-size:.8em;color:#666;margin-top:5px">${fy.stage.desc}</div>
+      <div style="margin:8px 0 4px;font-size:.72em;color:#aaa;letter-spacing:.5px">▸ 大運口訣</div>
+      <div style="font-size:.88em;font-weight:bold;color:${fy.stage.color};font-style:italic">「${fy.stage.kutsu}」</div>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px dashed #ddd">
+        <div style="font-size:.72em;color:#aaa;margin-bottom:4px">▸ 命宮機會點（民國${curROC}年・相併數${xbNow}）</div>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:${jh.bg};padding:5px 12px;border-radius:20px;border:1px solid ${jh.color}">
+          <span style="background:${jh.color};color:white;padding:2px 10px;border-radius:12px;font-weight:bold;font-size:.95em">${jh.name}</span>
+          <span style="font-size:.78em;color:${jh.color};font-weight:bold">${jh.season}・${jh.dir}</span>
+        </div>
+        <div style="font-size:.78em;color:#666;margin-top:4px">${jh.desc}</div>
+      </div>
+    </div>`;
+  }
   html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px" class="dual-summary-grid">
-    <div style="background:#fff8f0;border:1px solid #e8d0a0;border-radius:8px;padding:12px;text-align:center">
-      <div style="font-size:.78em;color:var(--sub);margin-bottom:4px">流年運程</div>
-      <div style="background:${fyA.stage.color};color:white;padding:5px 16px;border-radius:20px;display:inline-block;font-weight:bold;font-size:1.05em">${fyA.stage.name}（${fyA.stage.mod}）</div>
-      <div style="font-size:.8em;color:#666;margin-top:6px">${fyA.stage.desc}</div>
-    </div>
-    <div style="background:#f0f4ff;border:1px solid #c0d0f0;border-radius:8px;padding:12px;text-align:center">
-      <div style="font-size:.78em;color:var(--sub);margin-bottom:4px">流年運程</div>
-      <div style="background:${fyB.stage.color};color:white;padding:5px 16px;border-radius:20px;display:inline-block;font-weight:bold;font-size:1.05em">${fyB.stage.name}（${fyB.stage.mod}）</div>
-      <div style="font-size:.8em;color:#666;margin-top:6px">${fyB.stage.desc}</div>
-    </div>
+    ${compFlowCard(fyA,jhA,'#fff8f0','#e8d0a0')}
+    ${compFlowCard(fyB,jhB,'#f0f4ff','#c0d0f0')}
   </div>`;
 
   // ── 宮位發動現況對比 ──
