@@ -1,0 +1,27 @@
+{
+  "name": "九宮姓名學筆劃查詢",
+  "short_name": "姓名查詢",
+  "description": "免費九宮姓名學查詢工具，計算命宮、父母宮、疾厄宮等五宮筆劃與發動年",
+  "start_url": "/jb-name-lookup/",
+  "scope": "/jb-name-lookup/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fffdf5",
+  "theme_color": "#8B1A1A",
+  "lang": "zh-TW",
+  "categories": ["lifestyle", "utilities"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

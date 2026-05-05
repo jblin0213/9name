@@ -2,7 +2,14 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#8B1A1A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="姓名查詢">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>九宮姓名學筆劃查詢｜命宮・父母宮・疾厄宮・發動年免費計算</title>
 <meta name="description" content="免費九宮姓名學查詢工具。輸入姓名與出生年月日，即可計算命宮、父母宮、疾厄宮、奴僕宮、遷移宮等五宮筆劃，並自動列出各宮發動年、歲值、流年運程（長生・冠帶・臨官・帝旺・衰・病・死・絕・胎・養），支援雙人命格比對。">
 <meta name="keywords" content="九宮姓名學,姓名筆劃查詢,命宮,父母宮,疾厄宮,疾惡宮,奴僕宮,遷移宮,發動,歲值,流年運程,帝旺,長生,冠帶,臨官,衰運,姓名學免費,筆劃計算,命格,雙人比對,夫妻宮,財宮,天格,人格,地格,總格,外格">
@@ -104,7 +111,72 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
 .pgrid8{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .pgrid8 .pcard-note{border:1px dashed var(--border);border-radius:9px;padding:14px;text-align:center;background:#fafafa;color:var(--sub);font-size:.88em}
 .arch-label{font-size:.82em;fill:#7a5430;font-family:'Noto Serif TC',serif}
-@media(max-width:600px){.ig{grid-template-columns:1fr}.pgrid{grid-template-columns:1fr}.pgrid8{grid-template-columns:1fr}header h1{font-size:1.35em}.wx-grid{grid-template-columns:1fr 1fr}.dual-summary-grid{grid-template-columns:1fr!important}}
+/* ── 平板 ── */
+@media(max-width:768px){
+  header h1{font-size:1.5em;letter-spacing:3px}
+  main{padding:12px}
+  .card{padding:16px}
+  .wx-grid{grid-template-columns:1fr 1fr}
+}
+/* ── 手機 ── */
+@media(max-width:600px){
+  header{padding:12px 14px}
+  header h1{font-size:1.2em;letter-spacing:2px}
+  header p{font-size:.75em}
+  main{padding:8px}
+  .card{padding:12px;margin-bottom:12px;border-radius:8px}
+  .card-title{font-size:.95em;margin-bottom:12px}
+  .ig{grid-template-columns:1fr}
+  .pgrid{grid-template-columns:1fr}
+  .pgrid8{grid-template-columns:1fr}
+  .dual-summary-grid{grid-template-columns:1fr!important}
+  .wx-grid{grid-template-columns:1fr 1fr}
+  /* 日期輸入 */
+  .bdate{gap:4px}
+  .bdate input[style*="max-width:65px"]{max-width:58px!important;font-size:.95em;padding:9px 8px}
+  .bdate input[style*="max-width:55px"]{max-width:48px!important;font-size:.95em;padding:9px 6px}
+  .bdate span{font-size:.95em}
+  /* 字格 */
+  .char-boxes{gap:8px}
+  .cbox{min-width:64px;padding:8px 10px}
+  .cbox .ch{font-size:1.85em}
+  .cbox .sn{font-size:1.1em}
+  /* 表格 */
+  th,td{padding:7px 8px;font-size:.82em}
+  .ptbl td{padding:6px 7px;font-size:.83em}
+  .ptbl th{font-size:.74em;padding:5px}
+  /* 年齡徽章 */
+  .abadge{font-size:1em;padding:7px 16px}
+  .ainfo{gap:8px}
+  .arange{font-size:.82em}
+  /* 按鈕 */
+  .btn{font-size:1em;padding:12px;letter-spacing:2px}
+  .btn-dual{font-size:.88em;padding:10px;letter-spacing:1px}
+  /* 五行格 */
+  .wx-card{padding:8px}
+  .wx-card .we{font-size:.9em}
+  /* 手動筆劃 */
+  .manual-row input{width:58px}
+  /* SVG 圖 */
+  .arch-svg-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  /* 宮位表格 */
+  .pcard .ptbl{font-size:.8em}
+  /* note 文字 */
+  .note{font-size:.76em}
+  /* 雙人比對 */
+  .dual-section{padding:10px}
+  /* SEO 區塊 */
+  section[style*="max-width:880px"] > div{padding:14px 16px}
+  section[style*="max-width:880px"] > div > div[style*="grid-template-columns"]{grid-template-columns:1fr!important}
+}
+/* ── 超小螢幕 (320px) ── */
+@media(max-width:360px){
+  header h1{font-size:1.05em;letter-spacing:1px}
+  .bdate input[style*="max-width:65px"]{max-width:52px!important}
+  .bdate input[style*="max-width:55px"]{max-width:44px!important}
+  .cbox{min-width:56px;padding:7px 8px}
+  .cbox .ch{font-size:1.6em}
+}
 .btn-dual{background:linear-gradient(135deg,#1a3a6b,#0e2050);color:#e0eaff;border:none;border-radius:7px;padding:11px;font-size:.95em;font-family:inherit;cursor:pointer;letter-spacing:2px;width:100%;transition:all .2s;box-shadow:0 3px 8px rgba(26,58,107,.25)}
 .btn-dual:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(26,58,107,.4)}
 .btn-dual.on{background:linear-gradient(135deg,#6b0e0e,#4a0808)}
@@ -1104,6 +1176,14 @@ function closeSvgModal(){
 }
 </script>
 
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js',{scope:'/jb-name-lookup/'})
+      .catch(()=>{});
+  });
+}
+</script>
 <div id="svg-modal" onclick="if(event.target===this)closeSvgModal()">
   <div id="svg-modal-inner">
     <div style="text-align:right;margin-bottom:8px">
