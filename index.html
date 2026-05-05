@@ -198,6 +198,26 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
   <h1>⊹ 九宮姓名筆劃查詢 ⊹</h1>
   <p>輸入姓名與出生年月日，即可查詢命格筆劃與九宮發動年</p>
 </header>
+
+<!-- PWA 安裝提示橫幅 -->
+<div id="pwa-banner" style="display:none;background:linear-gradient(135deg,#4a0808,#8B1A1A);color:#f5e6c8;padding:10px 16px;text-align:center;font-family:'Noto Serif TC',serif;font-size:.88em;align-items:center;justify-content:center;gap:12px;border-bottom:2px solid #C8981A;flex-wrap:wrap">
+  <span style="display:flex;align-items:center;gap:6px">
+    <span style="font-size:1.3em">📲</span>
+    <span>將此工具安裝到手機桌面，離線也能使用！</span>
+  </span>
+  <div style="display:flex;gap:8px">
+    <button id="pwa-install-btn" onclick="installPWA()" style="background:#C8981A;color:#2c1a0a;border:none;border-radius:20px;padding:6px 18px;font-size:.88em;font-weight:bold;cursor:pointer;font-family:inherit">📥 立即安裝</button>
+    <button onclick="dismissPWA()" style="background:rgba(255,255,255,.15);color:#f5e6c8;border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:6px 12px;font-size:.82em;cursor:pointer;font-family:inherit">稍後</button>
+  </div>
+</div>
+
+<!-- iOS 專用提示 -->
+<div id="ios-banner" style="display:none;background:linear-gradient(135deg,#4a0808,#8B1A1A);color:#f5e6c8;padding:10px 16px;text-align:center;font-family:'Noto Serif TC',serif;font-size:.85em;border-bottom:2px solid #C8981A">
+  <span style="font-size:1.2em">📲</span> 在 Safari 點選下方
+  <span style="background:rgba(255,255,255,.2);padding:2px 8px;border-radius:4px;margin:0 3px">分享 ⬆</span>
+  → 加入主畫面，即可安裝為 App
+  <button onclick="dismissPWA()" style="background:none;border:none;color:#f5e6c8;font-size:1.1em;cursor:pointer;margin-left:8px;opacity:.7">✕</button>
+</div>
 <main>
   <div class="card">
     <div class="card-title">✦ 輸入資料</div>
@@ -1177,12 +1197,50 @@ function closeSvgModal(){
 </script>
 
 <script>
+// Service Worker
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js',{scope:'/jb-name-lookup/'})
-      .catch(()=>{});
+    navigator.serviceWorker.register('sw.js',{scope:'/jb-name-lookup/'}).catch(()=>{});
   });
 }
+
+// PWA 安裝邏輯
+let _pwaPrompt=null;
+
+function isIOS(){return/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;}
+function isInStandaloneMode(){return window.navigator.standalone||window.matchMedia('(display-mode: standalone)').matches;}
+function dismissPWA(){
+  document.getElementById('pwa-banner').style.display='none';
+  document.getElementById('ios-banner').style.display='none';
+  try{localStorage.setItem('pwa_dismissed','1');}catch(e){}
+}
+function installPWA(){
+  if(!_pwaPrompt)return;
+  _pwaPrompt.prompt();
+  _pwaPrompt.userChoice.then(r=>{
+    if(r.outcome==='accepted') dismissPWA();
+    _pwaPrompt=null;
+  });
+}
+
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  _pwaPrompt=e;
+  try{if(localStorage.getItem('pwa_dismissed'))return;}catch(e){}
+  if(!isInStandaloneMode()){
+    document.getElementById('pwa-banner').style.display='flex';
+  }
+});
+
+window.addEventListener('appinstalled',()=>dismissPWA());
+
+// iOS 提示
+window.addEventListener('load',()=>{
+  try{if(localStorage.getItem('pwa_dismissed'))return;}catch(e){}
+  if(isIOS()&&!isInStandaloneMode()){
+    document.getElementById('ios-banner').style.display='block';
+  }
+});
 </script>
 <div id="svg-modal" onclick="if(event.target===this)closeSvgModal()">
   <div id="svg-modal-inner">
