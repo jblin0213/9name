@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jblin0213.github.io/jb-name-lookup/sitemap.xml
