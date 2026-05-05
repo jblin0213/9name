@@ -1602,28 +1602,37 @@ function renderComparison(dataA,dataB){
 
   // ── 婚姻宮來電（情侶/夫妻才顯示）──
   if(relationshipType==='lover'||relationshipType==='married'){
-    const gRenA=dataA.grids.ren,gDiA=dataA.grids.di;
-    const gRenB=dataB.grids.ren,gDiB=dataB.grids.di;
+    const gRenA=dataA.grids.ren,gDiA=dataA.grids.di,gZongA=dataA.grids.zong;
+    const gRenB=dataB.grids.ren,gDiB=dataB.grids.di,gZongB=dataB.grids.zong;
     const eR_A=element(calcSumDigit(gRenA)),eD_A=element(calcSumDigit(gDiA));
+    const eZ_A=element(calcSumDigit(gZongA)); // A命宮氣化五行
     const eR_B=element(calcSumDigit(gRenB)),eD_B=element(calcSumDigit(gDiB));
+    const eZ_B=element(calcSumDigit(gZongB)); // B命宮氣化五行
     const mKeyA=marriageType(eR_A,eD_A,gRenA,gDiA);
     const mKeyB=marriageType(eR_B,eD_B,gRenB,gDiB);
     const mA=MARRIAGE_PALACE[mKeyA]||{tag:mKeyA,type:''};
     const mB=MARRIAGE_PALACE[mKeyB]||{tag:mKeyB,type:''};
     const relAB=wxRel(eR_A,eD_B); // A疾惡 → B奴僕
     const relBA=wxRel(eR_B,eD_A); // B疾惡 → A奴僕
-    // ── 4大特殊磁場判定 ──
-    // 形影不離：A疾惡=B奴僕 → A難以離開B（從A的角度：形影不離B）
-    // 最愛：A疾惡=B奴僕 → B視A為最愛（從B的角度：最愛）
-    // 兩者是同一條件的兩個面向
-    const xingAtoB=(eR_A===eD_B); // A形影不離B / B視A為最愛
-    const xingBtoA=(eR_B===eD_A); // B形影不離A / A視B為最愛
-    // 坐入：自己疾惡=自己奴僕（同五行，自我磁場融合）
-    const zuoRuA=(eR_A===eD_A);
-    const zuoRuB=(eR_B===eD_B);
-    // 對宮對流：A→B與B→A都是相生（最強雙向感應）
+    // ── 5大特殊磁場判定 ──
+    // 形影不離：A疾惡=B奴僕 → A形影不離B；同條件從B角度=B最愛A
+    const xingAtoB=(eR_A===eD_B);
+    const xingBtoA=(eR_B===eD_A);
+    // 最愛：A奴僕=B疾惡 → A是B最愛（同 xingBtoA）；B奴僕=A疾惡 → B是A最愛（同 xingAtoB）
+    // → 與形影不離為同一條件的兩個面向，不另設變數
+    // 坐入夫妻宮：A疾惡=B奴僕 OR A命宮=B奴僕（任一方向）
+    const zuoRen_AtoB=(eR_A===eD_B); // A疾惡坐入B奴僕
+    const zuoZong_AtoB=(eZ_A===eD_B); // A命宮坐入B奴僕
+    const zuoRen_BtoA=(eR_B===eD_A); // B疾惡坐入A奴僕
+    const zuoZong_BtoA=(eZ_B===eD_A); // B命宮坐入A奴僕
+    const hasZuoRu=zuoRen_AtoB||zuoZong_AtoB||zuoRen_BtoA||zuoZong_BtoA;
+    // 雙象：任一方婚姻宮象是平雙或陰陽雙
+    const isDualA=(mKeyA==='平雙'||mKeyA==='陰陽雙');
+    const isDualB=(mKeyB==='平雙'||mKeyB==='陰陽雙');
+    const hasShuang=isDualA||isDualB;
+    // 對宮對流：A→B與B→A都是相生
     const duiGong=(relAB.type==='相生'&&relBA.type==='相生');
-    // 有來電：任一方向相生（主動感應）
+    // 有來電：任一方向相生
     const hasLai=(relAB.type==='相生'||relBA.type==='相生');
     const relLabel=relationshipType==='married'?'💍 夫妻':'💑 情侶';
     function mTypeColor(t){return t==='生形'?'#27ae60':t==='雙象'?'#8e44ad':'#e67e22';}
@@ -1632,34 +1641,40 @@ function renderComparison(dataA,dataB){
       return`<span style="background:${c};color:white;padding:1px 8px;border-radius:10px;font-size:.8em;font-weight:bold">${r.type}</span><span style="color:#aaa;font-size:.78em;margin-left:2px">${r.sym}</span>`;
     }
     function badge(active,label,detail,activeColor){
-      if(active)return`<div style="background:${activeColor||'#27ae60'};color:white;padding:4px 10px;border-radius:10px;font-size:.8em;font-weight:bold;display:flex;flex-direction:column;align-items:center;gap:1px"><span>✓ ${label}</span>${detail?`<span style="font-size:.72em;opacity:.85">${detail}</span>`:''}</div>`;
+      if(active)return`<div style="background:${activeColor||'#27ae60'};color:white;padding:4px 10px;border-radius:10px;font-size:.8em;font-weight:bold;display:flex;flex-direction:column;align-items:center;gap:1px;text-align:center"><span>✓ ${label}</span>${detail?`<span style="font-size:.71em;opacity:.88">${detail}</span>`:''}</div>`;
       return`<div style="background:#f0f0f0;color:#bbb;padding:4px 10px;border-radius:10px;font-size:.8em;display:flex;align-items:center;gap:2px"><span>✗</span><span>${label}</span></div>`;
     }
-    // 來電詳細文字
     function laiDesc(){
-      const parts=[];
-      if(relAB.type==='相生')parts.push(`${dataA.name}→${dataB.name}`);
-      if(relBA.type==='相生')parts.push(`${dataB.name}→${dataA.name}`);
-      return parts.join('・');
-    }
-    // 形影不離/最愛詳細文字
-    function xingDesc(){
       const p=[];
-      if(xingAtoB&&xingBtoA)p.push('雙向形影不離');
-      else if(xingAtoB)p.push(`${dataA.name}離不開${dataB.name}`);
-      else if(xingBtoA)p.push(`${dataB.name}離不開${dataA.name}`);
+      if(relAB.type==='相生')p.push(`${dataA.name}→${dataB.name}`);
+      if(relBA.type==='相生')p.push(`${dataB.name}→${dataA.name}`);
       return p.join('・');
     }
-    function zuiaiDesc(){
+    function xingDesc(){
+      if(xingAtoB&&xingBtoA)return'雙向形影不離';
       const p=[];
-      if(xingBtoA)p.push(`${dataA.name}是${dataB.name}最愛`);
-      if(xingAtoB)p.push(`${dataB.name}是${dataA.name}最愛`);
+      if(xingAtoB)p.push(`${dataA.name}離不開${dataB.name}`);
+      if(xingBtoA)p.push(`${dataB.name}離不開${dataA.name}`);
+      return p.join('・');
+    }
+    function zuiDesc(){
+      const p=[];
+      if(xingBtoA)p.push(`${dataA.name}是${dataB.name}的最愛`);
+      if(xingAtoB)p.push(`${dataB.name}是${dataA.name}的最愛`);
       return p.join('・');
     }
     function zuoDesc(){
       const p=[];
-      if(zuoRuA)p.push(dataA.name);
-      if(zuoRuB)p.push(dataB.name);
+      if(zuoRen_AtoB)p.push(`${dataA.name}疾惡→${dataB.name}`);
+      if(zuoZong_AtoB)p.push(`${dataA.name}命宮→${dataB.name}`);
+      if(zuoRen_BtoA)p.push(`${dataB.name}疾惡→${dataA.name}`);
+      if(zuoZong_BtoA)p.push(`${dataB.name}命宮→${dataA.name}`);
+      return p.join('・');
+    }
+    function shuangDesc(){
+      const p=[];
+      if(isDualA)p.push(`${dataA.name}(${mKeyA})`);
+      if(isDualB)p.push(`${dataB.name}(${mKeyB})`);
       return p.join('・');
     }
     html+=`<div style="background:#fffaf5;border:1px solid #e8d0a0;border-radius:10px;padding:12px 14px;margin-bottom:14px">
@@ -1705,8 +1720,9 @@ function renderComparison(dataA,dataB){
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         ${badge(hasLai,'有來電',laiDesc(),'#e67e22')}
         ${badge(xingAtoB||xingBtoA,'形影不離',xingDesc(),'#c0392b')}
-        ${badge(xingBtoA||xingAtoB,'最愛',zuiaiDesc(),'#8B1A1A')}
-        ${badge(zuoRuA||zuoRuB,'坐入',zuoDesc(),'#2980b9')}
+        ${badge(xingAtoB||xingBtoA,'最愛',zuiDesc(),'#8B1A1A')}
+        ${badge(hasZuoRu,'坐入夫妻宮',zuoDesc(),'#2980b9')}
+        ${badge(hasShuang,'雙象',shuangDesc(),'#8e44ad')}
         ${badge(duiGong,'對宮對流','雙向相生最強','#27ae60')}
       </div>
     </div>`;
