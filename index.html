@@ -1612,22 +1612,56 @@ function renderComparison(dataA,dataB){
     const mB=MARRIAGE_PALACE[mKeyB]||{tag:mKeyB,type:''};
     const relAB=wxRel(eR_A,eD_B); // A疾惡 → B奴僕
     const relBA=wxRel(eR_B,eD_A); // B疾惡 → A奴僕
-    const isLaiAB=relAB.type==='相生';
-    const isLaiBA=relBA.type==='相生';
-    const isZuoRu=relAB.type==='比旺'||relBA.type==='比旺';
-    const isDuiGong=isLaiAB&&isLaiBA;
-    function relBadge(r){
-      const ok=r.type==='相生',eq=r.type==='比旺';
-      const bg=ok?'#27ae60':eq?'#2980b9':'#c0392b';
-      return`<span style="background:${bg};color:white;padding:1px 8px;border-radius:10px;font-size:.8em;font-weight:bold">${r.type}</span>`;
-    }
-    function statusBadge(yes,yesText,noText){
-      return yes
-        ?`<span style="background:#27ae60;color:white;padding:3px 10px;border-radius:12px;font-size:.82em;font-weight:bold">✓ ${yesText}</span>`
-        :`<span style="background:#e8e8e8;color:#aaa;padding:3px 10px;border-radius:12px;font-size:.82em">✗ ${noText}</span>`;
-    }
+    // ── 4大特殊磁場判定 ──
+    // 形影不離：A疾惡=B奴僕 → A難以離開B（從A的角度：形影不離B）
+    // 最愛：A疾惡=B奴僕 → B視A為最愛（從B的角度：最愛）
+    // 兩者是同一條件的兩個面向
+    const xingAtoB=(eR_A===eD_B); // A形影不離B / B視A為最愛
+    const xingBtoA=(eR_B===eD_A); // B形影不離A / A視B為最愛
+    // 坐入：自己疾惡=自己奴僕（同五行，自我磁場融合）
+    const zuoRuA=(eR_A===eD_A);
+    const zuoRuB=(eR_B===eD_B);
+    // 對宮對流：A→B與B→A都是相生（最強雙向感應）
+    const duiGong=(relAB.type==='相生'&&relBA.type==='相生');
+    // 有來電：任一方向相生（主動感應）
+    const hasLai=(relAB.type==='相生'||relBA.type==='相生');
     const relLabel=relationshipType==='married'?'💍 夫妻':'💑 情侶';
     function mTypeColor(t){return t==='生形'?'#27ae60':t==='雙象'?'#8e44ad':'#e67e22';}
+    function relBadge(r){
+      const c=r.type==='相生'?'#27ae60':r.type==='比旺'?'#2980b9':r.type==='受生'?'#8e44ad':'#c0392b';
+      return`<span style="background:${c};color:white;padding:1px 8px;border-radius:10px;font-size:.8em;font-weight:bold">${r.type}</span><span style="color:#aaa;font-size:.78em;margin-left:2px">${r.sym}</span>`;
+    }
+    function badge(active,label,detail,activeColor){
+      if(active)return`<div style="background:${activeColor||'#27ae60'};color:white;padding:4px 10px;border-radius:10px;font-size:.8em;font-weight:bold;display:flex;flex-direction:column;align-items:center;gap:1px"><span>✓ ${label}</span>${detail?`<span style="font-size:.72em;opacity:.85">${detail}</span>`:''}</div>`;
+      return`<div style="background:#f0f0f0;color:#bbb;padding:4px 10px;border-radius:10px;font-size:.8em;display:flex;align-items:center;gap:2px"><span>✗</span><span>${label}</span></div>`;
+    }
+    // 來電詳細文字
+    function laiDesc(){
+      const parts=[];
+      if(relAB.type==='相生')parts.push(`${dataA.name}→${dataB.name}`);
+      if(relBA.type==='相生')parts.push(`${dataB.name}→${dataA.name}`);
+      return parts.join('・');
+    }
+    // 形影不離/最愛詳細文字
+    function xingDesc(){
+      const p=[];
+      if(xingAtoB&&xingBtoA)p.push('雙向形影不離');
+      else if(xingAtoB)p.push(`${dataA.name}離不開${dataB.name}`);
+      else if(xingBtoA)p.push(`${dataB.name}離不開${dataA.name}`);
+      return p.join('・');
+    }
+    function zuiaiDesc(){
+      const p=[];
+      if(xingBtoA)p.push(`${dataA.name}是${dataB.name}最愛`);
+      if(xingAtoB)p.push(`${dataB.name}是${dataA.name}最愛`);
+      return p.join('・');
+    }
+    function zuoDesc(){
+      const p=[];
+      if(zuoRuA)p.push(dataA.name);
+      if(zuoRuB)p.push(dataB.name);
+      return p.join('・');
+    }
     html+=`<div style="background:#fffaf5;border:1px solid #e8d0a0;border-radius:10px;padding:12px 14px;margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <span>💕</span>
@@ -1635,41 +1669,45 @@ function renderComparison(dataA,dataB){
         <span style="background:#8B1A1A;color:#f5e6c8;padding:1px 9px;border-radius:10px;font-size:.76em">${relLabel}</span>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:6px;background:#fff0f0;border:1px solid #f0d0c0;border-radius:8px;padding:6px 10px;flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:5px;background:#fff0f0;border:1px solid #f0d0c0;border-radius:8px;padding:6px 10px;flex:1;min-width:130px">
           <span style="font-size:.8em;color:#8B1A1A;font-weight:bold;white-space:nowrap">👤 ${dataA.name}</span>
-          <span style="background:${mTypeColor(mA.type)};color:white;padding:1px 8px;border-radius:10px;font-size:.78em;font-weight:bold;white-space:nowrap">${mKeyA}</span>
-          <span style="color:#999;font-size:.75em">${mA.tag}</span>
+          <span style="background:${mTypeColor(mA.type)};color:white;padding:1px 8px;border-radius:10px;font-size:.76em;font-weight:bold;white-space:nowrap">${mKeyA}</span>
+          <span style="color:#999;font-size:.73em;flex:1">${mA.tag}</span>
+          <span style="font-size:.72em;color:#bbb">${eR_A}→${eD_A}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:6px;background:#f0f6ff;border:1px solid #c0d0f0;border-radius:8px;padding:6px 10px;flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:5px;background:#f0f6ff;border:1px solid #c0d0f0;border-radius:8px;padding:6px 10px;flex:1;min-width:130px">
           <span style="font-size:.8em;color:#1a3a6b;font-weight:bold;white-space:nowrap">👤 ${dataB.name}</span>
-          <span style="background:${mTypeColor(mB.type)};color:white;padding:1px 8px;border-radius:10px;font-size:.78em;font-weight:bold;white-space:nowrap">${mKeyB}</span>
-          <span style="color:#999;font-size:.75em">${mB.tag}</span>
+          <span style="background:${mTypeColor(mB.type)};color:white;padding:1px 8px;border-radius:10px;font-size:.76em;font-weight:bold;white-space:nowrap">${mKeyB}</span>
+          <span style="color:#999;font-size:.73em;flex:1">${mB.tag}</span>
+          <span style="font-size:.72em;color:#bbb">${eR_B}→${eD_B}</span>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:6px;font-size:.82em">
-          <span style="color:#8B1A1A;font-weight:bold;white-space:nowrap">${dataA.name}</span>
-          <span style="color:#bbb;font-size:.85em">(疾惡${eR_A})</span>
+      <div style="background:#fafafa;border:1px solid #eee;border-radius:8px;padding:8px 10px;margin-bottom:10px;display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;align-items:center;gap:5px;font-size:.82em">
+          <span style="color:#8B1A1A;font-weight:bold">${dataA.name}</span>
+          <span style="color:#bbb;font-size:.8em">疾惡(${eR_A})</span>
           <span style="color:#aaa">→</span>
-          <span style="color:#1a3a6b;font-weight:bold;white-space:nowrap">${dataB.name}</span>
-          <span style="color:#bbb;font-size:.85em">(奴僕${eD_B})</span>
+          <span style="color:#1a3a6b;font-weight:bold">${dataB.name}</span>
+          <span style="color:#bbb;font-size:.8em">奴僕(${eD_B})</span>
           <span style="flex:1"></span>
           ${relBadge(relAB)}
         </div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:.82em">
-          <span style="color:#1a3a6b;font-weight:bold;white-space:nowrap">${dataB.name}</span>
-          <span style="color:#bbb;font-size:.85em">(疾惡${eR_B})</span>
+        <div style="display:flex;align-items:center;gap:5px;font-size:.82em">
+          <span style="color:#1a3a6b;font-weight:bold">${dataB.name}</span>
+          <span style="color:#bbb;font-size:.8em">疾惡(${eR_B})</span>
           <span style="color:#aaa">→</span>
-          <span style="color:#8B1A1A;font-weight:bold;white-space:nowrap">${dataA.name}</span>
-          <span style="color:#bbb;font-size:.85em">(奴僕${eD_A})</span>
+          <span style="color:#8B1A1A;font-weight:bold">${dataA.name}</span>
+          <span style="color:#bbb;font-size:.8em">奴僕(${eD_A})</span>
           <span style="flex:1"></span>
           ${relBadge(relBA)}
         </div>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        ${statusBadge(isLaiAB||isLaiBA,'有來電','無來電')}
-        ${statusBadge(isZuoRu,'有座入','無座入')}
-        ${statusBadge(isDuiGong,'對宮對流','無對流')}
+        ${badge(hasLai,'有來電',laiDesc(),'#e67e22')}
+        ${badge(xingAtoB||xingBtoA,'形影不離',xingDesc(),'#c0392b')}
+        ${badge(xingBtoA||xingAtoB,'最愛',zuiaiDesc(),'#8B1A1A')}
+        ${badge(zuoRuA||zuoRuB,'坐入',zuoDesc(),'#2980b9')}
+        ${badge(duiGong,'對宮對流','雙向相生最強','#27ae60')}
       </div>
     </div>`;
   }
