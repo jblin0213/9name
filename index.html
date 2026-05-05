@@ -2000,9 +2000,14 @@ function saveStrokeOverride(ch,val,btn){
   if(!ch||isNaN(n)||n<1||n>99){alert('筆劃數請輸入 1–99');return;}
   manualOverrides[ch]=n;
   _saveStrokeLS();
-  if(btn){const orig=btn.textContent;btn.textContent='已儲存 ✓';btn.style.background='#27ae60';setTimeout(()=>{btn.textContent=orig;btn.style.background='#8B1A1A';},1200);}
-  const q=document.getElementById('stroke-search').value;
-  renderStrokeMgrTable(q);
+  if(btn){
+    btn.textContent='已儲存 ✓';
+    btn.style.background='#27ae60';
+    setTimeout(()=>{const q=document.getElementById('stroke-search').value;renderStrokeMgrTable(q);},1000);
+  } else {
+    const q=document.getElementById('stroke-search').value;
+    renderStrokeMgrTable(q);
+  }
 }
 
 function deleteStrokeOverride(ch){
