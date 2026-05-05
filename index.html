@@ -1600,6 +1600,80 @@ function renderComparison(dataA,dataB){
     </div>
   </div>`;
 
+  // ── 婚姻宮來電（情侶/夫妻才顯示）──
+  if(relationshipType==='lover'||relationshipType==='married'){
+    const gRenA=dataA.grids.ren,gDiA=dataA.grids.di;
+    const gRenB=dataB.grids.ren,gDiB=dataB.grids.di;
+    const eR_A=element(calcSumDigit(gRenA)),eD_A=element(calcSumDigit(gDiA));
+    const eR_B=element(calcSumDigit(gRenB)),eD_B=element(calcSumDigit(gDiB));
+    const mKeyA=marriageType(eR_A,eD_A,gRenA,gDiA);
+    const mKeyB=marriageType(eR_B,eD_B,gRenB,gDiB);
+    const mA=MARRIAGE_PALACE[mKeyA]||{tag:mKeyA,type:''};
+    const mB=MARRIAGE_PALACE[mKeyB]||{tag:mKeyB,type:''};
+    const relAB=wxRel(eR_A,eD_B); // A疾惡 → B奴僕
+    const relBA=wxRel(eR_B,eD_A); // B疾惡 → A奴僕
+    const isLaiAB=relAB.type==='相生';
+    const isLaiBA=relBA.type==='相生';
+    const isZuoRu=relAB.type==='比旺'||relBA.type==='比旺';
+    const isDuiGong=isLaiAB&&isLaiBA;
+    function relBadge(r){
+      const ok=r.type==='相生',eq=r.type==='比旺';
+      const bg=ok?'#27ae60':eq?'#2980b9':'#c0392b';
+      return`<span style="background:${bg};color:white;padding:1px 8px;border-radius:10px;font-size:.8em;font-weight:bold">${r.type}</span>`;
+    }
+    function statusBadge(yes,yesText,noText){
+      return yes
+        ?`<span style="background:#27ae60;color:white;padding:3px 10px;border-radius:12px;font-size:.82em;font-weight:bold">✓ ${yesText}</span>`
+        :`<span style="background:#e8e8e8;color:#aaa;padding:3px 10px;border-radius:12px;font-size:.82em">✗ ${noText}</span>`;
+    }
+    const relLabel=relationshipType==='married'?'💍 夫妻':'💑 情侶';
+    function mTypeColor(t){return t==='生形'?'#27ae60':t==='雙象'?'#8e44ad':'#e67e22';}
+    html+=`<div style="background:#fffaf5;border:1px solid #e8d0a0;border-radius:10px;padding:12px 14px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span>💕</span>
+        <span style="font-weight:bold;color:#8B1A1A;font-size:.9em">婚姻宮來電</span>
+        <span style="background:#8B1A1A;color:#f5e6c8;padding:1px 9px;border-radius:10px;font-size:.76em">${relLabel}</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:6px;background:#fff0f0;border:1px solid #f0d0c0;border-radius:8px;padding:6px 10px;flex:1;min-width:0">
+          <span style="font-size:.8em;color:#8B1A1A;font-weight:bold;white-space:nowrap">👤 ${dataA.name}</span>
+          <span style="background:${mTypeColor(mA.type)};color:white;padding:1px 8px;border-radius:10px;font-size:.78em;font-weight:bold;white-space:nowrap">${mKeyA}</span>
+          <span style="color:#999;font-size:.75em">${mA.tag}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;background:#f0f6ff;border:1px solid #c0d0f0;border-radius:8px;padding:6px 10px;flex:1;min-width:0">
+          <span style="font-size:.8em;color:#1a3a6b;font-weight:bold;white-space:nowrap">👤 ${dataB.name}</span>
+          <span style="background:${mTypeColor(mB.type)};color:white;padding:1px 8px;border-radius:10px;font-size:.78em;font-weight:bold;white-space:nowrap">${mKeyB}</span>
+          <span style="color:#999;font-size:.75em">${mB.tag}</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:6px;font-size:.82em">
+          <span style="color:#8B1A1A;font-weight:bold;white-space:nowrap">${dataA.name}</span>
+          <span style="color:#bbb;font-size:.85em">(疾惡${eR_A})</span>
+          <span style="color:#aaa">→</span>
+          <span style="color:#1a3a6b;font-weight:bold;white-space:nowrap">${dataB.name}</span>
+          <span style="color:#bbb;font-size:.85em">(奴僕${eD_B})</span>
+          <span style="flex:1"></span>
+          ${relBadge(relAB)}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:.82em">
+          <span style="color:#1a3a6b;font-weight:bold;white-space:nowrap">${dataB.name}</span>
+          <span style="color:#bbb;font-size:.85em">(疾惡${eR_B})</span>
+          <span style="color:#aaa">→</span>
+          <span style="color:#8B1A1A;font-weight:bold;white-space:nowrap">${dataA.name}</span>
+          <span style="color:#bbb;font-size:.85em">(奴僕${eD_A})</span>
+          <span style="flex:1"></span>
+          ${relBadge(relBA)}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${statusBadge(isLaiAB||isLaiBA,'有來電','無來電')}
+        ${statusBadge(isZuoRu,'有座入','無座入')}
+        ${statusBadge(isDuiGong,'對宮對流','無對流')}
+      </div>
+    </div>`;
+  }
+
   function getPalaceEvents(data){
     const{grids,by,chars,isFX}=data;
     const hasWai=isFX?chars.length>=4:chars.length>=3;
@@ -1652,104 +1726,6 @@ function renderComparison(dataA,dataB){
     </tr>`;
   }
   html+='</tbody></table></div>';
-
-  // ── 婚姻宮兩人磁場分析（情侶/夫妻才顯示）──
-  if(relationshipType==='lover'||relationshipType==='married'){
-    const gRenA=dataA.grids.ren,gDiA=dataA.grids.di;
-    const gRenB=dataB.grids.ren,gDiB=dataB.grids.di;
-    const eR_A=element(calcSumDigit(gRenA)),eD_A=element(calcSumDigit(gDiA));
-    const eR_B=element(calcSumDigit(gRenB)),eD_B=element(calcSumDigit(gDiB));
-    const mKeyA=marriageType(eR_A,eD_A,gRenA,gDiA);
-    const mKeyB=marriageType(eR_B,eD_B,gRenB,gDiB);
-    const mA=MARRIAGE_PALACE[mKeyA]||{tag:mKeyA,type:'',desc:'',warn:''};
-    const mB=MARRIAGE_PALACE[mKeyB]||{tag:mKeyB,type:'',desc:'',warn:''};
-    // 來電：A疾惡 → B奴僕（A對B的磁場感應）；B疾惡 → A奴僕（B對A的磁場感應）
-    const relAtoB=wxRel(eR_A,eD_B);
-    const relBtoA=wxRel(eR_B,eD_A);
-    // 綜合磁場評分
-    function compatVerdict(r1,r2){
-      const s={相生:2,受生:1,比旺:1,陽性剋:-1,陰性剋:-1};
-      const score=(s[r1.type]||0)+(s[r2.type]||0);
-      if(score>=4)return{label:'雙向最強磁場 💑',color:'#c0392b',bg:'#fff0f0'};
-      if(score>=2)return{label:'雙向有感應 ✨',color:'#8B1A1A',bg:'#fff5f0'};
-      if(score>=1)return{label:'單向感應',color:'#7a5a00',bg:'#fffbea'};
-      if(score===0&&(r1.type==='比旺'||r2.type==='比旺'))return{label:'磁場相近・平衡共存 ⚖️',color:'#2a6a8a',bg:'#f0f8ff'};
-      if(score<0)return{label:'強吸引・需磨合 🔥',color:'#6a3a00',bg:'#fff3e0'};
-      return{label:'互相影響',color:'#555',bg:'#f5f5f5'};
-    }
-    const verdict=compatVerdict(relAtoB,relBtoA);
-    const relLabel=relationshipType==='married'?'💍 夫妻':'💑 情侶';
-    function mTypeColor(t){return t==='生形'?'#27ae60':t==='雙象'?'#8e44ad':'#e67e22';}
-    function mCard(name,mKey,m,bg,border,nameColor){
-      return`<div style="background:${bg};border:1px solid ${border};border-radius:10px;padding:12px;flex:1;min-width:0">
-        <div style="font-weight:bold;color:${nameColor};font-size:.88em;margin-bottom:6px">${name}</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
-          <span style="background:${mTypeColor(m.type)};color:white;padding:2px 10px;border-radius:12px;font-size:.82em;font-weight:bold">${mKey}</span>
-          <span style="color:#888;font-size:.78em">${m.tag}</span>
-        </div>
-        <div style="font-size:.82em;color:#444;line-height:1.6">${m.desc}</div>
-        ${m.warn?`<div style="margin-top:6px;padding:5px 8px;background:rgba(255,100,0,.07);border-radius:6px;font-size:.76em;color:#8B4500"><b>⚠️ 注意：</b>${m.warn}</div>`:''}
-        <div style="margin-top:8px;font-size:.75em;color:#aaa">疾惡宮五行：<b style="color:#555">${eR_A===eR_B?(eR_A):(name===dataA.name?eR_A:eR_B)}</b>・奴僕宮五行：<b style="color:#555">${name===dataA.name?eD_A:eD_B}</b></div>
-      </div>`;
-    }
-    function mCardA(){
-      return`<div style="background:#fff8f5;border:1px solid #f0d0c0;border-radius:10px;padding:12px;flex:1;min-width:0">
-        <div style="font-weight:bold;color:#8B1A1A;font-size:.88em;margin-bottom:6px">👤 ${dataA.name}</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
-          <span style="background:${mTypeColor(mA.type)};color:white;padding:2px 10px;border-radius:12px;font-size:.82em;font-weight:bold">${mKeyA}</span>
-          <span style="color:#888;font-size:.78em">${mA.tag}</span>
-        </div>
-        <div style="font-size:.82em;color:#444;line-height:1.6">${mA.desc}</div>
-        ${mA.warn?`<div style="margin-top:6px;padding:5px 8px;background:rgba(255,100,0,.07);border-radius:6px;font-size:.76em;color:#8B4500"><b>⚠️ 注意：</b>${mA.warn}</div>`:''}
-        <div style="margin-top:8px;font-size:.75em;color:#aaa">疾惡宮：<b style="color:#555">${eR_A}</b>・奴僕宮：<b style="color:#555">${eD_A}</b></div>
-      </div>`;
-    }
-    function mCardB(){
-      return`<div style="background:#f0f6ff;border:1px solid #c0d0f0;border-radius:10px;padding:12px;flex:1;min-width:0">
-        <div style="font-weight:bold;color:#1a3a6b;font-size:.88em;margin-bottom:6px">👤 ${dataB.name}</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
-          <span style="background:${mTypeColor(mB.type)};color:white;padding:2px 10px;border-radius:12px;font-size:.82em;font-weight:bold">${mKeyB}</span>
-          <span style="color:#888;font-size:.78em">${mB.tag}</span>
-        </div>
-        <div style="font-size:.82em;color:#444;line-height:1.6">${mB.desc}</div>
-        ${mB.warn?`<div style="margin-top:6px;padding:5px 8px;background:rgba(255,100,0,.07);border-radius:6px;font-size:.76em;color:#8B4500"><b>⚠️ 注意：</b>${mB.warn}</div>`:''}
-        <div style="margin-top:8px;font-size:.75em;color:#aaa">疾惡宮：<b style="color:#555">${eR_B}</b>・奴僕宮：<b style="color:#555">${eD_B}</b></div>
-      </div>`;
-    }
-    function relRow(from,to,rel){
-      return`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#fafafa;border-radius:8px;font-size:.83em">
-        <span style="font-weight:bold;color:#555;white-space:nowrap">${from}</span>
-        <span style="color:#aaa">→</span>
-        <span style="font-weight:bold;color:#555;white-space:nowrap">${to}</span>
-        <span style="flex:1"></span>
-        <span class="wrel ${rel.cls}" style="padding:2px 10px;border-radius:12px;font-weight:bold;font-size:.9em">${rel.type}</span>
-        <span style="color:#777;font-size:.82em">${rel.sym}</span>
-      </div>`;
-    }
-    html+=`<div style="border-top:2px solid #e8c9a0;margin-top:18px;padding-top:16px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-        <span style="font-size:1.1em">💕</span>
-        <span style="font-weight:bold;color:#8B1A1A;font-size:.96em">婚姻宮磁場分析</span>
-        <span style="background:#8B1A1A;color:#f5e6c8;padding:2px 10px;border-radius:10px;font-size:.78em">${relLabel}</span>
-      </div>
-      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-        ${mCardA()}
-        ${mCardB()}
-      </div>
-      <div style="background:#fffbf5;border:1px solid #e8d0a0;border-radius:10px;padding:12px;margin-bottom:12px">
-        <div style="font-size:.8em;color:#aaa;margin-bottom:8px;letter-spacing:.5px">▸ 雙向來電感應</div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          ${relRow(dataA.name+'（疾惡'+eR_A+'）',dataB.name+'（奴僕'+eD_B+'）',relAtoB)}
-          ${relRow(dataB.name+'（疾惡'+eR_B+'）',dataA.name+'（奴僕'+eD_A+'）',relBtoA)}
-        </div>
-      </div>
-      <div style="background:${verdict.bg};border:1px solid ${verdict.color}44;border-radius:10px;padding:12px;text-align:center">
-        <div style="font-size:.78em;color:#aaa;margin-bottom:4px">綜合磁場評斷</div>
-        <div style="font-size:1.08em;font-weight:bold;color:${verdict.color}">${verdict.label}</div>
-      </div>
-    </div>`;
-  }
-
   document.getElementById('comparison-content').innerHTML=html;
 }
 
