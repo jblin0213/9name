@@ -1,6 +1,6 @@
 {
   "name": "九宮姓名學筆劃查詢",
-  "short_name": "姓名查詢",
+  "short_name": "九宮姓名查詢",
   "description": "免費九宮姓名學查詢工具，計算命宮、父母宮、疾厄宮等五宮筆劃與發動年",
   "start_url": "/jb-name-lookup/",
   "scope": "/jb-name-lookup/",
