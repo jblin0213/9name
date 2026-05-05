@@ -1614,17 +1614,19 @@ function renderComparison(dataA,dataB){
     const mB=MARRIAGE_PALACE[mKeyB]||{tag:mKeyB,type:''};
     const relAB=wxRel(eR_A,eD_B); // A疾惡 → B奴僕
     const relBA=wxRel(eR_B,eD_A); // B疾惡 → A奴僕
+    // ── 氣化數（相併後的數字）──
+    const sdRenA=calcSumDigit(gRenA),sdDiA=calcSumDigit(gDiA),sdZongA=calcSumDigit(gZongA);
+    const sdRenB=calcSumDigit(gRenB),sdDiB=calcSumDigit(gDiB),sdZongB=calcSumDigit(gZongB);
     // ── 5大特殊磁場判定 ──
-    // 形影不離：A疾惡=B奴僕 → A形影不離B；同條件從B角度=B最愛A
-    const xingAtoB=(eR_A===eD_B);
-    const xingBtoA=(eR_B===eD_A);
-    // 最愛：A奴僕=B疾惡 → A是B最愛（同 xingBtoA）；B奴僕=A疾惡 → B是A最愛（同 xingAtoB）
-    // → 與形影不離為同一條件的兩個面向，不另設變數
-    // 坐入夫妻宮：A疾惡=B奴僕 OR A命宮=B奴僕（任一方向）
-    const zuoRen_AtoB=(eR_A===eD_B); // A疾惡坐入B奴僕
-    const zuoZong_AtoB=(eZ_A===eD_B); // A命宮坐入B奴僕
-    const zuoRen_BtoA=(eR_B===eD_A); // B疾惡坐入A奴僕
-    const zuoZong_BtoA=(eZ_B===eD_A); // B命宮坐入A奴僕
+    // 形影不離：A疾惡氣化數=B奴僕氣化數 → A形影不離B
+    const xingAtoB=(sdRenA===sdDiB);
+    const xingBtoA=(sdRenB===sdDiA);
+    // 最愛：與形影不離為同一條件的兩個面向，不另設變數
+    // 坐入夫妻宮：A疾惡氣化數=B奴僕氣化數 OR A命宮氣化數=B奴僕氣化數（任一方向）
+    const zuoRen_AtoB=(sdRenA===sdDiB); // A疾惡坐入B奴僕
+    const zuoZong_AtoB=(sdZongA===sdDiB); // A命宮坐入B奴僕
+    const zuoRen_BtoA=(sdRenB===sdDiA); // B疾惡坐入A奴僕
+    const zuoZong_BtoA=(sdZongB===sdDiA); // B命宮坐入A奴僕
     const hasZuoRu=zuoRen_AtoB||zuoZong_AtoB||zuoRen_BtoA||zuoZong_BtoA;
     // 雙象：任一方婚姻宮象是平雙或陰陽雙
     const isDualA=(mKeyA==='平雙'||mKeyA==='陰陽雙');
