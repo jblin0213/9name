@@ -1730,6 +1730,34 @@ function renderComparison(dataA,dataB){
     </div>`;
   }
 
+  // ── 歲值紅鸞／歲值貴人 ──
+  {
+    const isRomantic=(relationshipType==='lover'||relationshipType==='married');
+    const suiLabel=isRomantic?'歲值紅鸞':'歲值貴人';
+    const suiEmoji=isRomantic?'💕':'🤝';
+    const suiColor=isRomantic?'#8B1A1A':'#1a3a6b';
+    const suiBg=isRomantic?'#fffaf5':'#f0f4ff';
+    const suiBorder=isRomantic?'#e8d0a0':'#c0d0f0';
+    // B命宮值 = A虛歲 → B是A今年的歲值X
+    const suiBtoA=(dataB.grids.zong===dataA.age);
+    // A命宮值 = B虛歲 → A是B今年的歲值X
+    const suiAtoB=(dataA.grids.zong===dataB.age);
+    const hasSui=suiBtoA||suiAtoB;
+    const suiRows=[];
+    if(suiBtoA)suiRows.push(`<div style="background:rgba(255,255,255,.6);border-radius:6px;padding:4px 8px;font-size:.85em"><b style="color:#8B1A1A">${dataB.name}</b><span style="color:#999;font-size:.85em">（命宮${dataB.grids.zong}）</span> 是 <b style="color:#1a3a6b">${dataA.name}</b><span style="color:#999;font-size:.85em">（${dataA.age}歲）</span> 今年的${suiLabel}</div>`);
+    if(suiAtoB)suiRows.push(`<div style="background:rgba(255,255,255,.6);border-radius:6px;padding:4px 8px;font-size:.85em"><b style="color:#8B1A1A">${dataA.name}</b><span style="color:#999;font-size:.85em">（命宮${dataA.grids.zong}）</span> 是 <b style="color:#1a3a6b">${dataB.name}</b><span style="color:#999;font-size:.85em">（${dataB.age}歲）</span> 今年的${suiLabel}</div>`);
+    html+=`<div style="background:${suiBg};border:1px solid ${suiBorder};border-radius:10px;padding:12px 14px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:${hasSui?'8px':'0'}">
+        <span>${suiEmoji}</span>
+        <span style="font-weight:bold;color:${suiColor};font-size:.9em">${suiLabel}分析</span>
+        ${hasSui
+          ?`<span style="background:${suiColor};color:white;padding:1px 9px;border-radius:10px;font-size:.76em">✓ 今年有${suiLabel}</span>`
+          :`<span style="color:#bbb;font-size:.8em">今年無${suiLabel}關係</span>`}
+      </div>
+      ${hasSui?`<div style="display:flex;flex-direction:column;gap:4px">${suiRows.join('')}</div>`:''}
+    </div>`;
+  }
+
   function getPalaceEvents(data){
     const{grids,by,chars,isFX}=data;
     const hasWai=isFX?chars.length>=4:chars.length>=3;
