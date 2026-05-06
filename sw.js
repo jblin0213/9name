@@ -1,10 +1,11 @@
-const CACHE = 'jb-name-v1';
+const CACHE = 'jb-name-v3';
 const ASSETS = [
-  '/jb-name-lookup/',
-  '/jb-name-lookup/index.html',
-  '/jb-name-lookup/manifest.json',
-  '/jb-name-lookup/icon-192.png',
-  '/jb-name-lookup/icon-512.png'
+  '/9name/',
+  '/9name/index.html',
+  '/9name/manifest.json',
+  '/9name/banner.png',
+  '/9name/icon-192.png',
+  '/9name/icon-512.png'
 ];
 
 self.addEventListener('install', e => {
