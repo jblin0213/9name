@@ -765,7 +765,7 @@ function doQuery(){
     const isFXB=document.getElementById('fuxing_b').checked;
     if(!nameB||!byB||!bmB||!bdB){alert('請輸入第二人的完整資料');return;}
     const charsB=Array.from(nameB);
-    const unknownsB=charsB.filter(c=>c&&!getStrokes(c)&&!manualOverrides[c]);
+    const unknownsB=charsB.filter(c=>c&&!getStrokes(s2tChar(c))&&!manualOverrides[s2tChar(c)]&&!getStrokes(c)&&!manualOverrides[c]);
     const msb=document.getElementById('manual-section-b');
     if(unknownsB.length>0){
       let bh=`<div class="manual-area"><b style="color:var(--red)">⚠ 第二人有未知字，請輸入筆劃：</b>`;
@@ -843,7 +843,7 @@ function renderChars(chars,s,n1,n2,n3,isFX){
   let html='<div class="char-boxes">';
   for(let i=0;i<chars.length;i++){
     const c=chars[i],st=strokes[i];
-    const known=getStrokes(c)||manualOverrides[c];
+    const known=getStrokes(s2tChar(c))||manualOverrides[s2tChar(c)]||getStrokes(c)||manualOverrides[c];
     html+=`<div class="cbox ${known?'':'unknown'}">
       <div class="ch">${c}</div>
       <div class="sl">${labels[i]}</div>
