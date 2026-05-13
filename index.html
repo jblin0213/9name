@@ -742,7 +742,7 @@ function doQuery(){
   if(isFX){if(len<3||len>4){alert('複姓姓名請輸入3至4個字');return;}}
   else{if(len<2||len>3){alert('請輸入2至3個字的姓名');return;}}
   if(!by||!bm||!bd){alert('請輸入完整出生年月日（民國）');return;}
-  const unknowns=chars.filter(c=>c&&!getStrokes(c)&&!manualOverrides[c]);
+  const unknowns=chars.filter(c=>c&&!getStrokes(s2tChar(c))&&!manualOverrides[s2tChar(c)]&&!getStrokes(c)&&!manualOverrides[c]);
   const ms=document.getElementById('manual-section');
   if(unknowns.length>0){
     let html=`<div class="manual-area"><b style="color:var(--red)">⚠ 以下文字不在字庫中，請手動輸入筆劃：</b>`;
