@@ -798,7 +798,7 @@ function saveManual(enc,by,bm,bd,isFX){
 }
 
 function render(name,by,bm,bd,isFX){
-  const chars=Array.from(name);
+  const chars=Array.from(name).map(s2tChar);
   let s,n1,n2,n3;
   if(isFX){
     s=getS(chars[0]);n1=getS(chars[1]);
@@ -1549,7 +1549,7 @@ function getPalaceYearsActive(grids,age,chars,isFX){
 }
 
 function getPersonData(name,by,bm,bd,isFX){const _dn=s2tStr(name);
-  const chars=Array.from(name);
+  const chars=Array.from(name).map(s2tChar);
   let s,n1,n2,n3;
   if(isFX){s=getS(chars[0]);n1=getS(chars[1]);n2=chars[2]?getS(chars[2]):0;n3=chars[3]?getS(chars[3]):0;}
   else{s=getS(chars[0]);n1=chars[1]?getS(chars[1]):0;n2=chars[2]?getS(chars[2]):0;n3=0;}
