@@ -1,4 +1,4 @@
-const CACHE = 'jb-name-v7';
+const CACHE = 'jb-name-v8';
 const ASSETS = [
   '/9name/',
   '/9name/index.html',
