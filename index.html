@@ -737,7 +737,7 @@ function doQuery(){
   const bd=parseInt(document.getElementById('bd').value)||0;
   const isFX=document.getElementById('fuxing').checked;
   saveForm();
-  const chars=Array.from(name);
+  const chars=Array.from(name).map(s2tChar);
   const len=chars.length;
   if(isFX){if(len<3||len>4){alert('複姓姓名請輸入3至4個字');return;}}
   else{if(len<2||len>3){alert('請輸入2至3個字的姓名');return;}}
@@ -764,7 +764,7 @@ function doQuery(){
     const bdB=parseInt(document.getElementById('bd_b').value)||0;
     const isFXB=document.getElementById('fuxing_b').checked;
     if(!nameB||!byB||!bmB||!bdB){alert('請輸入第二人的完整資料');return;}
-    const charsB=Array.from(nameB);
+    const charsB=Array.from(nameB).map(s2tChar);
     const unknownsB=charsB.filter(c=>c&&!getStrokes(s2tChar(c))&&!manualOverrides[s2tChar(c)]&&!getStrokes(c)&&!manualOverrides[c]);
     const msb=document.getElementById('manual-section-b');
     if(unknownsB.length>0){
@@ -1548,14 +1548,14 @@ function getPalaceYearsActive(grids,age,chars,isFX){
   return pals.filter(p=>getPalaceYears(p.val).has(age)).map(p=>p.name);
 }
 
-function getPersonData(name,by,bm,bd,isFX){
+function getPersonData(name,by,bm,bd,isFX){const _dn=s2tStr(name);
   const chars=Array.from(name);
   let s,n1,n2,n3;
   if(isFX){s=getS(chars[0]);n1=getS(chars[1]);n2=chars[2]?getS(chars[2]):0;n3=chars[3]?getS(chars[3]):0;}
   else{s=getS(chars[0]);n1=chars[1]?getS(chars[1]):0;n2=chars[2]?getS(chars[2]):0;n3=0;}
   const grids=calcGrids(s,n1,n2,n3,isFX);
   const age=calcAge(by,bm,bd);
-  return{name,by,bm,bd,isFX,chars,grids,age,s,n1,n2,n3};
+  return{name:_dn,by,bm,bd,isFX,chars,grids,age,s,n1,n2,n3};
 }
 
 function doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,byA,bmA,bdA,isFXA){
