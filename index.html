@@ -1036,7 +1036,7 @@ function renderActivationNote(grids,age,chars,isFX){
   const now=pals.filter(p=>getPalaceYears(p.val).has(age));
   const next=pals.filter(p=>getPalaceYears(p.val).has(age+1));
 
-  // ── 逢敗檢查（命宮、父母宮、子女宮）──
+  // ── 碰敗檢查（命宮、父母宮、子女宮）──
   const rocy=new Date().getFullYear()-1911;
   const xbNow=calcSumDigit(rocy);
   const xbNext=calcSumDigit(rocy+1);
@@ -1058,13 +1058,13 @@ function renderActivationNote(grids,age,chars,isFX){
     h+=`<div style="margin-top:4px"><span style="background:#5a3e08;color:#f5e6c8;padding:2px 11px;border-radius:10px;font-weight:bold;font-size:.82em">⚡ 明年發動</span>${next.map(p=>`<span style="color:#7a5430;font-weight:bold;margin-left:8px">${p.name}</span>`).join('')}</div>`;
   if(baiNow.length)
     h+=`<div style="margin-top:6px;padding:6px 10px;background:#f0f0f0;border-radius:6px;border-left:3px solid #555">
-      <span style="background:#555;color:white;padding:2px 10px;border-radius:10px;font-weight:bold;font-size:.82em">❄️ 今年逢敗</span>
+      <span style="background:#555;color:white;padding:2px 10px;border-radius:10px;font-weight:bold;font-size:.82em">❄️ 今年碰敗</span>
       ${baiNow.map(p=>`<span style="color:#555;font-weight:bold;margin-left:8px">${p.name}</span>`).join('')}
       <div style="margin-top:3px;font-size:.8em;color:#888">冰冷黑暗，萬物隱藏。宜守不宜攻，低調蓄積能量為上。</div>
     </div>`;
   if(baiNext.length)
     h+=`<div style="margin-top:6px;padding:6px 10px;background:#f5f5f5;border-radius:6px;border-left:3px solid #888">
-      <span style="background:#888;color:white;padding:2px 10px;border-radius:10px;font-weight:bold;font-size:.82em">🌑 明年逢敗</span>
+      <span style="background:#888;color:white;padding:2px 10px;border-radius:10px;font-weight:bold;font-size:.82em">🌑 明年碰敗</span>
       ${baiNext.map(p=>`<span style="color:#666;font-weight:bold;margin-left:8px">${p.name}</span>`).join('')}
       <div style="margin-top:3px;font-size:.8em;color:#aaa">明年將入敗運，提早佈局守成，避免重大決策。</div>
     </div>`;
@@ -1666,15 +1666,15 @@ function renderComparison(dataA,dataB){
       ${nowA.length?`<div style="margin-bottom:4px"><span style="background:#8B1A1A;color:#f5e6c8;padding:2px 8px;border-radius:8px;font-size:.78em">🔥 正在發動</span>${nowA.map(n=>`<span style="color:#8B1A1A;font-weight:bold;font-size:.85em;margin-left:6px">${n}</span>`).join('')}</div>`:''}
       ${nxtA.length?`<div><span style="background:#5a3e08;color:#f5e6c8;padding:2px 8px;border-radius:8px;font-size:.78em">⚡ 明年發動</span>${nxtA.map(n=>`<span style="color:#7a5430;font-weight:bold;font-size:.85em;margin-left:6px">${n}</span>`).join('')}</div>`:''}
       ${!nowA.length&&!nxtA.length&&!baiNowA.length&&!baiNextA.length?'<div style="color:#bbb;font-size:.85em">目前無宮位發動</div>':''}
-      ${baiNowA.length?`<div style="margin-top:4px;padding:4px 8px;background:#f0f0f0;border-radius:6px;border-left:3px solid #555"><span style="background:#555;color:white;padding:1px 8px;border-radius:8px;font-size:.75em;font-weight:bold">❄️ 今年逢敗</span>${baiNowA.map(p=>`<span style="color:#555;font-weight:bold;font-size:.82em;margin-left:6px">${p.name}</span>`).join('')}<div style="font-size:.73em;color:#888;margin-top:2px">冰冷黑暗，宜守不宜攻，低調蓄積能量。</div></div>`:''}
-      ${baiNextA.length?`<div style="margin-top:4px;padding:4px 8px;background:#f5f5f5;border-radius:6px;border-left:3px solid #888"><span style="background:#888;color:white;padding:1px 8px;border-radius:8px;font-size:.75em;font-weight:bold">🌑 明年逢敗</span>${baiNextA.map(p=>`<span style="color:#666;font-weight:bold;font-size:.82em;margin-left:6px">${p.name}</span>`).join('')}<div style="font-size:.73em;color:#aaa;margin-top:2px">明年將入敗運，提早佈局守成。</div></div>`:''}
+      ${baiNowA.length?`<div style="margin-top:4px;padding:4px 8px;background:#f0f0f0;border-radius:6px;border-left:3px solid #555"><span style="background:#555;color:white;padding:1px 8px;border-radius:8px;font-size:.75em;font-weight:bold">❄️ 今年碰敗</span>${baiNowA.map(p=>`<span style="color:#555;font-weight:bold;font-size:.82em;margin-left:6px">${p.name}</span>`).join('')}<div style="font-size:.73em;color:#888;margin-top:2px">冰冷黑暗，宜守不宜攻，低調蓄積能量。</div></div>`:''}
+      ${baiNextA.length?`<div style="margin-top:4px;padding:4px 8px;background:#f5f5f5;border-radius:6px;border-left:3px solid #888"><span style="background:#888;color:white;padding:1px 8px;border-radius:8px;font-size:.75em;font-weight:bold">🌑 明年碰敗</span>${baiNextA.map(p=>`<span style="color:#666;font-weight:bold;font-size:.82em;margin-left:6px">${p.name}</span>`).join('')}<div style="font-size:.73em;color:#aaa;margin-top:2px">明年將入敗運，提早佈局守成。</div></div>`:''}
     </div>
     <div style="background:#f0f4ff;border:1px solid #c0d0f0;border-radius:8px;padding:12px">
       ${nowB.length?`<div style="margin-bottom:4px"><span style="background:#1a3a6b;color:#e0eaff;padding:2px 8px;border-radius:8px;font-size:.78em">🔥 正在發動</span>${nowB.map(n=>`<span style="color:#1a3a6b;font-weight:bold;font-size:.85em;margin-left:6px">${n}</span>`).join('')}</div>`:''}
       ${nxtB.length?`<div><span style="background:#0e2050;color:#e0eaff;padding:2px 8px;border-radius:8px;font-size:.78em">⚡ 明年發動</span>${nxtB.map(n=>`<span style="color:#1a4a8b;font-weight:bold;font-size:.85em;margin-left:6px">${n}</span>`).join('')}</div>`:''}
       ${!nowB.length&&!nxtB.length&&!baiNowB.length&&!baiNextB.length?'<div style="color:#bbb;font-size:.85em">目前無宮位發動</div>':''}
-      ${baiNowB.length?`<div style="margin-top:4px;padding:4px 8px;background:#f0f0f0;border-radius:6px;border-left:3px solid #555"><span style="background:#555;color:white;padding:1px 8px;border-radius:8px;font-size:.75em;font-weight:bold">❄️ 今年逢敗</span>${baiNowB.map(p=>`<span style="color:#555;font-weight:bold;font-size:.82em;margin-left:6px">${p.name}</span>`).join('')}<div style="font-size:.73em;color:#888;margin-top:2px">冰冷黑暗，宜守不宜攻，低調蓄積能量。</div></div>`:''}
-      ${baiNextB.length?`<div style="margin-top:4px;padding:4px 8px;background:#f5f5f5;border-radius:6px;border-left:3px solid #888"><span style="background:#888;color:white;padding:1px 8px;border-radius:8px;font-size:.75em;font-weight:bold">🌑 明年逢敗</span>${baiNextB.map(p=>`<span style="color:#666;font-weight:bold;font-size:.82em;margin-left:6px">${p.name}</span>`).join('')}<div style="font-size:.73em;color:#aaa;margin-top:2px">明年將入敗運，提早佈局守成。</div></div>`:''}
+      ${baiNowB.length?`<div style="margin-top:4px;padding:4px 8px;background:#f0f0f0;border-radius:6px;border-left:3px solid #555"><span style="background:#555;color:white;padding:1px 8px;border-radius:8px;font-size:.75em;font-weight:bold">❄️ 今年碰敗</span>${baiNowB.map(p=>`<span style="color:#555;font-weight:bold;font-size:.82em;margin-left:6px">${p.name}</span>`).join('')}<div style="font-size:.73em;color:#888;margin-top:2px">冰冷黑暗，宜守不宜攻，低調蓄積能量。</div></div>`:''}
+      ${baiNextB.length?`<div style="margin-top:4px;padding:4px 8px;background:#f5f5f5;border-radius:6px;border-left:3px solid #888"><span style="background:#888;color:white;padding:1px 8px;border-radius:8px;font-size:.75em;font-weight:bold">🌑 明年碰敗</span>${baiNextB.map(p=>`<span style="color:#666;font-weight:bold;font-size:.82em;margin-left:6px">${p.name}</span>`).join('')}<div style="font-size:.73em;color:#aaa;margin-top:2px">明年將入敗運，提早佈局守成。</div></div>`:''}
     </div>
   </div>`;
 
