@@ -1041,9 +1041,9 @@ function renderActivationNote(grids,age,chars,isFX){
   const xbNow=calcSumDigit(rocy);
   const xbNext=calcSumDigit(rocy+1);
   const baiPals=[
-    {name:'命宮',  val:grids.zong},
-    {name:'父母宮',val:grids.tian},
-    {name:'子女宮',val:grids.di},
+    {name:'① 命宮',  val:grids.zong},
+    {name:'② 父母宮',val:grids.tian},
+    {name:'④ 子女宮',val:grids.di},
   ];
   const baiNow =baiPals.filter(p=>p.val&&calcJihuiInfo(p.val,xbNow).name==='敗');
   const baiNext=baiPals.filter(p=>p.val&&calcJihuiInfo(p.val,xbNext).name==='敗');
@@ -1655,10 +1655,10 @@ function renderComparison(dataA,dataB){
   const nowB=getPalaceYearsActive(dataB.grids,dataB.age,dataB.chars,dataB.isFX);
   const nxtB=getPalaceYearsActive(dataB.grids,dataB.age+1,dataB.chars,dataB.isFX);
   const xbNext=calcSumDigit(curROC+1);
-  const baiPalsA=[{name:'命宮',val:dataA.grids.zong},{name:'父母宮',val:dataA.grids.tian},{name:'子女宮',val:dataA.grids.di}];
+  const baiPalsA=[{name:'① 命宮',val:dataA.grids.zong},{name:'② 父母宮',val:dataA.grids.tian},{name:'④ 子女宮',val:dataA.grids.di}];
   const baiNowA=baiPalsA.filter(p=>p.val&&calcJihuiInfo(p.val,xbNow).name==='敗');
   const baiNextA=baiPalsA.filter(p=>p.val&&calcJihuiInfo(p.val,xbNext).name==='敗');
-  const baiPalsB=[{name:'命宮',val:dataB.grids.zong},{name:'父母宮',val:dataB.grids.tian},{name:'子女宮',val:dataB.grids.di}];
+  const baiPalsB=[{name:'① 命宮',val:dataB.grids.zong},{name:'② 父母宮',val:dataB.grids.tian},{name:'④ 子女宮',val:dataB.grids.di}];
   const baiNowB=baiPalsB.filter(p=>p.val&&calcJihuiInfo(p.val,xbNow).name==='敗');
   const baiNextB=baiPalsB.filter(p=>p.val&&calcJihuiInfo(p.val,xbNext).name==='敗');
   html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px" class="dual-summary-grid">
