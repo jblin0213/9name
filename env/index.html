@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>環境氣象學分析</title>
+<style>
+  :root {
+    --bg: #1a0a0a;
+    --bg2: #2a1010;
+    --bg3: #3a1a1a;
+    --accent: #8B1A1A;
+    --accent2: #b22222;
+    --gold: #d4a017;
+    --gold2: #f0c040;
+    --text: #f0e0d0;
+    --text2: #c0a090;
+    --green2: #5ab05a;
+    --blue2: #4a8aba;
+    --purple2: #8a4aaa;
+    --red2: #c03030;
+    --border: #5a2a2a;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', '微軟正黑體', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+  header {
+    background: linear-gradient(135deg, #3a0a0a, #6a1010);
+    padding: 18px 20px 14px;
+    text-align: center;
+    border-bottom: 2px solid var(--accent2);
+    margin-bottom: 20px;
+  }
+  header h1 { font-size: 1.5rem; color: var(--gold2); letter-spacing: 3px; }
+  header p { font-size: 0.78rem; color: var(--text2); margin-top: 4px; }
+
+  .page { max-width: 600px; margin: 0 auto; padding: 0 14px; }
+
+  /* Section block */
+  .section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .section-header {
+    background: linear-gradient(135deg, #3a0a0a, #5a1a1a);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-header h2 { font-size: 1rem; color: var(--gold2); letter-spacing: 1px; }
+  .section-header span { font-size: 0.75rem; color: var(--text2); }
+  .section-body { padding: 14px 16px; }
+
+  /* Form */
+  .form-group { margin-bottom: 12px; }
+  label { display: block; font-size: 0.82rem; color: var(--text2); margin-bottom: 5px; }
+  input[type=number], input[type=text], select {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+  input:focus { outline: none; border-color: var(--accent2); }
+  .hint { font-size: 0.72rem; color: var(--text2); margin-top: 4px; }
+  .form-row { display: flex; gap: 10px; }
+  .form-row .form-group { flex: 1; }
+
+  /* Button */
+  .btn {
+    width: 100%;
+    padding: 11px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 8px;
+    color: var(--gold2);
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.85; }
+
+  /* Result */
+  .result-box {
+    display: none;
+    margin-top: 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .result-box.show { display: block; }
+  .result-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--gold2);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .result-sub { font-size: 0.78rem; color: var(--text2); margin-bottom: 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .chip {
+    padding: 4px 11px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: bold;
+  }
+  .chip-me  { background: rgba(90,176,90,0.2);  border: 1px solid var(--green2); color: #7be07b; }
+  .chip-hse { background: rgba(74,138,186,0.2); border: 1px solid var(--blue2);  color: #7ab0e0; }
+  .chip-rel { background: rgba(212,160,23,0.2); border: 1px solid var(--gold);   color: var(--gold2); }
+  .result-desc {
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.75;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+  .divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+  /* 九宮格 */
+  .palace-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-top: 12px;
+  }
+  .palace-cell {
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    min-height: 72px;
+  }
+  .palace-cell .p-dir  { font-size: 0.7rem; color: var(--text2); margin-bottom: 2px; }
+  .palace-cell .p-role { font-size: 0.8rem; color: var(--text); font-weight: bold; margin-bottom: 4px; }
+  .palace-cell .p-tag  { font-size: 0.68rem; padding: 2px 7px; border-radius: 10px; font-weight: bold; }
+  .palace-cell.ji   { background: rgba(212,160,23,0.18); border-color: var(--gold); }
+  .palace-cell.ji   .p-tag { background: var(--gold); color: #1a0a0a; }
+  .palace-cell.cai  { background: rgba(58,122,58,0.25); border-color: var(--green2); }
+  .palace-cell.cai  .p-tag { background: var(--green2); color: #fff; }
+  .palace-cell.xiong{ background: rgba(192,48,48,0.25); border-color: var(--red2); }
+  .palace-cell.xiong .p-tag { background: var(--red2); color: #fff; }
+  .palace-cell.ji2  { background: rgba(138,74,170,0.2); border-color: var(--purple2); }
+  .palace-cell.ji2  .p-tag { background: var(--purple2); color: #fff; }
+  .palace-legend {
+    display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; justify-content: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.73rem; color: var(--text2); }
+  .legend-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+  /* 宅向方向按鈕 */
+  .dir-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .dir-btn {
+    padding: 10px 4px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text2);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .dir-btn:hover:not(.disabled) { border-color: var(--accent2); color: var(--text); }
+  .dir-btn.selected { background: rgba(139,26,26,0.3); border-color: var(--accent2); color: var(--gold2); font-weight: bold; }
+  .dir-btn.disabled { opacity: 0.3; cursor: default; }
+
+  /* Info box */
+  .info-box {
+    background: rgba(212,160,23,0.06);
+    border: 1px solid rgba(212,160,23,0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 12px;
+    font-size: 0.78rem;
+    color: var(--text2);
+    line-height: 1.65;
+  }
+  .info-box strong { color: var(--gold); }
+
+  /* 宅氣顏色 */
+  .zq-名望 { color: #f0c040; }
+  .zq-財祿 { color: #5ab05a; }
+  .zq-衰財 { color: #7ab0e0; }
+  .zq-官貴 { color: #aa80f0; }
+  .zq-交換 { color: #f0a040; }
+  .zq-利開 { color: #c0c0c0; }
+  .zq-利絕 { color: #888; }
+  .zq-敗壞 { color: #c05050; }
+  .zq-官煞 { color: #e06060; }
+
+  footer { text-align: center; padding: 20px; font-size: 0.7rem; color: #4a2a2a; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏠 環境氣象學</h1>
+  <p>喜用・宅氣・定位・宅向 完整分析</p>
+</header>
+<div style="text-align:center;padding:8px 16px;background:#1a0505;border-bottom:1px solid #4a1a1a;">
+  <a href="../index.html" style="display:inline-block;padding:6px 18px;background:rgba(139,26,26,0.3);border:1px solid #8B1A1A;border-radius:20px;color:#d4a017;font-size:0.82rem;text-decoration:none;letter-spacing:1px;">⊹ 回到九宮姓名筆劃查詢</a>
+</div>
+
+<div class="page">
+
+
+  <!-- ===== 喜用 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <h2>⚖️ 喜用分析</h2>
+      <span>我與房子的五行關係</span>
+    </div>
+    <div class="section-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>命宮個位數</label>
+          <input type="number" id="xi_ming" placeholder="如35→輸入5" min="0" max="9">
+          <div class="hint">命宮取個位（35→5，28→8）</div>
+        </div>
+        <div class="form-group">
+          <label>房號個位數</label>
+          <input type="number" id="xi_house" placeholder="如32號→輸入2" min="0" max="9">
+          <div class="hint">門牌「號」取個位，忽略巷弄</div>
+        </div>
+      </div>
+      <button class="btn" onclick="calcXiYong()">分 析 喜 用</button>
+      <div class="result-box" id="xi_result">
+        <div class="result-name" id="xi_title">—</div>
+        <div class="result-sub" id="xi_sub">—</div>
+        <div class="chips" id="xi_chips"></div>
+        <div class="result-desc" id="xi_desc">—</div>
+      </div>
+      <div class="info-box">
+        <strong>選擇技巧：</strong>選奇數剋奇數、偶數剋偶數最佳，屬不衝擊的剋只會改造。沖的房子只沖陽不沖陰，男性負責人特別注意。
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 宅氣 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <h2>🌊 宅氣分析</h2>
+      <span>今年房子帶來的能量</span>
+    </div>
+    <div class="section-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>房號（全碼，自動相併）</label>
+          <input type="number" id="zq_house" placeholder="如15、32" min="1">
+          <div class="hint">「之幾」的情況輸入之幾的數字</div>
+        </div>
+        <div class="form-group">
+          <label>民國年份</label>
+          <input type="number" id="zq_year" placeholder="如115" value="115" min="90" max="200">
+        </div>
+      </div>
+      <button class="btn" onclick="calcZhaiQi()">分 析 宅 氣</button>
+      <div class="result-box" id="zq_result">
+        <div class="result-name" id="zq_title">—</div>
+        <div class="result-sub" id="zq_sub">—</div>
+        <div class="chips" id="zq_chips"></div>
+        <div class="result-desc" id="zq_desc">—</div>
+      </div>
+      <div class="info-box">
+        <strong>注意：</strong>氣從1月1日算到12月31日。房子空半年以上以空亡論。名望氣最適合各行各業，第一次開店必選名望起步。
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 定位 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <h2>🗺️ 個人定位</h2>
+      <span>吉・財・兇・忌位查詢</span>
+    </div>
+    <div class="section-body">
+      <div class="form-group">
+        <label>命宮相併數（1～9）</label>
+        <input type="number" id="dw_ming" placeholder="如命宮28→2+8=10→1+0=1" min="1" max="9">
+        <div class="hint">將命宮反覆相加至個位數</div>
+      </div>
+      <button class="btn" onclick="calcDingWei()">顯 示 定 位 圖</button>
+      <div id="dw_result" style="display:none;">
+        <div class="palace-grid" id="dw_grid"></div>
+        <div class="palace-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#d4a017"></div>吉位（命宮位置）</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#5ab05a"></div>財位（退一位）</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#c03030"></div>兇位（忌坐）</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#8a4aaa"></div>忌位（忌睡）</div>
+        </div>
+        <div class="info-box" id="dw_tips" style="margin-top:10px;"></div>
+      </div>
+      <div class="info-box" style="margin-top:12px;">
+        <strong>原則：</strong>吉位不能開門 / 財位要動不要靜（廁所沒關係）/ 兇位不能坐辦公 / 忌位不能睡覺
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 宅向 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <h2>🚪 宅向分析</h2>
+      <span>開門方向決定組織氣場</span>
+    </div>
+    <div class="section-body">
+      <label style="font-size:0.82rem;color:var(--text2);margin-bottom:8px;display:block;">選擇開門方向</label>
+      <div class="dir-grid">
+        <button class="dir-btn" data-dir="西北" onclick="selectDir(this)">西北</button>
+        <button class="dir-btn" data-dir="北"   onclick="selectDir(this)">北</button>
+        <button class="dir-btn" data-dir="東北" onclick="selectDir(this)">東北</button>
+        <button class="dir-btn" data-dir="西"   onclick="selectDir(this)">西</button>
+        <button class="dir-btn disabled">中<br><small style="font-size:0.62rem">不開門</small></button>
+        <button class="dir-btn" data-dir="東"   onclick="selectDir(this)">東</button>
+        <button class="dir-btn" data-dir="西南" onclick="selectDir(this)">西南</button>
+        <button class="dir-btn" data-dir="南"   onclick="selectDir(this)">南</button>
+        <button class="dir-btn" data-dir="東南" onclick="selectDir(this)">東南</button>
+      </div>
+      <div class="result-box" id="zx_result">
+        <div class="result-name" id="zx_title">—</div>
+        <div class="result-sub" id="zx_sub">—</div>
+        <div class="result-desc" id="zx_desc" style="border-top:none;padding-top:0;">—</div>
+      </div>
+      <div class="info-box">
+        <strong>觀念：</strong>組織越大宅向越重要。北氣強過南氣，西氣旺過東氣。集團總部依整棟大樓開門方向看，再細看各部門。
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<footer>環境氣象學分析工具 · JB 九宮系列</footer>
+
+<!-- 固定選人列（有兩人時才出現） -->
+<div id="person-bar" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:999;
+  background:linear-gradient(135deg,#2a0a0a,#3a1010); border-top:2px solid var(--gold);
+  padding:10px 16px; display:none; align-items:center; gap:10px; flex-wrap:wrap;">
+  <span style="font-size:0.78rem; color:var(--text2); flex-shrink:0;">👤 切換分析對象：</span>
+  <div id="person-btns" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+</div>
+
+<script>
+const ELEMENTS = { 1:'木', 2:'木', 3:'火', 4:'火', 5:'土', 6:'土', 7:'金', 8:'金', 9:'水', 0:'水' };
+const GENERATES = { '木':'火', '火':'土', '土':'金', '金':'水', '水':'木' };
+const CONTROLS  = { '金':'木', '木':'土', '土':'水', '水':'火', '火':'金' };
+const ELEM_SYMBOL = { '木':'🌳', '火':'🔥', '土':'⛰️', '金':'⚙️', '水':'💧' };
+
+const ZHAI_INFO = {
+  '無力宅': { color:'#4a8aba', short:'房生我・無力宅', desc:'房子生你，衝勁復原力降低，運被拖住，住進去很喜歡但搬不走。<br><br>✅ <b>適合：</b>公務員穩定任職、養老、無大志者。無力宅當官反而乖乖的。<br>❌ <b>不適合：</b>想衝業績、剛出社會打拚的人。' },
+  '回流宅': { color:'#e07050', short:'我生房・回流宅', desc:'你的氣源源流向房子，動力強，激發潛能。但你在奉獻，奉獻完了也再見了。<br><br>✅ <b>適合：</b>剛出社會3年磨練期、業務、小老闆、想激發潛能者。宅氣必須要好。<br>❌ <b>不適合：</b>已達高峰、需靠官位地位的人。' },
+  '同行宅': { color:'#c0c080', short:'同元素・同行宅', desc:'與房子同五行，靠宅氣與運控制。宅氣好跟著好，運不好跟著衰。<br><br>✅ <b>適合：</b>專業性行業（設計師、工程師、律師），讓個人運氣自由發揮。<br>⚠️ <b>注意：</b>住同行宅脾氣較易發作，需靠修為控制。' },
+  '官祿宅': { color:'#aa80f0', short:'房剋我・官祿宅', desc:'房子剋你，改造你成長，格調上升，使官運起來。<br><br>✅ <b>適合：</b>幫人做事、管理者、高階經理人、軍人、政務官。五年一波，不超過九年。<br>❌ <b>不適合：</b>白手起家剛起步、想靠自己求財的老闆。' },
+  '喜用宅': { color:'#d4a017', short:'我剋房・喜用宅', desc:'你剋房子，有改造資源的功能，可得財。凡是營業場所、從商者最適合。<br><br>✅ <b>適合：</b>已有組織、商業經營強、想創造財富的老闆。三年一小波，九年一大波。<br>❌ <b>不適合：</b>白手起家剛起步、運勢不好能力不足者。' }
+};
+
+const ZQ_CYCLE = ['衰財','敗壞','交換','利開','官貴','財祿','名望','利絕','官煞'];
+const ZQ_INFO = {
+  '名望': { color:'#f0c040', desc:'九股氣中最適合每種人。第一次做生意開店必選名望起步，一炮而紅。最喜歡專業技術、獨特性行業，可襯托知名度光芒。' },
+  '財祿': { color:'#5ab05a', desc:'氣往內流，最適合經商求財者的營業場所。命宮含暗財者居住，住久就知道如何賺錢，搭配喜用宅更好。清高者、公務人員不太適合。' },
+  '衰財': { color:'#7ab0e0', desc:'相當好的氣，福氣很旺又帶財氣（帶暗財）。唯一可與名望比擬的氣。居住平安有福報，經營逢貴人有暗財，店舖興旺財庫通。' },
+  '官貴': { color:'#aa80f0', desc:'使官氣格局擴大。最適合：當官者、一級主管、事業動態性質者。住進後若感覺升格，代表房子好要留住。扶強不扶弱，弱者不宜。' },
+  '交換': { color:'#f0a040', desc:'前身不好住進去反而好，脫胎換骨。適合想突破格局、轉行、翻身者。進去要花裝潢費用有除舊佈新之意。選交氣的房子暗財較弱。' },
+  '利開': { color:'#c0c0c0', desc:'氣很虛，財不易進，氣外流，對經商開店者不利。適合白手起家、剛創業、走出新格局的起步，或把業務主將外派拓展市場用。' },
+  '利絕': { color:'#888888', desc:'最不帶財的氣，搬進去業績起碼掉1/3以上。不適合做生意的人。純住宅、幫人做事、當官當主管無所謂。財團法人、公益性團體也可選。' },
+  '敗壞': { color:'#c05050', desc:'最不好的氣，讓運打不開，做生意選敗氣會死得很慘。輕者有是非波折，重者財利不順、災禍、盜竊、衝突。寧可等明年或另選他處。' },
+  '官煞': { color:'#e06060', desc:'兩極化的氣，扶強不扶弱。運勢強者、霸氣型人可順勢而起。但運不好者、有違法者住進必然官司纏身。新婚夫妻住進必定爭吵不斷。' }
+};
+
+const NUM_TO_DIR = { 1:'北', 2:'西南', 3:'東', 4:'東南', 5:'中宮', 6:'西北', 7:'西', 8:'東北', 9:'南' };
+const DIR_ROLE   = { '北':'坐鎮・帝', '西南':'文昌・相', '東':'領旗・將', '東南':'傳令・衛', '中宮':'廟堂・廟', '西北':'庫房・侯', '西':'靠山・世', '東北':'祿馬・帥', '南':'指揮・王' };
+
+const PERSONAL_POS = {
+  1: { 吉:'北',  財:'南',  兇:'東南', 忌:'中宮' },
+  2: { 吉:'西南',財:'北',  兇:'中宮', 忌:'西北' },
+  3: { 吉:'東',  財:'西南',兇:'西北', 忌:'西'   },
+  4: { 吉:'東南',財:'東',  兇:'西',   忌:'東北'  },
+  5: { 吉:'中宮',財:'東南',兇:'東北', 忌:'南'   },
+  6: { 吉:'西北',財:'中宮',兇:'南',   忌:'北'   },
+  7: { 吉:'西',  財:'西北',兇:'北',   忌:'西南'  },
+  8: { 吉:'東北',財:'西',  兇:'西南', 忌:'東'   },
+  9: { 吉:'南',  財:'東北',兇:'東',   忌:'東南'  }
+};
+const MING_ZHU_YI = {
+  1:'不睡中宮、南方打地鋪', 2:'不睡西北位', 3:'不睡西方位', 4:'不睡東北位',
+  5:'不睡南方位', 6:'不睡北方位', 7:'不睡西南位', 8:'不睡東方位', 9:'不睡東南位'
+};
+
+const ZX_DATA = {
+  '北':  { name:'獨裁門・稱霸門', type:'將門', desc:'獨裁型人或獨占市場行業最適合。靠個人魅力帶動，吸引專業人才。層級不到不要亂開。獨裁門——你自己左右，你自己指揮；稱霸門——在你的行業，人家擁護你稱霸。' },
+  '西南':{ name:'無助門・外求門', type:'外門', desc:'西南為思考、動腦、貴人之位，開門等於沒有貴人。命宮8的人不靠貴人，反而自己是別人的貴人可用。無助門——缺貴人；外求門——還可以到外面求到貴人。' },
+  '東':  { name:'缺將門・獨步門', type:'虎門', desc:'留不住高階主管，管理階層容易斷層，適合法務部、工廠。缺將門——幹部將才容易流失，靠自己領導；獨步門——你要有獨門技術，帶動領導屬下。' },
+  '東南':{ name:'不守門・迎賓門', type:'兵門', desc:'人氣最旺的開門，店面傳銷最適合，適合經濟部。不守門——守不住（當鋪金融業害怕）；迎賓門——人氣旺熱鬧滾滾，最喜歡人進來。補習班東南角不能缺。' },
+  '西北':{ name:'丟官門・修道門', type:'休門', desc:'當官或主管者最忌，住進注定丟官，官聚不住。丟官門——當官主管切忌；修道門——最適合廟公、修道院、宗教修行場所，開到自身吉位也沒關係。' },
+  '西':  { name:'勤勞門・再起門', type:'龍門', desc:'很好的位置，層級往上爬，刺激勤勞。勤勞門——訓練勤勞的力量；再起門——事業下滑換此辦公室可東山再起，爬得回來。' },
+  '東北':{ name:'虛空門・遠征門', type:'空門', desc:'氣最虛，打開等於讓人攻進來，不適合一般開店。虛空門——容易讓人攻進來，氣虛；遠征門——適合主動對外拓展業務、招攬客戶、往外攻打市場的行業。' },
+  '南':  { name:'號令門・進貢門', type:'天門', desc:'集團最高峰才適合開，層級不到不要亂開。號令門——說什麼大家都聽，發號施令（如法師、精神領袖）；進貢門——發展到最高程度，人家來朝拜晉見進貢。' }
+};
+
+// ===== 讀取九宮工具 localStorage 資料，自動帶入 =====
+function calcSumDigitNum(n) {
+  let s = parseInt(n);
+  while (s > 9) s = String(s).split('').reduce((a,b) => a + parseInt(b), 0);
+  return s;
+}
+
+let _persons = [];
+
+function applyPerson(idx) {
+  const p = _persons[idx];
+  if (!p) return;
+  const lastDigit = p.zong % 10;
+  const sumDigit = calcSumDigitNum(p.zong);
+  document.getElementById('xi_ming').value = lastDigit;
+  document.getElementById('dw_ming').value = sumDigit;
+  // 更新按鈕選中狀態
+  document.querySelectorAll('#person-btns button').forEach((b, i) => {
+    b.style.background = i === idx ? 'rgba(212,160,23,0.35)' : 'rgba(212,160,23,0.1)';
+    b.style.fontWeight = i === idx ? 'bold' : 'normal';
+  });
+  calcDingWei();
+}
+
+function loadFromJiuGong() {
+  try {
+    const zong  = localStorage.getItem('jb_zong');
+    const name  = localStorage.getItem('jb_name_display') || localStorage.getItem('jb_name');
+    const zongB = localStorage.getItem('jb_zong_b');
+    const nameB = localStorage.getItem('jb_name_display_b') || localStorage.getItem('jb_name_b');
+    if (!zong || !name) return;
+
+    _persons = [{ name, zong: parseInt(zong) }];
+    if (zongB && nameB) _persons.push({ name: nameB, zong: parseInt(zongB) });
+
+    // 自動套用第一人
+    applyPerson(0);
+
+    // 有兩人才顯示底部切換列
+    if (_persons.length > 1) {
+      const btns = document.getElementById('person-btns');
+      btns.innerHTML = _persons.map((p, i) => {
+        const sd = calcSumDigitNum(p.zong);
+        return `<button onclick="applyPerson(${i})" style="
+          padding:8px 16px; border:1px solid var(--gold); border-radius:20px;
+          color:var(--gold2); font-size:0.85rem; cursor:pointer;
+          background:${i===0?'rgba(212,160,23,0.35)':'rgba(212,160,23,0.1)'};
+          font-weight:${i===0?'bold':'normal'};">
+          ${p.name}（命宮${p.zong}・相併${sd}）
+        </button>`;
+      }).join('');
+      document.getElementById('person-bar').style.display = 'flex';
+      // 底部列有高度，加一點 padding 避免內容被蓋住
+      document.body.style.paddingBottom = '60px';
+    }
+  } catch(e) {}
+}
+
+window.addEventListener('DOMContentLoaded', loadFromJiuGong);
+
+function calcSumDigit(n) {
+  let s = parseInt(n);
+  while (s > 9) s = String(s).split('').reduce((a,b) => a + parseInt(b), 0);
+  return s;
+}
+function getElement(d) { return ELEMENTS[parseInt(d) % 10] || ELEMENTS[0]; }
+function getRelation(meE, hsE) {
+  if (meE === hsE) return '同行宅';
+  if (GENERATES[hsE] === meE) return '無力宅';
+  if (GENERATES[meE] === hsE) return '回流宅';
+  if (CONTROLS[hsE] === meE) return '官祿宅';
+  if (CONTROLS[meE] === hsE) return '喜用宅';
+}
+
+function calcXiYong() {
+  const mv = document.getElementById('xi_ming').value;
+  const hv = document.getElementById('xi_house').value;
+  if (mv === '' || hv === '') return alert('請輸入命宮和房號個位數');
+  const md = parseInt(mv) % 10, hd = parseInt(hv) % 10;
+  const meE = getElement(md), hsE = getElement(hd);
+  const rel = getRelation(meE, hsE);
+  const info = ZHAI_INFO[rel];
+  const relDesc = rel === '同行宅' ? `${meE} ＝ ${hsE}` :
+    rel === '無力宅' ? `${hsE} 生 ${meE}` : rel === '回流宅' ? `${meE} 生 ${hsE}` :
+    rel === '官祿宅' ? `${hsE} 剋 ${meE}` : `${meE} 剋 ${hsE}`;
+
+  document.getElementById('xi_title').textContent = rel;
+  document.getElementById('xi_title').style.color = info.color;
+  document.getElementById('xi_sub').textContent = info.short;
+  document.getElementById('xi_chips').innerHTML = `
+    <div class="chip chip-me">${ELEM_SYMBOL[meE]} 我 ${md||10} → ${meE}</div>
+    <div class="chip chip-hse">${ELEM_SYMBOL[hsE]} 房 ${hd||10} → ${hsE}</div>
+    <div class="chip chip-rel" style="border-color:${info.color};color:${info.color}">${relDesc}</div>
+  `;
+  document.getElementById('xi_desc').innerHTML = info.desc;
+  document.getElementById('xi_result').classList.add('show');
+}
+
+function calcZhaiQi() {
+  const hv = document.getElementById('zq_house').value;
+  const yv = document.getElementById('zq_year').value;
+  if (!hv || !yv) return alert('請輸入房號和年份');
+  const H = calcSumDigit(hv), Y = calcSumDigit(yv);
+  const idx = ((H - Y + 6) % 9 + 9) % 9;
+  const zqName = ZQ_CYCLE[idx];
+  const info = ZQ_INFO[zqName];
+
+  document.getElementById('zq_title').textContent = zqName;
+  document.getElementById('zq_title').className = `result-name zq-${zqName}`;
+  document.getElementById('zq_sub').textContent = `民國${yv}年・房號${hv}`;
+  document.getElementById('zq_chips').innerHTML = `
+    <div class="chip chip-hse">🏠 房號 ${hv} → 相併 ${H}</div>
+    <div class="chip chip-me">📅 ${yv} 年 → 相併 ${Y}</div>
+    <div class="chip chip-rel" style="border-color:${info.color};color:${info.color};">🌊 ${zqName}</div>
+  `;
+  document.getElementById('zq_desc').textContent = info.desc;
+  document.getElementById('zq_result').classList.add('show');
+}
+
+const GRID_ORDER = [['西南','南','東南'],['西','中宮','東'],['西北','北','東北']];
+function calcDingWei() {
+  const v = document.getElementById('dw_ming').value;
+  if (!v) return alert('請輸入命宮相併數');
+  const ming = calcSumDigit(v);
+  if (ming < 1 || ming > 9) return alert('請輸入1-9之間的數字');
+  const pos = PERSONAL_POS[ming];
+  const grid = document.getElementById('dw_grid');
+  grid.innerHTML = '';
+  GRID_ORDER.forEach(row => {
+    row.forEach(dir => {
+      const cell = document.createElement('div');
+      cell.className = 'palace-cell';
+      let tagText = '';
+      if (dir === pos.吉)  { cell.classList.add('ji');    tagText = '吉位'; }
+      else if (dir === pos.財)  { cell.classList.add('cai');   tagText = '財位'; }
+      else if (dir === pos.兇)  { cell.classList.add('xiong'); tagText = '兇位'; }
+      else if (dir === pos.忌)  { cell.classList.add('ji2');   tagText = '忌位'; }
+      const role = DIR_ROLE[dir] || dir;
+      cell.innerHTML = `
+        <div class="p-dir">${dir}</div>
+        <div class="p-role">${role.split('・')[0]}</div>
+        ${tagText ? `<div class="p-tag">${tagText}</div>` : ''}
+      `;
+      grid.appendChild(cell);
+    });
+  });
+  document.getElementById('dw_tips').innerHTML =
+    `<strong>命宮相併 ${ming} 的建議：</strong><br>
+    🌟 <b>吉位</b>（${pos.吉}）：命宮對應位置，坐這裡把自己發揮到最高峰，突顯個人。<br>
+    💰 <b>財位</b>（${pos.財}）：先天財庫，突顯組織，可供奉財神。<br>
+    ⚠️ <b>兇位</b>（${pos.兇}）：忌坐辦公，廁所在這無妨，不能安神位。<br>
+    🚫 <b>忌位</b>（${pos.忌}）：${MING_ZHU_YI[ming]}。`;
+  document.getElementById('dw_result').style.display = 'block';
+}
+
+function selectDir(btn) {
+  document.querySelectorAll('.dir-btn:not(.disabled)').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const info = ZX_DATA[btn.dataset.dir];
+  if (!info) return;
+  document.getElementById('zx_title').textContent = `${btn.dataset.dir}門・${info.name}`;
+  document.getElementById('zx_sub').textContent = `類型：${info.type}`;
+  document.getElementById('zx_desc').textContent = info.desc;
+  document.getElementById('zx_result').classList.add('show');
+}
+</script>
+</body>
+</html>
