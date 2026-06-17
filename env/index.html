@@ -463,37 +463,31 @@ function renderProfileCard(p) {
     return;
   }
 
-  const gridRow = (lbl, val, el) => `
-    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
-      <span style="font-size:0.72rem;color:var(--text2);width:54px;flex-shrink:0;">${lbl}</span>
-      <span style="font-size:0.9rem;font-weight:600;color:var(--text);min-width:28px;">${val}</span>
-      ${el ? `<span style="font-size:0.71rem;padding:2px 8px;border-radius:10px;background:${ELEM_BG[el]};color:${ELEM_COLOR[el]};border:1px solid ${ELEM_COLOR[el]}40;">${el}</span>` : ''}
-    </div>`;
+  const svgKey = p._svgKey || 'jb_diagram_svg';
+  const svgHtml = localStorage.getItem(svgKey) || '';
 
   const flowBadge = p.flowStage
-    ? `<span style="display:inline-block;padding:4px 13px;border-radius:12px;background:${p.flowColor};color:#fff;font-weight:700;font-size:0.82rem;">${p.flowStage}・${p.flowMod}</span>`
+    ? `<span style="display:inline-block;padding:4px 14px;border-radius:12px;background:${p.flowColor};color:#fff;font-weight:700;font-size:0.84rem;">${p.flowStage}・${p.flowMod}</span>`
     : '<span style="color:var(--text2);">—</span>';
 
   const jihuiBadge = p.jihuiName
-    ? `<span style="display:inline-block;padding:4px 13px;border-radius:12px;background:${p.jihuiColor};color:#fff;font-weight:700;font-size:0.82rem;">${p.jihuiName}・${p.jihuiSeason}</span>`
+    ? `<span style="display:inline-block;padding:4px 14px;border-radius:12px;background:${p.jihuiColor};color:#fff;font-weight:700;font-size:0.84rem;">${p.jihuiName}・${p.jihuiSeason}</span>`
     : '<span style="color:var(--text2);">—</span>';
 
   body.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-      <div>
-        <div style="font-size:0.71rem;color:var(--text2);margin-bottom:8px;letter-spacing:1px;">▸ 五格結構</div>
-        ${gridRow('命宮（總格）', p.zong, p.zongEl)}
-        ${gridRow('天格（父母）', p.tian, p.tianEl)}
-        ${gridRow('人格（疾財）', p.ren,  p.renEl)}
-        ${gridRow('地格（子女）', p.di,   p.diEl)}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;">
+      <div style="overflow-x:auto;">
+        ${svgHtml
+          ? `<div style="max-width:100%;min-width:220px;">${svgHtml}</div>`
+          : `<div style="font-size:0.78rem;color:var(--text2);padding:12px 0;">請回到<a href="../index.html" style="color:var(--accent2);">九宮工具</a>重新計算一次</div>`}
       </div>
       <div>
         <div style="font-size:0.71rem;color:var(--text2);margin-bottom:8px;letter-spacing:1px;">▸ 今年流年運勢</div>
         <div style="margin-bottom:6px;">${flowBadge}</div>
-        <div style="font-size:0.77rem;color:var(--text2);line-height:1.6;margin-bottom:12px;">${p.flowDesc}</div>
+        <div style="font-size:0.77rem;color:var(--text2);line-height:1.65;margin-bottom:14px;">${p.flowDesc||''}</div>
         <div style="font-size:0.71rem;color:var(--text2);margin-bottom:8px;letter-spacing:1px;">▸ 命宮機會點</div>
         <div style="margin-bottom:6px;">${jihuiBadge}</div>
-        <div style="font-size:0.75rem;color:var(--text2);line-height:1.5;">${p.jihuiDir}方位・${p.jihuiDesc}</div>
+        <div style="font-size:0.75rem;color:var(--text2);line-height:1.5;">${p.jihuiDir||''}方位・${p.jihuiDesc||''}</div>
       </div>
     </div>`;
   card.style.display = 'block';
@@ -530,8 +524,8 @@ function loadFromJiuGong() {
     const name  = localStorage.getItem('jb_name_display') || localStorage.getItem('jb_name');
     if (!zong || !name) return;
 
-    const pA = raw  ? JSON.parse(raw)  : { name, zong: parseInt(zong) };
-    const pB = rawB ? JSON.parse(rawB) : null;
+    const pA = raw  ? { ...JSON.parse(raw),  _svgKey: 'jb_diagram_svg'   } : { name, zong: parseInt(zong), _svgKey: 'jb_diagram_svg' };
+    const pB = rawB ? { ...JSON.parse(rawB), _svgKey: 'jb_diagram_svg_b' } : null;
 
     _persons = [pA];
     if (pB && pB.name) _persons.push(pB);

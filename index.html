@@ -966,6 +966,7 @@ function render(name,by,bm,bd,isFX){
       flowStage:_fy.stage.name,flowMod:_fy.stage.mod,flowDesc:_fy.stage.desc,flowColor:_fy.stage.color,
       jihuiName:_jh.name,jihuiSeason:_jh.season,jihuiDir:_jh.dir,jihuiDesc:_jh.desc,jihuiColor:_jh.color,
     }));
+    if(lastSvgA) localStorage.setItem('jb_diagram_svg', lastSvgA);
   }catch(e){}
 }
 
@@ -1829,6 +1830,7 @@ function doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,byA,bmA,bdA,isFXA){
   }catch(e){}
   renderAge(dataB.age,byB,bmB,bdB,getAgeRange(byB,bmB,bdB));
   lastSvgB=renderDiagram(dataB.chars,dataB.grids,dataB.s,dataB.n1,dataB.n2,dataB.n3,isFXB);
+  try{if(lastSvgB) localStorage.setItem('jb_diagram_svg_b', lastSvgB);}catch(e){}
   renderActivationNote(dataB.grids,dataB.age,dataB.chars,isFXB);
   renderMingGongQianCheng(dataB.grids.zong,'_b');
   renderFlowYear(dataB.grids.zong,dataB.age,nameB);
