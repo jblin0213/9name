@@ -207,6 +207,20 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
   display:none;
   letter-spacing:.03em;
 }
+.qc-star-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.qc-star-badge{background:linear-gradient(135deg,#8B1A1A,#b52020);color:#f5e6c8;border-radius:50%;width:50px;height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(139,26,26,.3)}
+.qc-star-badge .qc-num{font-size:.72em;opacity:.85}
+.qc-star-badge .qc-sym{font-size:1.1em;font-weight:bold}
+.qc-star-name{font-size:1.45em;font-weight:bold;color:#8B1A1A;letter-spacing:.12em}
+.qc-star-sub{font-size:.78em;color:#7a5430;margin-top:1px;letter-spacing:.04em}
+.qc-block{margin-bottom:10px}
+.qc-label{font-size:.72em;color:#C8981A;font-weight:bold;letter-spacing:.08em;margin-bottom:4px}
+.qc-trait{font-size:.88em;color:#5a3520;background:#fff8ee;border-left:3px solid #C8981A;padding:8px 12px;border-radius:0 6px 6px 0;line-height:1.7}
+.qc-meaning{font-size:.87em;color:#2c1a0a;line-height:1.78}
+.qc-note{font-size:.83em;color:#6b3a1f;background:#fdf0e4;border-left:3px solid #8B1A1A;padding:7px 12px;border-radius:0 5px 5px 0;line-height:1.65}
+.qc-note-label{font-weight:bold;color:#8B1A1A;margin-right:4px}
+.qc-zong-row{display:flex;align-items:center;gap:6px;background:#f9f5e8;border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:.85em;color:#5a3520}
+.qc-out-range{color:#aaa;font-size:.88em;text-align:center;padding:16px}
 </style>
 </head>
 <body>
@@ -231,6 +245,21 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
   <div style="position:absolute;bottom:-8px;right:32px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid #C8981A"></div>
 </div>
 <main>
+  <!-- ── 名人快查 ── -->
+  <div class="card" id="celeb-card">
+    <div class="card-title">🔍 名人資料快查 <span style="font-size:.72em;color:#aaa;font-weight:normal;letter-spacing:0">AI 自動帶入生日與改名資訊</span></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="text" id="celeb-input" placeholder="輸入名人姓名，例：周杰倫、蔡依林、郭台銘" maxlength="20"
+        style="flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:.95em;font-family:inherit"
+        onkeydown="if(event.key==='Enter')searchCeleb()">
+      <button onclick="searchCeleb()" id="celeb-btn"
+        style="background:var(--red);color:#f5e6c8;border:none;border-radius:8px;padding:9px 20px;font-size:.92em;cursor:pointer;font-family:inherit;white-space:nowrap">
+        🔍 查詢
+      </button>
+    </div>
+    <div id="celeb-result" style="margin-top:10px"></div>
+  </div>
+
   <div class="card">
     <div class="card-title">✦ 輸入資料</div>
     <div class="ig">
@@ -325,6 +354,10 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
       <div id="activation-note"></div>
     </div>
     <div class="card">
+      <div class="card-title">✦ 命宮前程分析</div>
+      <div id="qiancheng-section"></div>
+    </div>
+    <div class="card">
       <div class="card-title">✦ 流年運程</div>
       <div id="flowyear-section"></div>
     </div>
@@ -356,6 +389,10 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
       <div class="card-title">✦ 命格基本架構</div>
       <div class="arch-svg-wrap" id="mingge-diagram_b"></div>
       <div id="activation-note_b"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">✦ 命宮前程分析</div>
+      <div id="qiancheng-section_b"></div>
     </div>
     <div class="card">
       <div class="card-title">✦ 流年運程</div>
@@ -804,6 +841,88 @@ function saveManual(enc,by,bm,bd,isFX){
   render(name,by,bm,bd,isFX);
 }
 
+/* ── 命宮前程星座引導資料 (17-53) ── */
+const MINGGONG_STARS={
+  17:{name:'開發星',trait:'最能自由發揮的、大膽敢冒險、走出自己風格、開拓前程的星座；自主性很強、喜歡脫離舊軌道、往新方向開創追求新目標。',meaning:'不管在官途、公職或商界發展，都必須靠自己追求新目標，走在時代前端，要有自己的特色不能太守舊；敢冒險、勇於突破、主動積極的奮鬥經營，才能有一番作為。',note:'可以賭人生與前程，但不能投機和賭博。'},
+  18:{name:'實力星',trait:'勤於耕耘、憑實力發展、追求實質效益的星座；踏踏實實，用心學習專業能力是最大特色。',meaning:'以勤奮做為基礎、踏踏實實，憑實力開拓前程；一分耕耘一分收穫是您要認定的事實。要懂得多多學習專業能力，在專業領域就很容易成功，不辭辛勞的朝著人生前程發展。',note:'別期望輕鬆舒服、安逸度日；不可頂撞或排斥上層關係（父母、長輩、貴人）。'},
+  19:{name:'奇發星',trait:'可以隨著週邊環境而改變，逢黑則黑、入白則白，就像變色龍一樣善於適應環境的星座。',meaning:'前程發展要懂得隨著時代環境的變化而改變自己，以尋求成功為主要目標；若當時環境已退化，就要趕緊另外尋覓新環境求發展，以「窮則變、變則通」為今生經營原則。以財、利為主，發展以商界為主，但要跟著貴人做。',note:'遇到抉擇時，先考慮以求財為先。'},
+  20:{name:'文曲星',trait:'思想形、穩定形、靠合作或攀附為主的星座；具有幕僚形思緒，要靠別人帶動，以伴隨、合作或輔佐策略在旁的特質。',meaning:'一生前程要靠攀附、合作起家，以合作為主、您做副手出意見，表現輔佐功能，以積極主動的態度或好夥伴的合作關係來經營前程。理財是您一生必備的條件。',note:'「思多行少」是您的致命傷，「被動」則是您失敗的源頭。格局擴大要組織，單打獨鬥沒品質；攀龍附鳳求合作，功成名就靠睿智。'},
+  21:{name:'爭權星',trait:'在群體靠著奮鬥和競爭、憑著強烈意志力而取得主導權的星座；鬥志強、不怕吃苦是最大特色。',meaning:'一生前程有如「爭權奪利」，要秉持堅強意志力、腳踏實地努力奮鬥；不怕吃苦、跟人拼、不怕競爭和壓力，先求奉獻和表現，再從被考驗中求成長。在職場或事業上的主導者一定是您。',note:'千萬不要學而不精，一碰到挫折就放棄；要勇於挑戰未來，但不可好高騖遠。'},
+  22:{name:'文昌星',trait:'完美主義很強，具有文藝、法治、制度功能的星座；自主性很強卻要依附在主星旁邊輔佐，才能發揮最大效益。',meaning:'一生前程必需懂得尋找一位敬佩的人依附在旁，以輔助的形態來衬托自己的存在，或找一個組織健全、未來發展性很好的事業體來依附。懂得表現奉獻精神以及活躍主動的態度。',note:'文昌星容易在言語上說得過於直銳，請多修飾言語。切記：良言一句三冬暖，惡語傷人六月寒。'},
+  23:{name:'追隨星',trait:'動力很強，又很懂得追隨主星（上層組織或貴人）而獲得提拔，甚至承接主星光芒的星座。',meaning:'一生前程建立在認定一位成功者追隨他，或鎖定一個明確目標一路追隨到底；要秉持比任何人都積極努力、永不懈怠的精神，加上毅力堅定、堅持信念，成功速度就會比別人快。',note:'保持追隨的態度很容易，尋找追隨的對象很難；認定成功的目標很簡單，堅持到底的精神更困難。'},
+  24:{name:'福德星',trait:'有福氣、很容易得到愛護和照顧，機運也特別好，有如神界福、祿、壽三公中的福星；碰到波折也很容易絕處逢生。',meaning:'一生前程隨時隨地都有貴人照應，很容易得到愛護與幫助，好機會也特別容易來眷顧。記得在面對長輩、貴人時要懂得尊敬和奉承，與屬下相處要以親和態度。',note:'誠信待人為根本，福星高照在爾身；若喜歡逞口舌之快、得理不饒人，將會趕走你的福氣。'},
+  25:{name:'穩定星',trait:'在穩定的環境中成長、守成、儲存的星座；接收功能甚強、資源豐富、財氣也不錯，故又有「庫星」之稱。',meaning:'一生前程屬穩定形，以守成或在穩定中求成長；從政不如從商、求名不如求利；以穩定為第一，有收成就往何處去。就算要創業也要穩穩的走，根基尚未打穩前千萬不可急進。',note:'有人進攻有人守，資源豐富要會收；放棄一切我獨行，歲月消失難回首。'},
+  26:{name:'驛馬星',trait:'喜歡自由自在、有野性，很能奔馳的星座；最大特色像「馬」一樣，毅力堅定、不辭辛勞、奔馳萬里。',meaning:'一生要以馬的特性做指標；在任何環境下秉持忠心耿耿、不辭辛勞、意志堅定的理念，為一個值得跟隨的領導者或組織付出，且不怕離鄉背井；有機會就往外鄉發展，才能真正有前途。',note:'不要想自由自在、不受拘束或叛逆行事，這將造成阻礙前程發展的主因。'},
+  27:{name:'能力星',trait:'擁有潛在的本能專業知識的星座；發揮專長、憑實力靠自己奮鬥經營，最大特質是白手起家的精神。',meaning:'一生必需懂得靠自己努力奮鬥，學有專精步步為營，朝著自己熟悉的行業去經營，要做到有一點名氣才可能突顯成就。不怕白手起家、也不怕辛苦經營，就怕一事無成、學無所長，在職場上東跳西換。',note:'白手起家不怕苦，就怕高傲又孤獨；努力經營成家計，事業有成就是福。'},
+  28:{name:'官貴星',trait:'圍繞著母體，又可以借母體之光芒而顯貴的星座；有替代行使權力的特質，故稱之為「官貴星」。',meaning:'一生起步必需先選擇優良適合的環境、組織任職，或跟著顯赫的長輩貴人一路走上來，積極努力表現、用心經營，以「水漲船高」的心態一直跟著，將有意想不到的收穫與成就。',note:'道德和品行是成就的範本，缺德與貪婪是失敗的引路；愈易得到卻不易珍惜是你的致命傷。'},
+  29:{name:'亂世星',trait:'在混亂環境中，最懂得突顯自己、混沌中產生明亮，可以在不穩定的團隊中取得共鳴而被擁護的星座，又有「梟雄」之稱。',meaning:'一生前程和社會環境、組織有相當大的關連；適合在複雜、變動或不穩定的環境中求發展，愈是混沌不清的環境，愈有發揮空間。要先懂得和環境中的人取得合作共鳴，懂得窮則變、變則通，事必躬親、身先士卒。',note:'懶散是您的致命傷，缺乏鬥志或膽小如鼠是阻礙前程發展的主因。'},
+  30:{name:'經營星',trait:'財氣甚旺，又會生息、源源不斷、動能很強，是諸多財星中最活躍的一顆，故稱之為「經營星」。',meaning:'只要對財有強烈企圖心，您的前程和「財」將相當有緣，故適合朝經商發展；即使從事技術、生產或專業性行業，財氣還是比別人旺一些。要秉持著努力、積極、不怕辛勞、不怕冒險、用心經營才會成功。',note:'好好把握、認定目標、堅守信念、往錢衝、有利必圖。'},
+  31:{name:'奉獻星',trait:'非常活躍、主動表現，以能力和奉獻付出而取得主導、經營權的星座；動力甚強，是最容易被認可的星座。',meaning:'一生要懂得發揮活躍的一面以奉獻、表現為主軸，走在前端，不能太死板、遇事不能太靦腆；展現主動、積極、表現能力，力求奉獻付出、無怨無悔的精神，達到完全被認可後取得管理、主導及經營的權力為目標。',note:'人生經營靠捨得，不懂得捨就沒有格了；有了權力要更用心，堅持理念不會錯。'},
+  32:{name:'攀附星',trait:'最會攀附、相伴左右、跟著前進，可以沾上「主星」光輝而得到機運或照顧；有如月亮依著地球、又借著太陽光芒而發亮。',meaning:'一生要懂得尋找一位可以照顧、提拔、重用您的貴人，用心經營以輔佐、配合的態度一路跟到底；若能力或資本已超越他了，就再尋求更高層的人來追隨。',note:'不僅要懂得跟貴人，也要讓別人心甘情願的讓你跟；拍馬屁與奉承就是你必須所學的招術，不要一味想要獨闖。'},
+  33:{name:'背景星',trait:'借助母體之光芒而亮麗自己，以背景、靠山來襯托自己可以發射光芒的星座，是最容易得到靠山資助的星座。',meaning:'一生前程發展必需建立在尋找一位值得依靠的人、或一個可以當靠山的組織來經營；今生的發展要以「因主而榮」（因夫而貴）為宗旨。您的睿智和眼光非常重要，除了要選對人或組織外，自身的心性和修養也是考量重點。',note:'不可意氣用事隨意放棄；不要忽視靠山的重要性，就算要創業也要有靠山支持；靠山必須是資源比你龐大的組織或金主。'},
+  34:{name:'承襲星',trait:'最容易得到呵護、提攜及貴人相助，甚至可以「取而代之」其追隨主人地位的星座；天生帶有說服力與親和力。',meaning:'一生很容易得到貴人的提拔與照顧，機運總是比別人好；在官途上、工作職場上或經商事業上，往往很容易得到認可而升格，更有成為接班人的機會。要懂得珍惜把握機會，絕不能賭氣或意氣用事，更不可過河拆橋。',note:'天生帶有說服力，但不可用在計較、挑剔、逞口舌之快、得理不饒人之上。'},
+  35:{name:'忙碌星',trait:'活動性最強、本身資源又很豐盛，自轉率強、又會主動追尋的星座（有如太陽星系中的地球），故稱之為「忙碌星」。',meaning:'一生前程發展絕對不是平淡悠閒的，機運除了來自於本身的專業能力外，工作環境和事業上的機會都很容易讓您碰到，尤其在開拓事業版圖和開創財源上易白手起家創業，只要秉持認真和踏實的態度，前途不可限量。',note:'「財路」是您的指標，從政和從商的選擇，要以「從商」為主。'},
+  36:{name:'寵信星',trait:'很容易得到週遭的照顧，以及母體的偏愛和信任，環繞在機會和幸運之中，最能享受到幸運之神眷顧的星座。',meaning:'一生在前程發展過程中，在工作職場上只要稍做表現，就很容易得到上位者的偏愛和信任；在事業發展上也很容易得到貴人的扶持與資助。但前提是要先懂得「忠心侍主」、「以誠待人」和「惜福惜緣」。',note:'傲慢的態度、跋扈的行為、不滿的情緒、孤獨的個性，是影響幸運的四大主因。'},
+  37:{name:'人際星',trait:'要靠人際關係來得到機運；有八面玲瓏、上下逢源的磁場存在的星座；最大特質是廣結善緣。',meaning:'一生要以「人際關係」為主軸，不管在任何環境下，第一件事就是做好上下融通的人際關係，更要懂得為人處事的道理。做好八面玲瓏、先求人和就很容易被提拔、得人助，自然而然可以擴大格局。',note:'若不善於經營人際關係，屬於孤高自許的人，態度與人格格不入、難以相處，那就不必提到前程的發展如何。'},
+  38:{name:'賞識星',trait:'很容易吸引到上層、王者、權貴的接受和欣賞，並且因此得到富貴的星座；形象氣質對其來說是最有力的武器。',meaning:'一生必需懂得展現自己的才華和內涵修養，第一印象形象外表很重要，可用修飾自己的華麗外表來吸引上位者的賞識、看重，重要的是如何去「選對主人」，不管在政界或商界發展都要朝這個指標去做。',note:'想要得到賞識，必需先表現您身上內外在的優點，尤其是在服儀上的修飾也很重要，形象對您而言是最有用的。'},
+  39:{name:'短發星',trait:'可以在最短的時間內，創造經營成功、發展迅速、爆發力很強、不怕競爭、可以超越環境壓力和阻力的星座。',meaning:'一生隨時都有可能在最短時間內創造成就、發展成功，但相對的要有競爭的精神、強烈的鬥志、不怕吃苦、毅力堅定、敢衝敢拼的行為，才可能符合「短發星」的特性。',note:'千萬不可得意忘形或鬆懈下來，更不可生活糜爛，否則你會爬得快、摔落的也快。'},
+  40:{name:'時代星',trait:'很容易得到時空氣象感應而突顯發亮的星座，最能夠在群體中展現自己的光芒與特色；「時勢可造英雄」。',meaning:'一生前程發展要懂得配合現實環境，市場在流行什麼就做什麼，去展現自己的才華和專業能力；只要主動積極去表現和經營，很容易得到週遭人的認可與支持。',note:'要特別注意上層人際關係的經營，時代也代表上層關係，萬一破壞了，恐將招致「壯志未酬一場空」。'},
+  41:{name:'天權星',trait:'很容易得到指揮權和管理權的星座；往往在組織、團隊中突顯強烈光芒，極獲重用，故又有「空降星」之稱。',meaning:'在任何環境裡都很容易被上位者注意而重用，甚至常常會遇到上層長輩挖角與信任；論「機運」您是幸運的，所以對於上層關係要特別尊重，要懂得把握這種「機運」。',note:'知遇之恩難報答，倫理制度不可殺；不可恃寵而驕、抓住組織資源帶動破壞，否則機運將會消失。'},
+  42:{name:'天相星',trait:'輔佐功能很強、常居於王者左右，是個有智慧、有策略的星座；最大特色是很容易得到上位者的信任與重用。',meaning:'一生要懂得展現思維功能，聰明才智和專業知識是您不可或缺的；懂得多多加強在專業領域上的知識，以輔佐為出發點，取得認用，爾後發展於事業上必有所成。以輔佐為起點再想創業。',note:'剛愎自用、不學無術，將會自毀前程。'},
+  43:{name:'獵戶星',trait:'很懂得尋找獵物、鎖定目標、一路緊追而達到獵取標的物為止的星座，有獵人那一股絕不輕易放棄的精神。',meaning:'一生前程發展中必需秉持著獵人的精神，先鎖定一個目標，一路緊追不捨，不達目的誓不罷休；勇往直前，沒有恐懼和猶豫，不怕波折，不怕困難，更不輕言放棄。事先練好自己的本領（專業技能），善用真本事。',note:'獵人的目標永遠是一個，獵到以後才會再尋找第二個獵物；請您不要常常換目標，到頭來會一無所有。'},
+  44:{name:'光芒星',trait:'光芒四射、很容易在群體中展現光芒，又可依附在主星旁邊而「因主而榮」的星座；展現光芒、特色和亮麗的外表是它的特質。',meaning:'一生前程發展要懂得尋找一位有名氣的人、或很有特色的組織環境來依附，懂得表現自己最有價值的專才來引別人的認可，更要懂得突顯自己、打亮自己的知名度，愛表現自己、自戀的最好。',note:'「人際關係」是您最要修練的一門課程；由於此星帶有口舌心，要預防「言多必失」的情形。'},
+  45:{name:'變動星',trait:'在變動複雜的環境中，反而可以獲得提拔、重視、支持機會的星座；愈動盪的職務，愈有機會升格。',meaning:'一生前程不怕在動盪不穩定的環境中成長，愈是變動的工作或職務，愈有機會升格及獲得提拔。相對的，在穩定的環境中反而突顯不出可用之處。在獲得認可之前，態度上的表現和用心度是最該具備的條件。',note:'前途如何看表現，有官可升搶在前；莫想安全和穩定，有利可圖不怕變。'},
+  46:{name:'四海星',trait:'跨行於內外圍以及上下皆通行的星座；最大特質是在遠方或不被看好的環境中，依然動力很強、活躍十足。',meaning:'一生除了專業能力和敬業精神外，必需懂得上下通關，結交權貴、交遊廣闊；最好也訓練自己成為「博學通才」，可以多學不精但什麼都要懂。「四海之內皆兄弟、黑白兩道我都通」的磁場，各個層面的人際關係是您最該訓練的課程。',note:'可做各行各業、不要被限制「閉門造車」或「坐井觀天」，永遠翻不了身，請打開視野，勇敢的走出去。'},
+  47:{name:'官祿星',trait:'官氣旺、財祿也旺，但是它是靠著群體而發出光輝的星座；若純粹以個體而言則將失去官祿星的效果。',meaning:'一生前程要建立在有組織、有團隊、甚至是大環境中發展，才能發揮本身功能；由於本身官氣旺，最宜在政界或官界中求發展，或藉著官場（官營企業）做背景經營事業，很容易得到機會與財祿。',note:'「單打獨鬥無官祿，組織靠山多用途。」'},
+  48:{name:'天貴星',trait:'家族形的星座，光芒完全突顯在群體中，靠著族群的光環而折射發光；「天」者為上、「貴」者為旺，因上而旺故名「天貴星」。',meaning:'一生起步的關鍵非常重要，如果家族淵源或家庭背景很好，千萬不要脫離，可藉著這道光環加以努力奮鬥，提升自己的格局；萬一出生家庭平庸沒有背景，則要仔細規劃如何投靠在一個組織龐大、穩定又有發展的機構，好好奮鬥、努力表現、求得成長。',note:'千萬不要把自己「天貴星」的磁場給破壞掉，這顆星的格調比較高，素養和內涵是您今生相當重要的課程。'},
+  49:{name:'無主星',trait:'自主性很強，又善於變化和不穩定的星座；本身不太會依附著群體或跟著主星而運行，比較會自行運轉、自行變動。',meaning:'一生前程均要靠自己操作經營，即使起步是在團隊中培養出來的，最終依然會走出自己的風格與路線。關鍵則在於如何運用別人或既有組織的資源來壯大自己。保持良好的「人際關係」和不斷吸收「專業知識」是您今生最重要的課程。',note:'專業上要比人強比人雄厚，這是您今生最重要的功課。'},
+  50:{name:'天府星',trait:'相當有思考潛力、可受後天改造而發揮功能，是群體中最有思慮也很容易被重視的「智多星」。',meaning:'一生前程發展必需懂得多多發揮專業知識、展現與眾不同的才智；先以攀附輔佐做起步，時機成熟後則以合作為基礎；有組織團隊才有您表現的空間（智多星要在團隊中提供意見，不要獨立運作）。要永遠保持清晰的思維。',note:'要努力辛苦學習，不可以多學不精，會想不會做。'},
+  51:{name:'晚發星',trait:'在群體中不太容易被發現，而實力卻是很雄厚的星座；無法像其他星座一般迅速綻放光芒，但一旦被發現後，則會持續很長的時間。',meaning:'一生前程著重於專業知識與技術，只要朝著目標前進、勇往直前，要有耐心，成功雖然來得比較晚，但卻是很紮實的；有機會可以往外鄉發展的話，請要極力爭取，對前程發展會更有幫助。',note:'請不要急於想成功，「急功好利」對您的殺傷力會很大。'},
+  52:{name:'困行星',trait:'在群體的運行中，很容易受限而又無法自由發揮其專屬特質的星座；最有「懷才不遇」的感覺，但懂得「解放自我、順勢而為」則可破除困局。',meaning:'一生前程發展要懂得先突破、改變自己的思維「隨波逐流」；順著時代潮流發展、放棄執著、配合組織發展，力求迎合「時尚風」，再把自己的專長運用於工作職場上，自然可以獲得機會和貴人的眷顧。',note:'堅持己見、不求變通，終將空乏其身。'},
+  53:{name:'祿馬星',trait:'在群體中不會被箝制，而可以主動運行，發揮實力、特質，自發功能很強的星座；在運行中可以創造自己的風格，也可以往外自由發揮。',meaning:'一生前程發展先要懂得腳踏實地的發揮自己的專長與所學，積極主動去表現自己、力求展現自己的風格；有錢但要拼，千萬不要寄望靠別人來資助和照顧。只要保持永不懈怠的精神，必可開拓光明的前程。',note:'有錢但要拼，保持永不懈怠的精神，前途無量。'}
+};
+
+/* ── 命宮前程渲染函數 ── */
+function renderMingGongQianCheng(zong,ctx){
+  const elId='qiancheng-section'+(ctx||'');
+  const el=document.getElementById(elId);
+  if(!el)return;
+  const star=MINGGONG_STARS[zong];
+  if(!star){
+    el.innerHTML=`<div class="qc-out-range">命宮值 ${zong} 超出星座對照範圍（17〜53）</div>`;
+    return;
+  }
+  el.innerHTML=`
+    <div class="qc-zong-row">
+      <span style="color:#8B1A1A;font-weight:bold">命宮總格</span>
+      <span style="font-size:1.15em;font-weight:bold;color:#C8981A">${zong}</span>
+      <span style="color:#aaa;margin:0 4px">→</span>
+      <span style="font-size:1.08em;font-weight:bold;color:#8B1A1A">${star.name}</span>
+    </div>
+    <div class="qc-star-header">
+      <div class="qc-star-badge">
+        <span class="qc-num">${zong}</span>
+        <span class="qc-sym">★</span>
+      </div>
+      <div>
+        <div class="qc-star-name">${star.name}</div>
+        <div class="qc-star-sub">命宮代表星座引導</div>
+      </div>
+    </div>
+    <div class="qc-block">
+      <div class="qc-label">▌ 星座特質</div>
+      <div class="qc-trait">${star.trait}</div>
+    </div>
+    <div class="qc-block">
+      <div class="qc-label">▌ 前程意義與佈局</div>
+      <div class="qc-meaning">${star.meaning}</div>
+    </div>
+    <div class="qc-block">
+      <div class="qc-note"><span class="qc-note-label">⚠ 記住：</span>${star.note}</div>
+    </div>
+  `;
+}
+
 function render(name,by,bm,bd,isFX){
   const chars=Array.from(name).map(s2tChar);
   let s,n1,n2,n3;
@@ -820,6 +939,7 @@ function render(name,by,bm,bd,isFX){
   renderChars(chars,s,n1,n2,n3,isFX);
   lastSvgA=renderDiagram(chars,grids,s,n1,n2,n3,isFX);
   renderActivationNote(grids,age,chars,isFX);
+  renderMingGongQianCheng(grids.zong);
   renderFlowYear(grids.zong,age,name);
   renderJihuiDian(grids,age);
   renderGrids(grids,chars,isFX);
@@ -1598,6 +1718,7 @@ function doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,byA,bmA,bdA,isFXA){
   renderAge(dataB.age,byB,bmB,bdB,getAgeRange(byB,bmB,bdB));
   lastSvgB=renderDiagram(dataB.chars,dataB.grids,dataB.s,dataB.n1,dataB.n2,dataB.n3,isFXB);
   renderActivationNote(dataB.grids,dataB.age,dataB.chars,isFXB);
+  renderMingGongQianCheng(dataB.grids.zong,'_b');
   renderFlowYear(dataB.grids.zong,dataB.age,nameB);
   renderJihuiDian(dataB.grids,dataB.age,'_b');
   renderGrids(dataB.grids,dataB.chars,isFXB,'_b');
