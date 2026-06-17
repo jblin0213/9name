@@ -1741,23 +1741,35 @@ async function searchCeleb(){
     const rocY=year-1911;
     const birthName=row.birthnameLabel?.value||'';
     const hasAlias=birthName&&birthName!==nameVal&&!/^Q\d+$/.test(birthName);
-    document.getElementById('name').value=nameVal;
-    document.getElementById('by').value=rocY;
-    document.getElementById('bm').value=month;
-    document.getElementById('bd').value=day;
-    updateS2THint(nameVal,'s2t-hint-a');
-    let html=`<div style="background:#f5f9e8;border:1px solid #b8d080;border-radius:8px;padding:10px 14px;font-size:.88em;line-height:1.9">`;
-    html+=`<b style="color:#4a7000">✅ 已找到：${nameVal}</b>`;
+    // 存結果到全域，等用戶按「帶入」
+    window._celebData={name:nameVal,rocY,month,day};
+    let html=`<div style="background:#f5f9e8;border:1px solid #b8d080;border-radius:8px;padding:10px 14px;font-size:.88em;line-height:1.75">`;
+    html+=`<b style="color:#2a6000">✅ 找到了！</b><br>`;
+    html+=`👤 姓名：${nameVal}`;
     if(hasAlias)html+=`<br>📝 本名：${birthName}`;
     html+=`<br>🎂 生日：民國 ${rocY} 年 ${month} 月 ${day} 日`;
-    html+=`<br><span style="color:#888;font-size:.92em">👆 已自動帶入，直接點「開始計算」即可</span>`;
-    html+=`</div>`;
+    html+=`<div style="margin-top:10px">`;
+    html+=`<button onclick="celebFillIn()" style="background:#8B1A1A;color:#f5e6c8;border:none;border-radius:8px;padding:8px 22px;font-size:.92em;cursor:pointer;font-family:inherit;font-weight:bold;margin-right:8px">✦ 帶入資料</button>`;
+    html+=`<button onclick="document.getElementById('celeb-result').innerHTML=''" style="background:#eee;color:#555;border:none;border-radius:8px;padding:8px 16px;font-size:.88em;cursor:pointer;font-family:inherit">✕ 取消</button>`;
+    html+=`</div></div>`;
     resultEl.innerHTML=html;
   }catch(e){
     resultEl.innerHTML=`<span style="color:#cc2200;font-size:.88em">查詢失敗：${e.message}。請手動填入生日。</span>`;
   }finally{
     btn.disabled=false;btn.innerHTML='🔍 查詢';
   }
+}
+
+function celebFillIn(){
+  const d=window._celebData;
+  if(!d)return;
+  document.getElementById('name').value=d.name;
+  document.getElementById('by').value=d.rocY;
+  document.getElementById('bm').value=d.month;
+  document.getElementById('bd').value=d.day;
+  updateS2THint(d.name,'s2t-hint-a');
+  document.getElementById('celeb-result').innerHTML=
+    `<div style="color:#4a7000;font-size:.88em;padding:4px 0">✅ 已帶入「${d.name}」的資料，請確認後點「開始計算」</div>`;
 }
 
 function getPersonData(name,by,bm,bd,isFX){const _dn=s2tStr(name);
