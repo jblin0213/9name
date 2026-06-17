@@ -1727,7 +1727,7 @@ async function searchCeleb(){
   SERVICE wikibase:label { bd:serviceParam wikibase:language "zh-tw,zh,en". }
 } LIMIT 1`;
     const url='https://query.wikidata.org/sparql?query='+encodeURIComponent(sparql)+'&format=json';
-    const resp=await fetch(url,{headers:{'Accept':'application/sparql-results+json','User-Agent':'JBLeakPro-9name/1.0'}});
+    const resp=await fetch(url,{headers:{'Accept':'application/sparql-results+json'}});
     if(!resp.ok)throw new Error('查詢失敗 '+resp.status);
     const data=await resp.json();
     const rows=data.results?.bindings||[];
