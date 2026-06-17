@@ -223,6 +223,25 @@
   .zq-官煞 { color: #fca5a5; }
 
   footer { text-align: center; padding: 20px; font-size: 0.7rem; color: #2a3347; }
+
+  /* 放大 Modal */
+  #svg-modal {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.85); align-items: center; justify-content: center;
+  }
+  #svg-modal.open { display: flex; }
+  #svg-modal-inner {
+    background: #1a0a08; border-radius: 16px; padding: 20px;
+    max-width: 92vw; max-height: 88vh; overflow: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+    position: relative;
+  }
+  #svg-modal svg { width: 80vw; max-width: 520px; height: auto; display: block; }
+  #svg-modal-close {
+    position: absolute; top: 10px; right: 14px;
+    font-size: 1.4rem; color: #888; cursor: pointer; line-height: 1;
+  }
+  #svg-modal-close:hover { color: #fff; }
 </style>
 </head>
 <body>
@@ -372,6 +391,14 @@
 
 <footer>環境氣象學分析工具 · JB 九宮系列</footer>
 
+<!-- 放大 Modal -->
+<div id="svg-modal" onclick="closeDiagramModal()">
+  <div id="svg-modal-inner" onclick="event.stopPropagation()">
+    <span id="svg-modal-close" onclick="closeDiagramModal()">✕</span>
+    <div id="svg-modal-content"></div>
+  </div>
+</div>
+
 <script>
 const ELEMENTS = { 1:'木', 2:'木', 3:'火', 4:'火', 5:'土', 6:'土', 7:'金', 8:'金', 9:'水', 0:'水' };
 const GENERATES = { '木':'火', '火':'土', '土':'金', '金':'水', '水':'木' };
@@ -441,7 +468,7 @@ let _persons = [];
 const ELEM_COLOR = { '木':'#34d399','火':'#fb923c','土':'#f59e0b','金':'#94a3b8','水':'#38bdf8' };
 const ELEM_BG    = { '木':'rgba(52,211,153,0.12)','火':'rgba(251,146,60,0.12)','土':'rgba(245,158,11,0.12)','金':'rgba(148,163,184,0.12)','水':'rgba(56,189,248,0.12)' };
 
-const EC = { '木':'#3a7a3a','火':'#8B1A1A','土':'#7a5a00','金':'#4a4a6a','水':'#1a4a6a','虛':'#aaa' };
+const EC = { '木':'#2a7a3a','火':'#c0362a','土':'#a07820','金':'#5a6a8a','水':'#1a6a9a' };
 
 function buildDiagramSvg(p) {
   if (!p || !p.zong || !p.tian) return '';
@@ -561,7 +588,10 @@ function renderProfileCard(p) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;">
       <div style="overflow-x:auto;">
         ${svgHtml
-          ? `<div style="max-width:100%;min-width:220px;">${svgHtml}</div>`
+          ? `<div onclick="openDiagramModal(this.querySelector('svg'))" style="max-width:100%;min-width:220px;cursor:zoom-in;position:relative;">
+               ${svgHtml}
+               <div style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.5);color:#aaa;font-size:0.65rem;padding:2px 7px;border-radius:8px;">🔍 點擊放大</div>
+             </div>`
           : `<div style="font-size:0.78rem;color:var(--text2);padding:12px 0;">請回到<a href="../index.html" style="color:var(--accent2);">九宮工具</a>重新計算一次</div>`}
       </div>
       <div>
@@ -791,6 +821,15 @@ function calcDingWei() {
     ⚠️ <b>兇位</b>（${pos.兇}）：忌坐辦公，廁所在這無妨，不能安神位。<br>
     🚫 <b>忌位</b>（${pos.忌}）：${MING_ZHU_YI[ming]}。`;
   document.getElementById('dw_result').style.display = 'block';
+}
+
+function openDiagramModal(svg) {
+  if (!svg) return;
+  document.getElementById('svg-modal-content').innerHTML = svg.outerHTML;
+  document.getElementById('svg-modal').classList.add('open');
+}
+function closeDiagramModal() {
+  document.getElementById('svg-modal').classList.remove('open');
 }
 
 function selectDir(btn) {
