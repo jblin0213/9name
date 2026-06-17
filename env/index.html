@@ -342,11 +342,11 @@
 
 <footer>環境氣象學分析工具 · JB 九宮系列</footer>
 
-<!-- 固定選人列（有兩人時才出現） -->
-<div id="person-bar" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:999;
-  background:linear-gradient(135deg,#2a0a0a,#3a1010); border-top:2px solid var(--gold);
-  padding:10px 16px; display:none; align-items:center; gap:10px; flex-wrap:wrap;">
-  <span style="font-size:0.78rem; color:var(--text2); flex-shrink:0;">👤 切換分析對象：</span>
+<!-- 固定選人列（頂端，有兩人時才出現） -->
+<div id="person-bar" style="display:none; position:sticky; top:0; left:0; right:0; z-index:999;
+  background:#2a0808; border-bottom:1px solid #6a2a2a;
+  padding:8px 16px; align-items:center; gap:10px; flex-wrap:wrap;">
+  <span style="font-size:0.75rem; color:var(--text2); flex-shrink:0;">👤 切換：</span>
   <div id="person-btns" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
 </div>
 
