@@ -952,7 +952,21 @@ function render(name,by,bm,bd,isFX){
   renderPalaces(grids,by,age);
   document.getElementById('results').style.display='block';
   document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
-  try{localStorage.setItem('jb_zong',grids.zong);localStorage.setItem('jb_name_display',name);}catch(e){}
+  try{
+    localStorage.setItem('jb_zong',grids.zong);
+    localStorage.setItem('jb_name_display',name);
+    const _fy=calcFlowYear(grids.zong,age);
+    const _xb=(new Date().getFullYear()-1911)%9||9;
+    const _jh=calcJihuiInfo(grids.zong,_xb);
+    const _elem=n=>{const m={1:'木',2:'木',3:'火',4:'火',5:'土',6:'土',7:'金',8:'金',9:'水',0:'水'};return m[n%10]||m[0];};
+    localStorage.setItem('jb_profile',JSON.stringify({
+      name,age,
+      zong:grids.zong,tian:grids.tian,ren:grids.ren,di:grids.di,wai:grids.wai,
+      zongEl:_elem(grids.zong),tianEl:_elem(grids.tian),renEl:_elem(grids.ren),diEl:_elem(grids.di),
+      flowStage:_fy.stage.name,flowMod:_fy.stage.mod,flowDesc:_fy.stage.desc,flowColor:_fy.stage.color,
+      jihuiName:_jh.name,jihuiSeason:_jh.season,jihuiDir:_jh.dir,jihuiDesc:_jh.desc,jihuiColor:_jh.color,
+    }));
+  }catch(e){}
 }
 
 /* ── 年齡資訊 ── */
@@ -1748,9 +1762,11 @@ async function searchCeleb(){
     html+=`👤 姓名：${nameVal}`;
     if(hasAlias)html+=`<br>📝 本名：${birthName}`;
     html+=`<br>🎂 生日：民國 ${rocY} 年 ${month} 月 ${day} 日`;
-    html+=`<div style="margin-top:10px">`;
-    html+=`<button onclick="celebFillIn()" style="background:#8B1A1A;color:#f5e6c8;border:none;border-radius:8px;padding:8px 22px;font-size:.92em;cursor:pointer;font-family:inherit;font-weight:bold;margin-right:8px">✦ 帶入資料</button>`;
-    html+=`<button onclick="document.getElementById('celeb-result').innerHTML=''" style="background:#eee;color:#555;border:none;border-radius:8px;padding:8px 16px;font-size:.88em;cursor:pointer;font-family:inherit">✕ 取消</button>`;
+    html+=`<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">`;
+    html+=`<span style="font-size:.82em;color:#7a5430;white-space:nowrap">帶入到：</span>`;
+    html+=`<button onclick="celebFillIn(1)" style="background:#8B1A1A;color:#f5e6c8;border:none;border-radius:8px;padding:7px 18px;font-size:.88em;cursor:pointer;font-family:inherit;font-weight:bold">👤 第一人</button>`;
+    html+=`<button onclick="celebFillIn(2)" style="background:#1a3a6b;color:#f5e6c8;border:none;border-radius:8px;padding:7px 18px;font-size:.88em;cursor:pointer;font-family:inherit;font-weight:bold">👥 第二人</button>`;
+    html+=`<button onclick="document.getElementById('celeb-result').innerHTML=''" style="background:#eee;color:#555;border:none;border-radius:8px;padding:7px 14px;font-size:.85em;cursor:pointer;font-family:inherit">✕ 取消</button>`;
     html+=`</div></div>`;
     resultEl.innerHTML=html;
   }catch(e){
@@ -1760,16 +1776,25 @@ async function searchCeleb(){
   }
 }
 
-function celebFillIn(){
+function celebFillIn(person){
   const d=window._celebData;
   if(!d)return;
-  document.getElementById('name').value=d.name;
-  document.getElementById('by').value=d.rocY;
-  document.getElementById('bm').value=d.month;
-  document.getElementById('bd').value=d.day;
-  updateS2THint(d.name,'s2t-hint-a');
+  if(person===2){
+    document.getElementById('name_b').value=d.name;
+    document.getElementById('by_b').value=d.rocY;
+    document.getElementById('bm_b').value=d.month;
+    document.getElementById('bd_b').value=d.day;
+    updateS2THint(d.name,'s2t-hint-b');
+  }else{
+    document.getElementById('name').value=d.name;
+    document.getElementById('by').value=d.rocY;
+    document.getElementById('bm').value=d.month;
+    document.getElementById('bd').value=d.day;
+    updateS2THint(d.name,'s2t-hint-a');
+  }
+  const label=person===2?'第二人':'第一人';
   document.getElementById('celeb-result').innerHTML=
-    `<div style="color:#4a7000;font-size:.88em;padding:4px 0">✅ 已帶入「${d.name}」的資料，請確認後點「開始計算」</div>`;
+    `<div style="color:#4a7000;font-size:.88em;padding:4px 0">✅ 已帶入「${d.name}」到${label}欄位，請確認後點「開始計算」</div>`;
 }
 
 function getPersonData(name,by,bm,bd,isFX){const _dn=s2tStr(name);
@@ -1787,7 +1812,21 @@ function doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,byA,bmA,bdA,isFXA){
   const dataA=getPersonData(nameA,byA,bmA,bdA,isFXA);
   document.getElementById('person-b-name').textContent=nameB;
   renderContext='_b';
-  try{localStorage.setItem('jb_zong_b',dataB.grids.zong);localStorage.setItem('jb_name_display_b',nameB);}catch(e){}
+  try{
+    localStorage.setItem('jb_zong_b',dataB.grids.zong);
+    localStorage.setItem('jb_name_display_b',nameB);
+    const _fyB=calcFlowYear(dataB.grids.zong,dataB.age);
+    const _xbB=(new Date().getFullYear()-1911)%9||9;
+    const _jhB=calcJihuiInfo(dataB.grids.zong,_xbB);
+    const _elemB=n=>{const m={1:'木',2:'木',3:'火',4:'火',5:'土',6:'土',7:'金',8:'金',9:'水',0:'水'};return m[n%10]||m[0];};
+    localStorage.setItem('jb_profile_b',JSON.stringify({
+      name:nameB,age:dataB.age,
+      zong:dataB.grids.zong,tian:dataB.grids.tian,ren:dataB.grids.ren,di:dataB.grids.di,wai:dataB.grids.wai,
+      zongEl:_elemB(dataB.grids.zong),tianEl:_elemB(dataB.grids.tian),renEl:_elemB(dataB.grids.ren),diEl:_elemB(dataB.grids.di),
+      flowStage:_fyB.stage.name,flowMod:_fyB.stage.mod,flowDesc:_fyB.stage.desc,flowColor:_fyB.stage.color,
+      jihuiName:_jhB.name,jihuiSeason:_jhB.season,jihuiDir:_jhB.dir,jihuiDesc:_jhB.desc,jihuiColor:_jhB.color,
+    }));
+  }catch(e){}
   renderAge(dataB.age,byB,bmB,bdB,getAgeRange(byB,bmB,bdB));
   lastSvgB=renderDiagram(dataB.chars,dataB.grids,dataB.s,dataB.n1,dataB.n2,dataB.n3,isFXB);
   renderActivationNote(dataB.grids,dataB.age,dataB.chars,isFXB);
