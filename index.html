@@ -965,8 +965,8 @@ function render(name,by,bm,bd,isFX){
       zongEl:_elem(grids.zong),tianEl:_elem(grids.tian),renEl:_elem(grids.ren),diEl:_elem(grids.di),
       flowStage:_fy.stage.name,flowMod:_fy.stage.mod,flowDesc:_fy.stage.desc,flowColor:_fy.stage.color,
       jihuiName:_jh.name,jihuiSeason:_jh.season,jihuiDir:_jh.dir,jihuiDesc:_jh.desc,jihuiColor:_jh.color,
+      svg:lastSvgA||'',
     }));
-    if(lastSvgA) localStorage.setItem('jb_diagram_svg', lastSvgA);
   }catch(e){}
 }
 
@@ -1820,17 +1820,23 @@ function doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,byA,bmA,bdA,isFXA){
     const _xbB=(new Date().getFullYear()-1911)%9||9;
     const _jhB=calcJihuiInfo(dataB.grids.zong,_xbB);
     const _elemB=n=>{const m={1:'木',2:'木',3:'火',4:'火',5:'土',6:'土',7:'金',8:'金',9:'水',0:'水'};return m[n%10]||m[0];};
-    localStorage.setItem('jb_profile_b',JSON.stringify({
-      name:nameB,age:dataB.age,
-      zong:dataB.grids.zong,tian:dataB.grids.tian,ren:dataB.grids.ren,di:dataB.grids.di,wai:dataB.grids.wai,
-      zongEl:_elemB(dataB.grids.zong),tianEl:_elemB(dataB.grids.tian),renEl:_elemB(dataB.grids.ren),diEl:_elemB(dataB.grids.di),
-      flowStage:_fyB.stage.name,flowMod:_fyB.stage.mod,flowDesc:_fyB.stage.desc,flowColor:_fyB.stage.color,
-      jihuiName:_jhB.name,jihuiSeason:_jhB.season,jihuiDir:_jhB.dir,jihuiDesc:_jhB.desc,jihuiColor:_jhB.color,
-    }));
   }catch(e){}
   renderAge(dataB.age,byB,bmB,bdB,getAgeRange(byB,bmB,bdB));
   lastSvgB=renderDiagram(dataB.chars,dataB.grids,dataB.s,dataB.n1,dataB.n2,dataB.n3,isFXB);
-  try{if(lastSvgB) localStorage.setItem('jb_diagram_svg_b', lastSvgB);}catch(e){}
+  try{
+    const _fyB2=calcFlowYear(dataB.grids.zong,dataB.age);
+    const _xbB2=(new Date().getFullYear()-1911)%9||9;
+    const _jhB2=calcJihuiInfo(dataB.grids.zong,_xbB2);
+    const _eB=n=>{const m={1:'木',2:'木',3:'火',4:'火',5:'土',6:'土',7:'金',8:'金',9:'水',0:'水'};return m[n%10]||m[0];};
+    localStorage.setItem('jb_profile_b',JSON.stringify({
+      name:nameB,age:dataB.age,
+      zong:dataB.grids.zong,tian:dataB.grids.tian,ren:dataB.grids.ren,di:dataB.grids.di,wai:dataB.grids.wai,
+      zongEl:_eB(dataB.grids.zong),tianEl:_eB(dataB.grids.tian),renEl:_eB(dataB.grids.ren),diEl:_eB(dataB.grids.di),
+      flowStage:_fyB2.stage.name,flowMod:_fyB2.stage.mod,flowDesc:_fyB2.stage.desc,flowColor:_fyB2.stage.color,
+      jihuiName:_jhB2.name,jihuiSeason:_jhB2.season,jihuiDir:_jhB2.dir,jihuiDesc:_jhB2.desc,jihuiColor:_jhB2.color,
+      svg:lastSvgB||'',
+    }));
+  }catch(e){}
   renderActivationNote(dataB.grids,dataB.age,dataB.chars,isFXB);
   renderMingGongQianCheng(dataB.grids.zong,'_b');
   renderFlowYear(dataB.grids.zong,dataB.age,nameB);

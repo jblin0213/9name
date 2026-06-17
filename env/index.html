@@ -463,8 +463,7 @@ function renderProfileCard(p) {
     return;
   }
 
-  const svgKey = p._svgKey || 'jb_diagram_svg';
-  const svgHtml = localStorage.getItem(svgKey) || '';
+  const svgHtml = p.svg || localStorage.getItem(p._svgKey || 'jb_diagram_svg') || '';
 
   const flowBadge = p.flowStage
     ? `<span style="display:inline-block;padding:4px 14px;border-radius:12px;background:${p.flowColor};color:#fff;font-weight:700;font-size:0.84rem;">${p.flowStage}・${p.flowMod}</span>`
