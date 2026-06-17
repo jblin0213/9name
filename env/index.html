@@ -410,28 +410,42 @@
 
       <!-- 方向選擇 -->
       <div id="fp-controls" style="display:none;margin-bottom:12px;">
-        <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:6px;">平面圖的「上方」朝哪個方向？</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="fp-dir-btn" data-up="北"  onclick="setFloorPlanUp(this)">↑ 北</button>
-          <button class="fp-dir-btn" data-up="南"  onclick="setFloorPlanUp(this)">↑ 南</button>
-          <button class="fp-dir-btn" data-up="東"  onclick="setFloorPlanUp(this)">↑ 東</button>
-          <button class="fp-dir-btn" data-up="西"  onclick="setFloorPlanUp(this)">↑ 西</button>
-          <button class="fp-dir-btn" data-up="東北" onclick="setFloorPlanUp(this)">↑ 東北</button>
-          <button class="fp-dir-btn" data-up="東南" onclick="setFloorPlanUp(this)">↑ 東南</button>
-          <button class="fp-dir-btn" data-up="西北" onclick="setFloorPlanUp(this)">↑ 西北</button>
-          <button class="fp-dir-btn" data-up="西南" onclick="setFloorPlanUp(this)">↑ 西南</button>
+
+        <!-- 快速方向 -->
+        <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:6px;">平面圖「上方」朝哪個方向？</label>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;">
+          <button class="fp-dir-btn" data-deg="0"   onclick="setFpDeg(0,this)">↑ 北 0°</button>
+          <button class="fp-dir-btn" data-deg="45"  onclick="setFpDeg(45,this)">↑ 東北 45°</button>
+          <button class="fp-dir-btn" data-deg="90"  onclick="setFpDeg(90,this)">↑ 東 90°</button>
+          <button class="fp-dir-btn" data-deg="135" onclick="setFpDeg(135,this)">↑ 東南 135°</button>
+          <button class="fp-dir-btn" data-deg="180" onclick="setFpDeg(180,this)">↑ 南 180°</button>
+          <button class="fp-dir-btn" data-deg="225" onclick="setFpDeg(225,this)">↑ 西南 225°</button>
+          <button class="fp-dir-btn" data-deg="270" onclick="setFpDeg(270,this)">↑ 西 270°</button>
+          <button class="fp-dir-btn" data-deg="315" onclick="setFpDeg(315,this)">↑ 西北 315°</button>
         </div>
-        <div style="margin-top:8px;font-size:0.75rem;color:var(--text2);">
+
+        <!-- 精細旋轉滑桿 -->
+        <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:6px;">
+          精細旋轉：<strong id="fp-deg-display" style="color:var(--accent2);">0°</strong>
+          <span style="font-size:0.7rem;color:var(--text2);margin-left:6px;">（拖動滑桿微調）</span>
+        </label>
+        <input type="range" id="fp-rot-slider" min="0" max="359" value="0" step="1"
+          oninput="onFpSlider(this.value)"
+          style="width:100%;accent-color:var(--accent);cursor:pointer;margin-bottom:10px;">
+
+        <div style="font-size:0.75rem;color:var(--text2);margin-bottom:8px;">
           命宮相併數：<strong id="fp-ming-show" style="color:var(--accent2);">—</strong>
-          <span id="fp-ming-warn" style="color:var(--amber);display:none;"> ⚠️ 請先在上方選擇分析對象</span>
+          <span id="fp-ming-warn" style="color:var(--amber);display:none;"> ⚠️ 請先選擇分析對象</span>
         </div>
-        <button class="btn" style="margin-top:10px;" onclick="renderFloorPlanOverlay()">更新定位圖</button>
       </div>
 
       <!-- 平面圖 + 疊加層 -->
-      <div id="fp-canvas-wrap" style="display:none;position:relative;border-radius:10px;overflow:hidden;user-select:none;">
-        <img id="fp-img" style="width:100%;display:block;border-radius:10px;" alt="平面圖">
-        <div id="fp-overlay" style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);"></div>
+      <div id="fp-canvas-wrap" style="display:none;position:relative;border-radius:10px;overflow:hidden;user-select:none;background:#000;">
+        <img id="fp-img" style="width:100%;display:block;border-radius:10px;opacity:0.85;" alt="平面圖">
+        <!-- overlay 放大 141% 讓旋轉時不露邊角 -->
+        <div id="fp-overlay-wrap" style="position:absolute;inset:-21%;pointer-events:none;">
+          <div id="fp-overlay" style="width:100%;height:100%;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);transform-origin:center center;"></div>
+        </div>
       </div>
       <div style="font-size:0.72rem;color:var(--text2);margin-top:8px;">
         💡 圖片只存在您的瀏覽器，不會上傳到任何伺服器
@@ -915,7 +929,7 @@ const DIR_GRID_MAP = {
 const ROT_CW = {'北':'東','東':'南','南':'西','西':'北','東北':'東南','東南':'西南','西南':'西北','西北':'東北','中宮':'中宮'};
 function rotateDirCW(dir){ return ROT_CW[dir]||dir; }
 
-let _fpUpDir = '北'; // 預設平面圖上方 = 北
+let _fpRotDeg = 0; // 平面圖「上方」對準的羅盤角度，0=北
 
 function loadFloorPlan(input) {
   const file = input.files[0];
@@ -931,10 +945,25 @@ function loadFloorPlan(input) {
   reader.readAsDataURL(file);
 }
 
-function setFloorPlanUp(btn) {
+function setFpDeg(deg, btn) {
+  _fpRotDeg = deg;
+  document.getElementById('fp-rot-slider').value = deg;
+  document.getElementById('fp-deg-display').textContent = deg + '°';
   document.querySelectorAll('.fp-dir-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  _fpUpDir = btn.dataset.up;
+  if (btn) btn.classList.add('active');
+  renderFloorPlanOverlay();
+}
+
+function onFpSlider(val) {
+  _fpRotDeg = parseInt(val);
+  document.getElementById('fp-deg-display').textContent = val + '°';
+  // 高亮最接近的方位按鈕
+  const snapDirs = [0,45,90,135,180,225,270,315];
+  document.querySelectorAll('.fp-dir-btn').forEach(b => {
+    const bd = parseInt(b.dataset.deg);
+    b.classList.toggle('active', bd === snapDirs.reduce((prev,cur) =>
+      Math.abs(cur-_fpRotDeg) < Math.abs(prev-_fpRotDeg) ? cur : prev));
+  });
   renderFloorPlanOverlay();
 }
 
@@ -957,41 +986,34 @@ function renderFloorPlanOverlay() {
 
   const pos = PERSONAL_POS[mingVal];
 
-  // 計算旋轉次數（_fpUpDir 是「上方」朝向的方位）
-  // 若上方 = 北，不旋轉；上方 = 東，旋轉90°CW；南 = 180°；西 = 270°
-  const rotMap = {'北':0,'東北':1,'東':2,'東南':3,'南':4,'西南':5,'西':6,'西北':7};
-  const rotSteps = rotMap[_fpUpDir] || 0;
+  // 角度 → 旋轉步數（每步45°）
+  const rotSteps = Math.round(_fpRotDeg / 45) % 8;
 
-  // 計算旋轉後各方向的 [row,col] 位置
   function rotateDir(dir, steps) {
     let d = dir;
     for (let i = 0; i < steps; i++) d = rotateDirCW(d);
     return d;
   }
 
-  // 建立 3x3 grid：[row][col] → 方向
-  const grid = [['','',''],['','',''],['','','']];
+  // 螢幕位置 [row][col] 對應的實際方向（反向旋轉）
+  const screenGrid = [['','',''],['','',''],['','','']];
+  const reverseSteps = (8 - rotSteps % 8) % 8;
   Object.entries(DIR_GRID_MAP).forEach(([dir,[r,c]]) => {
-    // 旋轉後的方向對應到原始位置
-    const rotated = rotateDir(dir, rotSteps);
-    const [nr,nc] = DIR_GRID_MAP[rotated]||[1,1];
-    grid[r][c] = dir; // 方向名稱（螢幕位置固定，內容旋轉）
+    screenGrid[r][c] = rotateDir(dir, reverseSteps);
   });
 
-  // 重新計算：螢幕位置 [row][col] 對應哪個「實際方向」
-  // 做法：把所有方向，把「實際方向」旋轉後放到螢幕位置
-  const screenGrid = [['','',''],['','',''],['','','']];
-  Object.entries(DIR_GRID_MAP).forEach(([dir,[r,c]]) => {
-    // 螢幕 [r][c] 對應的實際方向 = 把 dir 反向旋轉 rotSteps 次
-    const reverseSteps = (8 - rotSteps % 8) % 8;
-    const actualDir = rotateDir(dir, reverseSteps);
-    screenGrid[r][c] = actualDir;
-  });
+  // 把 overlay 旋轉，讓「上方」對準平面圖的朝向
+  overlay.style.transform = `rotate(${_fpRotDeg}deg)`;
 
   const DIR_ROLE_SHORT = {
     '北':'坐鎮','西南':'文昌','東':'領旗','東南':'傳令',
     '中宮':'廟堂','西北':'庫房','西':'靠山','東北':'祿馬','南':'指揮'
   };
+
+  // 取得羅盤上「上方」對應的方位名稱（用於標示箭頭）
+  const DEG_DIR_NAME = {0:'北',45:'東北',90:'東',135:'東南',180:'南',225:'西南',270:'西',315:'西北'};
+  const snapDeg = Math.round(_fpRotDeg/45)*45 % 360;
+  const upDirName = DEG_DIR_NAME[snapDeg] || (_fpRotDeg+'°');
 
   // 產生格子
   for (let r = 0; r < 3; r++) {
@@ -1001,18 +1023,22 @@ function renderFloorPlanOverlay() {
       cell.className = 'fp-cell';
 
       let tagClass = 'fp-neutral', tagText = '';
-      if (dir === pos.吉)  { tagClass = 'fp-ji';    tagText = '吉位'; }
-      else if (dir === pos.財) { tagClass = 'fp-cai';   tagText = '財位'; }
-      else if (dir === pos.兇) { tagClass = 'fp-xiong'; tagText = '兇位'; }
-      else if (dir === pos.忌) { tagClass = 'fp-ji2';   tagText = '忌位'; }
+      if (dir === pos.吉)       { tagClass = 'fp-ji';    tagText = '吉位'; }
+      else if (dir === pos.財)  { tagClass = 'fp-cai';   tagText = '財位'; }
+      else if (dir === pos.兇)  { tagClass = 'fp-xiong'; tagText = '兇位'; }
+      else if (dir === pos.忌)  { tagClass = 'fp-ji2';   tagText = '忌位'; }
       cell.classList.add(tagClass);
 
-      const upArrow = (r===0 && c===1) ? '<div style="font-size:0.58rem;color:rgba(255,255,255,0.4);">↑ '+_fpUpDir+'</div>' : '';
+      // 文字反向旋轉，讓標籤永遠正立
+      const counterRot = `transform:rotate(${-_fpRotDeg}deg);`;
+      const upArrow = (r===0 && c===1)
+        ? `<div style="font-size:0.58rem;color:rgba(255,255,255,0.5);${counterRot}">↑ ${upDirName}</div>`
+        : '';
       cell.innerHTML = `
         ${upArrow}
-        <div class="fp-dir-label">${dir}</div>
-        <div class="fp-role-label">${DIR_ROLE_SHORT[dir]||dir}</div>
-        ${tagText ? `<div class="fp-tag-label">${tagText}</div>` : ''}
+        <div class="fp-dir-label" style="${counterRot}">${dir}</div>
+        <div class="fp-role-label" style="${counterRot}">${DIR_ROLE_SHORT[dir]||dir}</div>
+        ${tagText ? `<div class="fp-tag-label" style="${counterRot}">${tagText}</div>` : ''}
       `;
       overlay.appendChild(cell);
     }
