@@ -238,25 +238,26 @@
 
   /* 九宮格疊加層格子 */
   .fp-cell {
-    border: 1px solid rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.25);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.3);
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     gap: 3px; font-family: 'Noto Sans TC', sans-serif;
-    backdrop-filter: blur(1px);
     transition: background 0.2s;
+    position: relative;
   }
-  .fp-cell .fp-dir-label  { font-size: 0.62rem; color: rgba(255,255,255,0.55); }
-  .fp-cell .fp-role-label { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.85); }
-  .fp-cell .fp-tag-label  { font-size: 0.62rem; padding: 2px 7px; border-radius: 8px; font-weight: 700; }
-  .fp-cell.fp-ji    { background: rgba(245,158,11,0.45); border-color: rgba(245,158,11,0.6); }
+  .fp-cell .fp-dir-label  { font-size: 0.65rem; color: rgba(255,255,255,0.7); text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+  .fp-cell .fp-role-label { font-size: 0.78rem; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); }
+  .fp-cell .fp-tag-label  { font-size: 0.65rem; padding: 2px 8px; border-radius: 8px; font-weight: 700; box-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+  .fp-cell.fp-ji    { background: rgba(245,158,11,0.52); border-color: rgba(245,158,11,0.75); }
   .fp-cell.fp-ji    .fp-tag-label { background: #f59e0b; color: #000; }
-  .fp-cell.fp-cai   { background: rgba(16,185,129,0.38); border-color: rgba(16,185,129,0.6); }
-  .fp-cell.fp-cai   .fp-tag-label { background: #10b981; color: #fff; }
-  .fp-cell.fp-xiong { background: rgba(248,113,113,0.38); border-color: rgba(248,113,113,0.6); }
-  .fp-cell.fp-xiong .fp-tag-label { background: #f87171; color: #fff; }
-  .fp-cell.fp-ji2   { background: rgba(167,139,250,0.35); border-color: rgba(167,139,250,0.6); }
-  .fp-cell.fp-ji2   .fp-tag-label { background: #a78bfa; color: #fff; }
-  .fp-cell.fp-neutral { background: rgba(0,0,0,0.18); }
+  .fp-cell.fp-cai   { background: rgba(16,185,129,0.48); border-color: rgba(16,185,129,0.75); }
+  .fp-cell.fp-cai   .fp-tag-label { background: #059669; color: #fff; }
+  .fp-cell.fp-xiong { background: rgba(248,113,113,0.48); border-color: rgba(248,113,113,0.75); }
+  .fp-cell.fp-xiong .fp-tag-label { background: #dc2626; color: #fff; }
+  .fp-cell.fp-ji2   { background: rgba(167,139,250,0.45); border-color: rgba(167,139,250,0.75); }
+  .fp-cell.fp-ji2   .fp-tag-label { background: #7c3aed; color: #fff; }
+  .fp-cell.fp-neutral { background: rgba(0,0,0,0.22); border-color: rgba(255,255,255,0.15); }
 
   /* 放大 Modal */
   #svg-modal {
