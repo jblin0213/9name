@@ -224,6 +224,40 @@
 
   footer { text-align: center; padding: 20px; font-size: 0.7rem; color: #2a3347; }
 
+  /* 平面圖上傳區 hover */
+  #fp-upload-area:hover { border-color: var(--accent); }
+
+  /* 方向按鈕 */
+  .fp-dir-btn {
+    padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg3); color: var(--text2); font-size: 0.8rem; cursor: pointer;
+    transition: all 0.18s;
+  }
+  .fp-dir-btn:hover { border-color: var(--accent); color: var(--text); }
+  .fp-dir-btn.active { background: var(--accent-dim); border-color: var(--accent2); color: var(--accent2); font-weight: 700; }
+
+  /* 九宮格疊加層格子 */
+  .fp-cell {
+    border: 1px solid rgba(255,255,255,0.15);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px; font-family: 'Noto Sans TC', sans-serif;
+    backdrop-filter: blur(1px);
+    transition: background 0.2s;
+  }
+  .fp-cell .fp-dir-label  { font-size: 0.62rem; color: rgba(255,255,255,0.55); }
+  .fp-cell .fp-role-label { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.85); }
+  .fp-cell .fp-tag-label  { font-size: 0.62rem; padding: 2px 7px; border-radius: 8px; font-weight: 700; }
+  .fp-cell.fp-ji    { background: rgba(245,158,11,0.45); border-color: rgba(245,158,11,0.6); }
+  .fp-cell.fp-ji    .fp-tag-label { background: #f59e0b; color: #000; }
+  .fp-cell.fp-cai   { background: rgba(16,185,129,0.38); border-color: rgba(16,185,129,0.6); }
+  .fp-cell.fp-cai   .fp-tag-label { background: #10b981; color: #fff; }
+  .fp-cell.fp-xiong { background: rgba(248,113,113,0.38); border-color: rgba(248,113,113,0.6); }
+  .fp-cell.fp-xiong .fp-tag-label { background: #f87171; color: #fff; }
+  .fp-cell.fp-ji2   { background: rgba(167,139,250,0.35); border-color: rgba(167,139,250,0.6); }
+  .fp-cell.fp-ji2   .fp-tag-label { background: #a78bfa; color: #fff; }
+  .fp-cell.fp-neutral { background: rgba(0,0,0,0.18); }
+
   /* 放大 Modal */
   #svg-modal {
     display: none; position: fixed; inset: 0; z-index: 9999;
@@ -353,6 +387,53 @@
       </div>
       <div class="info-box" style="margin-top:12px;">
         <strong>原則：</strong>吉位不能開門 / 財位要動不要靜（廁所沒關係）/ 兇位不能坐辦公 / 忌位不能睡覺
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 平面圖定位 ===== -->
+  <div class="section">
+    <div class="section-header">
+      <h2>📐 平面圖自動定位</h2>
+      <span>上傳平面圖，自動疊加吉財兇忌</span>
+    </div>
+    <div class="section-body">
+
+      <!-- 上傳區 -->
+      <div id="fp-upload-area" onclick="document.getElementById('fp-file').click()"
+        style="border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:12px;">
+        <div style="font-size:2rem;margin-bottom:6px;">🏠</div>
+        <div style="font-size:0.85rem;color:var(--text2);">點擊上傳平面圖（JPG / PNG）</div>
+        <input type="file" id="fp-file" accept="image/*" style="display:none;" onchange="loadFloorPlan(this)">
+      </div>
+
+      <!-- 方向選擇 -->
+      <div id="fp-controls" style="display:none;margin-bottom:12px;">
+        <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:6px;">平面圖的「上方」朝哪個方向？</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="fp-dir-btn" data-up="北"  onclick="setFloorPlanUp(this)">↑ 北</button>
+          <button class="fp-dir-btn" data-up="南"  onclick="setFloorPlanUp(this)">↑ 南</button>
+          <button class="fp-dir-btn" data-up="東"  onclick="setFloorPlanUp(this)">↑ 東</button>
+          <button class="fp-dir-btn" data-up="西"  onclick="setFloorPlanUp(this)">↑ 西</button>
+          <button class="fp-dir-btn" data-up="東北" onclick="setFloorPlanUp(this)">↑ 東北</button>
+          <button class="fp-dir-btn" data-up="東南" onclick="setFloorPlanUp(this)">↑ 東南</button>
+          <button class="fp-dir-btn" data-up="西北" onclick="setFloorPlanUp(this)">↑ 西北</button>
+          <button class="fp-dir-btn" data-up="西南" onclick="setFloorPlanUp(this)">↑ 西南</button>
+        </div>
+        <div style="margin-top:8px;font-size:0.75rem;color:var(--text2);">
+          命宮相併數：<strong id="fp-ming-show" style="color:var(--accent2);">—</strong>
+          <span id="fp-ming-warn" style="color:var(--amber);display:none;"> ⚠️ 請先在上方選擇分析對象</span>
+        </div>
+        <button class="btn" style="margin-top:10px;" onclick="renderFloorPlanOverlay()">更新定位圖</button>
+      </div>
+
+      <!-- 平面圖 + 疊加層 -->
+      <div id="fp-canvas-wrap" style="display:none;position:relative;border-radius:10px;overflow:hidden;user-select:none;">
+        <img id="fp-img" style="width:100%;display:block;border-radius:10px;" alt="平面圖">
+        <div id="fp-overlay" style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);"></div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--text2);margin-top:8px;">
+        💡 圖片只存在您的瀏覽器，不會上傳到任何伺服器
       </div>
     </div>
   </div>
@@ -821,6 +902,120 @@ function calcDingWei() {
     ⚠️ <b>兇位</b>（${pos.兇}）：忌坐辦公，廁所在這無妨，不能安神位。<br>
     🚫 <b>忌位</b>（${pos.忌}）：${MING_ZHU_YI[ming]}。`;
   document.getElementById('dw_result').style.display = 'block';
+}
+
+// ===== 平面圖定位 =====
+// 標準九宮格位置（行,列）→ 方向
+const DIR_GRID_MAP = {
+  '北':[2,1],'南':[0,1],'東':[1,2],'西':[1,0],
+  '東北':[2,2],'東南':[0,2],'西北':[2,0],'西南':[0,0],'中宮':[1,1]
+};
+// 順時針旋轉映射（旋轉90°）
+const ROT_CW = {'北':'東','東':'南','南':'西','西':'北','東北':'東南','東南':'西南','西南':'西北','西北':'東北','中宮':'中宮'};
+function rotateDirCW(dir){ return ROT_CW[dir]||dir; }
+
+let _fpUpDir = '北'; // 預設平面圖上方 = 北
+
+function loadFloorPlan(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('fp-img').src = e.target.result;
+    document.getElementById('fp-canvas-wrap').style.display = 'block';
+    document.getElementById('fp-controls').style.display = 'block';
+    document.getElementById('fp-upload-area').style.display = 'none';
+    renderFloorPlanOverlay();
+  };
+  reader.readAsDataURL(file);
+}
+
+function setFloorPlanUp(btn) {
+  document.querySelectorAll('.fp-dir-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _fpUpDir = btn.dataset.up;
+  renderFloorPlanOverlay();
+}
+
+function renderFloorPlanOverlay() {
+  const overlay = document.getElementById('fp-overlay');
+  overlay.innerHTML = '';
+
+  // 取得命宮相併
+  const mingVal = parseInt(document.getElementById('dw_ming').value);
+  const fpMingShow = document.getElementById('fp-ming-show');
+  const fpMingWarn = document.getElementById('fp-ming-warn');
+  if (!mingVal || mingVal < 1 || mingVal > 9) {
+    fpMingShow.textContent = '未設定';
+    fpMingWarn.style.display = 'inline';
+    overlay.innerHTML = '<div style="grid-column:1/-1;grid-row:1/-1;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:0.8rem;">請先在「個人定位」輸入命宮相併數</div>';
+    return;
+  }
+  fpMingWarn.style.display = 'none';
+  fpMingShow.textContent = mingVal;
+
+  const pos = PERSONAL_POS[mingVal];
+
+  // 計算旋轉次數（_fpUpDir 是「上方」朝向的方位）
+  // 若上方 = 北，不旋轉；上方 = 東，旋轉90°CW；南 = 180°；西 = 270°
+  const rotMap = {'北':0,'東北':1,'東':2,'東南':3,'南':4,'西南':5,'西':6,'西北':7};
+  const rotSteps = rotMap[_fpUpDir] || 0;
+
+  // 計算旋轉後各方向的 [row,col] 位置
+  function rotateDir(dir, steps) {
+    let d = dir;
+    for (let i = 0; i < steps; i++) d = rotateDirCW(d);
+    return d;
+  }
+
+  // 建立 3x3 grid：[row][col] → 方向
+  const grid = [['','',''],['','',''],['','','']];
+  Object.entries(DIR_GRID_MAP).forEach(([dir,[r,c]]) => {
+    // 旋轉後的方向對應到原始位置
+    const rotated = rotateDir(dir, rotSteps);
+    const [nr,nc] = DIR_GRID_MAP[rotated]||[1,1];
+    grid[r][c] = dir; // 方向名稱（螢幕位置固定，內容旋轉）
+  });
+
+  // 重新計算：螢幕位置 [row][col] 對應哪個「實際方向」
+  // 做法：把所有方向，把「實際方向」旋轉後放到螢幕位置
+  const screenGrid = [['','',''],['','',''],['','','']];
+  Object.entries(DIR_GRID_MAP).forEach(([dir,[r,c]]) => {
+    // 螢幕 [r][c] 對應的實際方向 = 把 dir 反向旋轉 rotSteps 次
+    const reverseSteps = (8 - rotSteps % 8) % 8;
+    const actualDir = rotateDir(dir, reverseSteps);
+    screenGrid[r][c] = actualDir;
+  });
+
+  const DIR_ROLE_SHORT = {
+    '北':'坐鎮','西南':'文昌','東':'領旗','東南':'傳令',
+    '中宮':'廟堂','西北':'庫房','西':'靠山','東北':'祿馬','南':'指揮'
+  };
+
+  // 產生格子
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      const dir = screenGrid[r][c];
+      const cell = document.createElement('div');
+      cell.className = 'fp-cell';
+
+      let tagClass = 'fp-neutral', tagText = '';
+      if (dir === pos.吉)  { tagClass = 'fp-ji';    tagText = '吉位'; }
+      else if (dir === pos.財) { tagClass = 'fp-cai';   tagText = '財位'; }
+      else if (dir === pos.兇) { tagClass = 'fp-xiong'; tagText = '兇位'; }
+      else if (dir === pos.忌) { tagClass = 'fp-ji2';   tagText = '忌位'; }
+      cell.classList.add(tagClass);
+
+      const upArrow = (r===0 && c===1) ? '<div style="font-size:0.58rem;color:rgba(255,255,255,0.4);">↑ '+_fpUpDir+'</div>' : '';
+      cell.innerHTML = `
+        ${upArrow}
+        <div class="fp-dir-label">${dir}</div>
+        <div class="fp-role-label">${DIR_ROLE_SHORT[dir]||dir}</div>
+        ${tagText ? `<div class="fp-tag-label">${tagText}</div>` : ''}
+      `;
+      overlay.appendChild(cell);
+    }
+  }
 }
 
 function openDiagramModal(svg) {
