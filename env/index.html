@@ -441,6 +441,90 @@ let _persons = [];
 const ELEM_COLOR = { '木':'#34d399','火':'#fb923c','土':'#f59e0b','金':'#94a3b8','水':'#38bdf8' };
 const ELEM_BG    = { '木':'rgba(52,211,153,0.12)','火':'rgba(251,146,60,0.12)','土':'rgba(245,158,11,0.12)','金':'rgba(148,163,184,0.12)','水':'rgba(56,189,248,0.12)' };
 
+const EC = { '木':'#3a7a3a','火':'#8B1A1A','土':'#7a5a00','金':'#4a4a6a','水':'#1a4a6a','虛':'#aaa' };
+
+function buildDiagramSvg(p) {
+  if (!p || !p.zong || !p.tian) return '';
+  const chars = [...(p.name||'')];
+  const s  = p.tian - 1;               // 姓氏筆劃
+  const n1 = p.ren - p.tian + 1;       // 名一筆劃
+  const n2 = chars.length >= 3 ? p.zong - p.ren : 0;  // 名二筆劃
+  const elOf = n => { const m={1:'木',2:'木',3:'火',4:'火',5:'土',6:'土',7:'金',8:'金',9:'水',0:'水'}; return m[n%10]||m[0]; };
+
+  // entries: 虛一 + 姓 + 名字
+  const entries = [
+    {ch:'虛一', st:1,  type:'vt'},
+    {ch:chars[0]||'?', st:s,  type:'sn', sub:'姓氏'},
+    {ch:chars[1]||'?', st:n1, type:'nm', sub:'名一'},
+  ];
+  if (chars.length >= 3) entries.push({ch:chars[2], st:n2, type:'nm', sub:'名二'});
+  entries.push({ch:'虛一', st:1, type:'vt'});
+
+  const H = 70, PAD = 20;
+  const totalH = entries.length * H + PAD * 2;
+  const W = 340;
+  const EX = 50, NX = 180, LX = 220;
+
+  let sv = `<svg viewBox="0 0 ${W} ${totalH}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px;display:block">`;
+  sv += `<rect width="${W}" height="${totalH}" fill="#1a0a08" rx="8"/>`;
+
+  const cy = i => PAD + i * H + H/2;
+  const gridRows = [
+    {label:'② 父母宮', sub:'天格', val:p.tian, el:p.tianEl, from:[0,1]},
+    {label:'③ 疾惡宮 ⑥ 財宮', sub:'人格', val:p.ren,  el:p.renEl,  from:[1,2]},
+    {label:'④ 奴僕宮', sub:'地格', val:p.di,   el:p.diEl,   from: chars.length>=3 ? [2,3]:[2,3]},
+  ];
+
+  // 連線到右側格數
+  gridRows.forEach((g,gi) => {
+    const [ia,ib] = g.from;
+    if (ia >= entries.length || ib >= entries.length) return;
+    const ya = cy(ia), yb = cy(ib), ym = (ya+yb)/2;
+    const nx = NX - 18;
+    sv += `<line x1="${EX+22}" y1="${ya}" x2="${nx}" y2="${ym}" stroke="#c8981a" stroke-width="0.8" opacity="0.6"/>`;
+    sv += `<line x1="${EX+22}" y1="${yb}" x2="${nx}" y2="${ym}" stroke="#c8981a" stroke-width="0.8" opacity="0.6"/>`;
+    // 格數圓圈
+    const gel = elOf(g.val);
+    const gc = EC[gel]||'#555';
+    sv += `<circle cx="${NX}" cy="${ym}" r="18" fill="${gc}"/>`;
+    sv += `<text x="${NX}" y="${ym-4}" text-anchor="middle" fill="#f5e6c8" font-size="13" font-weight="bold" font-family="sans-serif">${g.val}</text>`;
+    sv += `<text x="${NX}" y="${ym+10}" text-anchor="middle" fill="rgba(245,230,200,0.8)" font-size="9" font-family="sans-serif">${gel}</text>`;
+    // 右側說明
+    sv += `<text x="${LX+4}" y="${ym-4}" fill="#c8981a" font-size="10" font-weight="bold" font-family="serif">${g.label}</text>`;
+    sv += `<text x="${LX+4}" y="${ym+9}" fill="#888" font-size="9" font-family="sans-serif">${g.sub}</text>`;
+  });
+
+  // 左側字圓圈
+  entries.forEach((e, i) => {
+    const y = cy(i);
+    const isVt = e.type === 'vt';
+    const col = isVt ? '#888' : (EC[elOf(e.st)]||'#555');
+    if (isVt) {
+      sv += `<circle cx="${EX}" cy="${y}" r="16" fill="none" stroke="#888" stroke-width="1.5" stroke-dasharray="3,2"/>`;
+      sv += `<text x="${EX}" y="${y+4}" text-anchor="middle" fill="#aaa" font-size="10" font-family="serif">虛一</text>`;
+    } else {
+      sv += `<circle cx="${EX}" cy="${y}" r="22" fill="${col}"/>`;
+      sv += `<text x="${EX}" y="${y-3}" text-anchor="middle" fill="white" font-size="17" font-weight="bold" font-family="serif">${e.ch}</text>`;
+      sv += `<text x="${EX}" y="${y+13}" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="9" font-family="sans-serif">${e.st}劃</text>`;
+      if (e.sub) sv += `<text x="${EX+28}" y="${y+3}" fill="#c8981a" font-size="9" font-family="sans-serif">${e.sub}</text>`;
+    }
+  });
+
+  // 命宮（底部）
+  const zY = totalH - PAD - 14;
+  const zEl = elOf(p.zong);
+  const zC = EC[zEl]||'#555';
+  sv += `<line x1="${EX+22}" y1="${cy(entries.length-2)}" x2="${NX-18}" y2="${zY}" stroke="#c8981a" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>`;
+  sv += `<circle cx="${NX}" cy="${zY}" r="20" fill="${zC}"/>`;
+  sv += `<text x="${NX}" y="${zY-4}" text-anchor="middle" fill="#f5e6c8" font-size="14" font-weight="bold" font-family="sans-serif">${p.zong}</text>`;
+  sv += `<text x="${NX}" y="${zY+11}" text-anchor="middle" fill="rgba(245,230,200,0.8)" font-size="9" font-family="sans-serif">${zEl}</text>`;
+  sv += `<text x="${LX+4}" y="${zY-4}" fill="#c8981a" font-size="10" font-weight="bold" font-family="serif">① 命宮</text>`;
+  sv += `<text x="${LX+4}" y="${zY+9}" fill="#888" font-size="9" font-family="sans-serif">總格</text>`;
+
+  sv += '</svg>';
+  return sv;
+}
+
 function renderProfileCard(p) {
   const card = document.getElementById('profile-card');
   const body = document.getElementById('profile-body');
@@ -463,7 +547,7 @@ function renderProfileCard(p) {
     return;
   }
 
-  const svgHtml = p.svg || localStorage.getItem(p._svgKey || 'jb_diagram_svg') || '';
+  const svgHtml = p.svg || localStorage.getItem(p._svgKey || 'jb_diagram_svg') || buildDiagramSvg(p);
 
   const flowBadge = p.flowStage
     ? `<span style="display:inline-block;padding:4px 14px;border-radius:12px;background:${p.flowColor};color:#fff;font-weight:700;font-size:0.84rem;">${p.flowStage}・${p.flowMod}</span>`
