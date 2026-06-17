@@ -229,65 +229,52 @@
 <div class="page">
 
 
-  <!-- ===== 喜用 ===== -->
+  <!-- ===== 喜用 + 宅氣 合併輸入 ===== -->
   <div class="section">
     <div class="section-header">
-      <h2>⚖️ 喜用分析</h2>
-      <span>我與房子的五行關係</span>
+      <h2>🏠 房屋資料輸入</h2>
+      <span>輸入一次，喜用與宅氣同時計算</span>
     </div>
     <div class="section-body">
+      <div class="form-group">
+        <label>完整門牌號碼</label>
+        <input type="text" id="addr_input" placeholder="如：福州街15號、32號之1、15號之2" oninput="parseAddr()">
+        <div class="hint" id="addr_hint" style="color:var(--gold2); min-height:1.2em;"></div>
+      </div>
       <div class="form-row">
         <div class="form-group">
-          <label>命宮個位數</label>
-          <input type="number" id="xi_ming" placeholder="如35→輸入5" min="0" max="9">
-          <div class="hint">命宮取個位（35→5，28→8）</div>
+          <label>購入／入住年份（民國）</label>
+          <input type="number" id="zq_year_buy" placeholder="如108、110" min="80" max="200" oninput="autoCalc()">
         </div>
         <div class="form-group">
-          <label>房號個位數</label>
-          <input type="number" id="xi_house" placeholder="如32號→輸入2" min="0" max="9">
-          <div class="hint">門牌「號」取個位，忽略巷弄</div>
+          <label>今年（民國）</label>
+          <input type="number" id="zq_year_now" value="115" min="80" max="200" oninput="autoCalc()">
         </div>
       </div>
-      <button class="btn" onclick="calcXiYong()">分 析 喜 用</button>
-      <div class="result-box" id="xi_result">
+      <!-- 隱藏欄位供舊邏輯使用 -->
+      <input type="hidden" id="xi_ming">
+      <input type="hidden" id="xi_house">
+      <input type="hidden" id="zq_house">
+      <input type="hidden" id="zq_year" value="115">
+      <button class="btn" onclick="calcAll()">開 始 分 析</button>
+
+      <!-- 喜用結果 -->
+      <div class="result-box" id="xi_result" style="margin-top:14px;">
+        <div style="font-size:0.72rem;color:var(--text2);margin-bottom:6px;">⚖️ 喜用分析</div>
         <div class="result-name" id="xi_title">—</div>
         <div class="result-sub" id="xi_sub">—</div>
         <div class="chips" id="xi_chips"></div>
         <div class="result-desc" id="xi_desc">—</div>
       </div>
-      <div class="info-box">
-        <strong>選擇技巧：</strong>選奇數剋奇數、偶數剋偶數最佳，屬不衝擊的剋只會改造。沖的房子只沖陽不沖陰，男性負責人特別注意。
-      </div>
-    </div>
-  </div>
 
-  <!-- ===== 宅氣 ===== -->
-  <div class="section">
-    <div class="section-header">
-      <h2>🌊 宅氣分析</h2>
-      <span>今年房子帶來的能量</span>
-    </div>
-    <div class="section-body">
-      <div class="form-row">
-        <div class="form-group">
-          <label>房號（全碼，自動相併）</label>
-          <input type="number" id="zq_house" placeholder="如15、32" min="1">
-          <div class="hint">「之幾」的情況輸入之幾的數字</div>
-        </div>
-        <div class="form-group">
-          <label>民國年份</label>
-          <input type="number" id="zq_year" placeholder="如115" value="115" min="90" max="200">
-        </div>
+      <!-- 宅氣結果（雙年） -->
+      <div class="result-box" id="zq_result" style="margin-top:10px;">
+        <div style="font-size:0.72rem;color:var(--text2);margin-bottom:8px;">🌊 宅氣分析</div>
+        <div id="zq_dual"></div>
       </div>
-      <button class="btn" onclick="calcZhaiQi()">分 析 宅 氣</button>
-      <div class="result-box" id="zq_result">
-        <div class="result-name" id="zq_title">—</div>
-        <div class="result-sub" id="zq_sub">—</div>
-        <div class="chips" id="zq_chips"></div>
-        <div class="result-desc" id="zq_desc">—</div>
-      </div>
+
       <div class="info-box">
-        <strong>注意：</strong>氣從1月1日算到12月31日。房子空半年以上以空亡論。名望氣最適合各行各業，第一次開店必選名望起步。
+        <strong>說明：</strong>有「之幾」就用之幾的數字計算；只有號就用號的數字。氣從1月1日算到12月31日，空半年以上以空亡論。
       </div>
     </div>
   </div>
@@ -494,50 +481,112 @@ function getRelation(meE, hsE) {
   if (CONTROLS[meE] === hsE) return '喜用宅';
 }
 
-function calcXiYong() {
-  const mv = document.getElementById('xi_ming').value;
-  const hv = document.getElementById('xi_house').value;
-  if (mv === '' || hv === '') return alert('請輸入命宮和房號個位數');
-  const md = parseInt(mv) % 10, hd = parseInt(hv) % 10;
-  const meE = getElement(md), hsE = getElement(hd);
-  const rel = getRelation(meE, hsE);
-  const info = ZHAI_INFO[rel];
-  const relDesc = rel === '同行宅' ? `${meE} ＝ ${hsE}` :
-    rel === '無力宅' ? `${hsE} 生 ${meE}` : rel === '回流宅' ? `${meE} 生 ${hsE}` :
-    rel === '官祿宅' ? `${hsE} 剋 ${meE}` : `${meE} 剋 ${hsE}`;
+// ===== 門牌解析 =====
+function parseAddr() {
+  const raw = document.getElementById('addr_input').value.trim();
+  const hint = document.getElementById('addr_hint');
+  if (!raw) { hint.textContent = ''; return; }
 
-  document.getElementById('xi_title').textContent = rel;
-  document.getElementById('xi_title').style.color = info.color;
-  document.getElementById('xi_sub').textContent = info.short;
-  document.getElementById('xi_chips').innerHTML = `
-    <div class="chip chip-me">${ELEM_SYMBOL[meE]} 我 ${md||10} → ${meE}</div>
-    <div class="chip chip-hse">${ELEM_SYMBOL[hsE]} 房 ${hd||10} → ${hsE}</div>
-    <div class="chip chip-rel" style="border-color:${info.color};color:${info.color}">${relDesc}</div>
-  `;
-  document.getElementById('xi_desc').innerHTML = info.desc;
-  document.getElementById('xi_result').classList.add('show');
+  // 抓出所有數字片段（例：「福州街15號之1」→ [15, 1]）
+  const nums = raw.match(/\d+/g);
+  if (!nums) { hint.textContent = '格式錯誤，請包含數字'; return; }
+
+  let haoNum, zhiNum;
+  // 判斷有沒有「之」
+  const zhiMatch = raw.match(/之\s*(\d+)/);
+  if (zhiMatch) {
+    zhiNum = parseInt(zhiMatch[1]);
+    // 號數：「之」前最後一個數字
+    const beforeZhi = raw.substring(0, raw.indexOf('之'));
+    const beforeNums = beforeZhi.match(/\d+/g);
+    haoNum = beforeNums ? parseInt(beforeNums[beforeNums.length - 1]) : null;
+  } else {
+    // 沒有「之」，取最後一個數字（即號碼）
+    haoNum = parseInt(nums[nums.length - 1]);
+    zhiNum = null;
+  }
+
+  // 計算用的數字：有「之」用之幾，否則用號數
+  const calcNum = zhiNum !== null ? zhiNum : haoNum;
+  const lastDigit = calcNum % 10;
+  const sumDigit = calcSumDigit(calcNum);
+
+  // 填入隱藏欄位
+  document.getElementById('xi_house').value = lastDigit;
+  document.getElementById('zq_house').value = calcNum;
+
+  // 顯示解析結果
+  let hintText = zhiNum !== null
+    ? `號${haoNum}・之${zhiNum} → 使用「之${zhiNum}」計算 | 個位：${lastDigit} | 相併：${sumDigit}`
+    : `號${haoNum} → 個位：${lastDigit} | 相併：${sumDigit}`;
+  hint.textContent = '✓ ' + hintText;
+
+  autoCalc();
 }
 
-function calcZhaiQi() {
+function autoCalc() {
   const hv = document.getElementById('zq_house').value;
-  const yv = document.getElementById('zq_year').value;
-  if (!hv || !yv) return alert('請輸入房號和年份');
-  const H = calcSumDigit(hv), Y = calcSumDigit(yv);
-  const idx = ((H - Y + 6) % 9 + 9) % 9;
-  const zqName = ZQ_CYCLE[idx];
-  const info = ZQ_INFO[zqName];
+  if (!hv) return;
+  // 若有命宮也自動觸發完整計算
+  const mv = document.getElementById('xi_ming').value;
+  if (mv !== '') calcAll();
+}
 
-  document.getElementById('zq_title').textContent = zqName;
-  document.getElementById('zq_title').className = `result-name zq-${zqName}`;
-  document.getElementById('zq_sub').textContent = `民國${yv}年・房號${hv}`;
-  document.getElementById('zq_chips').innerHTML = `
-    <div class="chip chip-hse">🏠 房號 ${hv} → 相併 ${H}</div>
-    <div class="chip chip-me">📅 ${yv} 年 → 相併 ${Y}</div>
-    <div class="chip chip-rel" style="border-color:${info.color};color:${info.color};">🌊 ${zqName}</div>
-  `;
-  document.getElementById('zq_desc').textContent = info.desc;
+function calcAll() {
+  const mv = document.getElementById('xi_ming').value;
+  const hv = document.getElementById('zq_house').value;
+  if (!hv) { alert('請輸入門牌號碼'); return; }
+
+  // ── 喜用 ──
+  if (mv !== '') {
+    const md = parseInt(mv) % 10;
+    const hd = parseInt(document.getElementById('xi_house').value) % 10;
+    const meE = getElement(md), hsE = getElement(hd);
+    const rel = getRelation(meE, hsE);
+    const info = ZHAI_INFO[rel];
+    const relDesc = rel === '同行宅' ? `${meE} ＝ ${hsE}` :
+      rel === '無力宅' ? `${hsE} 生 ${meE}` : rel === '回流宅' ? `${meE} 生 ${hsE}` :
+      rel === '官祿宅' ? `${hsE} 剋 ${meE}` : `${meE} 剋 ${hsE}`;
+    document.getElementById('xi_title').textContent = rel;
+    document.getElementById('xi_title').style.color = info.color;
+    document.getElementById('xi_sub').textContent = info.short;
+    document.getElementById('xi_chips').innerHTML = `
+      <div class="chip chip-me">${ELEM_SYMBOL[meE]} 我 ${md||10} → ${meE}</div>
+      <div class="chip chip-hse">${ELEM_SYMBOL[hsE]} 房 ${hd||10} → ${hsE}</div>
+      <div class="chip chip-rel" style="border-color:${info.color};color:${info.color}">${relDesc}</div>`;
+    document.getElementById('xi_desc').innerHTML = info.desc;
+    document.getElementById('xi_result').classList.add('show');
+  }
+
+  // ── 宅氣（雙年） ──
+  const H = calcSumDigit(hv);
+  const yearNow = parseInt(document.getElementById('zq_year_now').value) || 115;
+  const yearBuy = parseInt(document.getElementById('zq_year_buy').value) || 0;
+
+  function zqBlock(year, label) {
+    const Y = calcSumDigit(year);
+    const idx = ((H - Y + 6) % 9 + 9) % 9;
+    const name = ZQ_CYCLE[idx];
+    const info = ZQ_INFO[name];
+    return `<div style="margin-bottom:12px; padding:10px 12px; background:var(--bg); border-radius:8px; border-left:3px solid ${info.color};">
+      <div style="font-size:0.75rem;color:var(--text2);margin-bottom:4px;">${label}（民國${year}年・相併${Y}）</div>
+      <div style="font-size:1.2rem;font-weight:bold;color:${info.color};letter-spacing:2px;">${name}</div>
+      <div style="font-size:0.8rem;color:var(--text);margin-top:5px;line-height:1.6;">${info.desc}</div>
+    </div>`;
+  }
+
+  let dualHtml = zqBlock(yearNow, '📅 今年宅氣');
+  if (yearBuy && yearBuy !== yearNow) {
+    dualHtml = zqBlock(yearBuy, '🏠 購入年宅氣') + dualHtml;
+  }
+  document.getElementById('zq_dual').innerHTML =
+    `<div style="font-size:0.78rem;color:var(--text2);margin-bottom:8px;">房號相併：${H}</div>` + dualHtml;
   document.getElementById('zq_result').classList.add('show');
 }
+
+// 舊函數保留相容性
+function calcXiYong() { calcAll(); }
+function calcZhaiQi() { calcAll(); }
 
 const GRID_ORDER = [['西南','南','東南'],['西','中宮','東'],['西北','北','東北']];
 function calcDingWei() {
