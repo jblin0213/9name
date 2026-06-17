@@ -6,21 +6,21 @@
 <title>環境氣象學分析</title>
 <style>
   :root {
-    --bg: #1a0a0a;
-    --bg2: #2a1010;
-    --bg3: #3a1a1a;
-    --accent: #8B1A1A;
-    --accent2: #b22222;
-    --gold: #d4a017;
-    --gold2: #f0c040;
-    --text: #f0e0d0;
-    --text2: #c0a090;
-    --green2: #5ab05a;
-    --blue2: #4a8aba;
-    --purple2: #8a4aaa;
-    --red2: #c03030;
-    --border: #5a2a2a;
-    --radius: 10px;
+    --bg:      #0e1117;
+    --bg2:     #161b27;
+    --bg3:     #1e2535;
+    --accent:  #6366f1;
+    --accent2: #818cf8;
+    --accent-dim: rgba(99,102,241,0.15);
+    --text:    #e2e8f0;
+    --text2:   #8892a4;
+    --green:   #10b981;
+    --blue:    #38bdf8;
+    --purple:  #a78bfa;
+    --amber:   #f59e0b;
+    --red:     #f87171;
+    --border:  #2a3347;
+    --radius:  12px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -31,14 +31,20 @@
     padding-bottom: 40px;
   }
   header {
-    background: linear-gradient(135deg, #3a0a0a, #6a1010);
-    padding: 18px 20px 14px;
+    background: linear-gradient(160deg, #0e1117 0%, #1a1f35 100%);
+    padding: 22px 20px 16px;
     text-align: center;
-    border-bottom: 2px solid var(--accent2);
+    border-bottom: 1px solid var(--border);
     margin-bottom: 20px;
   }
-  header h1 { font-size: 1.5rem; color: var(--gold2); letter-spacing: 3px; }
-  header p { font-size: 0.78rem; color: var(--text2); margin-top: 4px; }
+  header h1 {
+    font-size: 1.5rem;
+    color: var(--text);
+    letter-spacing: 4px;
+    font-weight: 700;
+  }
+  header h1 span { color: var(--accent2); }
+  header p { font-size: 0.78rem; color: var(--text2); margin-top: 6px; letter-spacing: 1px; }
 
   .page { max-width: 600px; margin: 0 auto; padding: 0 14px; }
 
@@ -47,35 +53,36 @@
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     overflow: hidden;
   }
   .section-header {
-    background: linear-gradient(135deg, #3a0a0a, #5a1a1a);
     padding: 12px 16px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    background: var(--bg3);
   }
-  .section-header h2 { font-size: 1rem; color: var(--gold2); letter-spacing: 1px; }
-  .section-header span { font-size: 0.75rem; color: var(--text2); }
-  .section-body { padding: 14px 16px; }
+  .section-header h2 { font-size: 0.95rem; color: var(--text); font-weight: 600; letter-spacing: 1px; }
+  .section-header span { font-size: 0.72rem; color: var(--text2); margin-left: auto; }
+  .section-body { padding: 16px; }
 
   /* Form */
   .form-group { margin-bottom: 12px; }
-  label { display: block; font-size: 0.82rem; color: var(--text2); margin-bottom: 5px; }
+  label { display: block; font-size: 0.8rem; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.5px; }
   input[type=number], input[type=text], select {
     width: 100%;
-    padding: 10px 12px;
+    padding: 10px 13px;
     background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
-    font-size: 0.95rem;
+    font-size: 0.93rem;
+    transition: border-color 0.2s;
   }
-  input:focus { outline: none; border-color: var(--accent2); }
-  .hint { font-size: 0.72rem; color: var(--text2); margin-top: 4px; }
+  input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+  .hint { font-size: 0.72rem; color: var(--green); margin-top: 5px; }
   .form-row { display: flex; gap: 10px; }
   .form-row .form-group { flex: 1; }
 
@@ -83,17 +90,19 @@
   .btn {
     width: 100%;
     padding: 11px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
     border: none;
-    border-radius: 8px;
-    color: var(--gold2);
-    font-size: 0.95rem;
-    font-weight: bold;
+    border-radius: 9px;
+    color: #fff;
+    font-size: 0.93rem;
+    font-weight: 700;
     cursor: pointer;
-    letter-spacing: 2px;
-    transition: opacity 0.2s;
+    letter-spacing: 3px;
+    transition: opacity 0.2s, transform 0.1s;
+    box-shadow: 0 2px 12px rgba(99,102,241,0.35);
   }
-  .btn:hover { opacity: 0.85; }
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
 
   /* Result */
   .result-box {
@@ -101,32 +110,32 @@
     margin-top: 12px;
     background: var(--bg3);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 14px;
   }
   .result-box.show { display: block; }
   .result-name {
     font-size: 1.3rem;
-    font-weight: bold;
-    color: var(--gold2);
+    font-weight: 700;
+    color: var(--text);
     letter-spacing: 2px;
     margin-bottom: 4px;
   }
-  .result-sub { font-size: 0.78rem; color: var(--text2); margin-bottom: 10px; }
+  .result-sub { font-size: 0.76rem; color: var(--text2); margin-bottom: 10px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
   .chip {
-    padding: 4px 11px;
+    padding: 4px 12px;
     border-radius: 20px;
-    font-size: 0.78rem;
-    font-weight: bold;
+    font-size: 0.76rem;
+    font-weight: 600;
   }
-  .chip-me  { background: rgba(90,176,90,0.2);  border: 1px solid var(--green2); color: #7be07b; }
-  .chip-hse { background: rgba(74,138,186,0.2); border: 1px solid var(--blue2);  color: #7ab0e0; }
-  .chip-rel { background: rgba(212,160,23,0.2); border: 1px solid var(--gold);   color: var(--gold2); }
+  .chip-me  { background: rgba(16,185,129,0.12);  border: 1px solid rgba(16,185,129,0.4);  color: #34d399; }
+  .chip-hse { background: rgba(56,189,248,0.12);  border: 1px solid rgba(56,189,248,0.4);  color: #7dd3fc; }
+  .chip-rel { background: var(--accent-dim);       border: 1px solid rgba(99,102,241,0.4);  color: var(--accent2); }
   .result-desc {
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     color: var(--text);
-    line-height: 1.75;
+    line-height: 1.78;
     border-top: 1px solid var(--border);
     padding-top: 10px;
   }
@@ -136,36 +145,36 @@
   .palace-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
+    gap: 5px;
     margin-top: 12px;
   }
   .palace-cell {
-    border-radius: 8px;
+    border-radius: 9px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 8px 4px;
+    padding: 9px 4px;
     border: 1px solid var(--border);
-    background: var(--bg3);
-    min-height: 72px;
+    background: var(--bg);
+    min-height: 74px;
   }
-  .palace-cell .p-dir  { font-size: 0.7rem; color: var(--text2); margin-bottom: 2px; }
-  .palace-cell .p-role { font-size: 0.8rem; color: var(--text); font-weight: bold; margin-bottom: 4px; }
-  .palace-cell .p-tag  { font-size: 0.68rem; padding: 2px 7px; border-radius: 10px; font-weight: bold; }
-  .palace-cell.ji   { background: rgba(212,160,23,0.18); border-color: var(--gold); }
-  .palace-cell.ji   .p-tag { background: var(--gold); color: #1a0a0a; }
-  .palace-cell.cai  { background: rgba(58,122,58,0.25); border-color: var(--green2); }
-  .palace-cell.cai  .p-tag { background: var(--green2); color: #fff; }
-  .palace-cell.xiong{ background: rgba(192,48,48,0.25); border-color: var(--red2); }
-  .palace-cell.xiong .p-tag { background: var(--red2); color: #fff; }
-  .palace-cell.ji2  { background: rgba(138,74,170,0.2); border-color: var(--purple2); }
-  .palace-cell.ji2  .p-tag { background: var(--purple2); color: #fff; }
+  .palace-cell .p-dir  { font-size: 0.68rem; color: var(--text2); margin-bottom: 3px; }
+  .palace-cell .p-role { font-size: 0.78rem; color: var(--text); font-weight: 600; margin-bottom: 5px; }
+  .palace-cell .p-tag  { font-size: 0.66rem; padding: 2px 8px; border-radius: 10px; font-weight: 700; }
+  .palace-cell.ji    { background: rgba(245,158,11,0.1);  border-color: rgba(245,158,11,0.5); }
+  .palace-cell.ji    .p-tag { background: var(--amber);  color: #0e1117; }
+  .palace-cell.cai   { background: rgba(16,185,129,0.1);  border-color: rgba(16,185,129,0.5); }
+  .palace-cell.cai   .p-tag { background: var(--green);  color: #fff; }
+  .palace-cell.xiong { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.5); }
+  .palace-cell.xiong .p-tag { background: var(--red);    color: #fff; }
+  .palace-cell.ji2   { background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.5); }
+  .palace-cell.ji2   .p-tag { background: var(--purple); color: #fff; }
   .palace-legend {
     display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; justify-content: center;
   }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.73rem; color: var(--text2); }
-  .legend-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.71rem; color: var(--text2); }
+  .legend-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
   /* 宅向方向按鈕 */
   .dir-grid {
@@ -175,55 +184,55 @@
     margin-bottom: 12px;
   }
   .dir-btn {
-    padding: 10px 4px;
+    padding: 11px 4px;
     background: var(--bg3);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 9px;
     color: var(--text2);
     font-size: 0.85rem;
     cursor: pointer;
     text-align: center;
-    transition: all 0.2s;
+    transition: all 0.18s;
   }
-  .dir-btn:hover:not(.disabled) { border-color: var(--accent2); color: var(--text); }
-  .dir-btn.selected { background: rgba(139,26,26,0.3); border-color: var(--accent2); color: var(--gold2); font-weight: bold; }
-  .dir-btn.disabled { opacity: 0.3; cursor: default; }
+  .dir-btn:hover:not(.disabled) { border-color: var(--accent); color: var(--text); background: var(--accent-dim); }
+  .dir-btn.selected { background: var(--accent-dim); border-color: var(--accent2); color: var(--accent2); font-weight: 700; }
+  .dir-btn.disabled { opacity: 0.25; cursor: default; }
 
   /* Info box */
   .info-box {
-    background: rgba(212,160,23,0.06);
-    border: 1px solid rgba(212,160,23,0.2);
-    border-radius: 8px;
-    padding: 10px 12px;
+    background: rgba(56,189,248,0.05);
+    border: 1px solid rgba(56,189,248,0.18);
+    border-radius: 9px;
+    padding: 10px 13px;
     margin-top: 12px;
-    font-size: 0.78rem;
+    font-size: 0.77rem;
     color: var(--text2);
-    line-height: 1.65;
+    line-height: 1.68;
   }
-  .info-box strong { color: var(--gold); }
+  .info-box strong { color: var(--blue); }
 
   /* 宅氣顏色 */
-  .zq-名望 { color: #f0c040; }
-  .zq-財祿 { color: #5ab05a; }
-  .zq-衰財 { color: #7ab0e0; }
-  .zq-官貴 { color: #aa80f0; }
-  .zq-交換 { color: #f0a040; }
-  .zq-利開 { color: #c0c0c0; }
-  .zq-利絕 { color: #888; }
-  .zq-敗壞 { color: #c05050; }
-  .zq-官煞 { color: #e06060; }
+  .zq-名望 { color: #f59e0b; }
+  .zq-財祿 { color: #10b981; }
+  .zq-衰財 { color: #38bdf8; }
+  .zq-官貴 { color: #a78bfa; }
+  .zq-交換 { color: #fb923c; }
+  .zq-利開 { color: #cbd5e1; }
+  .zq-利絕 { color: #64748b; }
+  .zq-敗壞 { color: #f87171; }
+  .zq-官煞 { color: #fca5a5; }
 
-  footer { text-align: center; padding: 20px; font-size: 0.7rem; color: #4a2a2a; }
+  footer { text-align: center; padding: 20px; font-size: 0.7rem; color: #2a3347; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🏠 環境氣象學</h1>
-  <p>喜用・宅氣・定位・宅向 完整分析</p>
+  <h1>🏠 <span>環境氣象學</span></h1>
+  <p>喜用 · 宅氣 · 定位 · 宅向 完整分析</p>
 </header>
-<div style="text-align:center;padding:8px 16px;background:#1a0505;border-bottom:1px solid #4a1a1a;">
-  <a href="../index.html" style="display:inline-block;padding:6px 18px;background:rgba(139,26,26,0.3);border:1px solid #8B1A1A;border-radius:20px;color:#d4a017;font-size:0.82rem;text-decoration:none;letter-spacing:1px;">⊹ 回到九宮姓名筆劃查詢</a>
+<div style="text-align:center;padding:8px 16px;background:var(--bg2);border-bottom:1px solid var(--border);">
+  <a href="../index.html" style="display:inline-block;padding:6px 20px;background:var(--accent-dim);border:1px solid rgba(99,102,241,0.4);border-radius:20px;color:var(--accent2);font-size:0.8rem;text-decoration:none;letter-spacing:1px;">← 回到九宮姓名筆劃查詢</a>
 </div>
 
 <div class="page">
@@ -344,9 +353,9 @@
 
 <!-- 固定選人列（頂端，有兩人時才出現） -->
 <div id="person-bar" style="display:none; position:sticky; top:0; left:0; right:0; z-index:999;
-  background:#2a0808; border-bottom:1px solid #6a2a2a;
-  padding:8px 16px; align-items:center; gap:10px; flex-wrap:wrap;">
-  <span style="font-size:0.75rem; color:var(--text2); flex-shrink:0;">👤 切換：</span>
+  background:var(--bg2); border-bottom:1px solid var(--border);
+  padding:9px 16px; align-items:center; gap:10px; flex-wrap:wrap;">
+  <span style="font-size:0.73rem; color:var(--text2); flex-shrink:0;">👤 切換</span>
   <div id="person-btns" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
 </div>
 
@@ -425,8 +434,10 @@ function applyPerson(idx) {
   document.getElementById('dw_ming').value = sumDigit;
   // 更新按鈕選中狀態
   document.querySelectorAll('#person-btns button').forEach((b, i) => {
-    b.style.background = i === idx ? 'rgba(212,160,23,0.35)' : 'rgba(212,160,23,0.1)';
-    b.style.fontWeight = i === idx ? 'bold' : 'normal';
+    b.style.background    = i === idx ? 'rgba(99,102,241,0.18)' : 'transparent';
+    b.style.borderColor   = i === idx ? 'rgba(99,102,241,0.7)' : 'rgba(99,102,241,0.25)';
+    b.style.color         = i === idx ? '#c7d2fe' : 'var(--text2)';
+    b.style.fontWeight    = i === idx ? '600' : 'normal';
   });
   calcDingWei();
 }
@@ -451,10 +462,10 @@ function loadFromJiuGong() {
       btns.innerHTML = _persons.map((p, i) => {
         const sd = calcSumDigitNum(p.zong);
         return `<button onclick="applyPerson(${i})" style="
-          padding:8px 16px; border:1px solid var(--gold); border-radius:20px;
-          color:var(--gold2); font-size:0.85rem; cursor:pointer;
-          background:${i===0?'rgba(212,160,23,0.35)':'rgba(212,160,23,0.1)'};
-          font-weight:${i===0?'bold':'normal'};">
+          padding:7px 16px; border:1px solid ${i===0?'rgba(99,102,241,0.7)':'rgba(99,102,241,0.25)'}; border-radius:20px;
+          color:${i===0?'#c7d2fe':'var(--text2)'}; font-size:0.82rem; cursor:pointer;
+          background:${i===0?'rgba(99,102,241,0.18)':'transparent'};
+          font-weight:${i===0?'600':'normal'}; transition:all 0.18s;">
           ${p.name}（命宮${p.zong}・相併${sd}）
         </button>`;
       }).join('');
