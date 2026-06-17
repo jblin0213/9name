@@ -248,6 +248,16 @@
 
 <div class="page">
 
+  <!-- ===== 人物資料卡 ===== -->
+  <div id="profile-card" style="display:none; margin-bottom:16px;">
+    <div class="section">
+      <div class="section-header">
+        <h2>👤 分析對象</h2>
+        <span id="profile-name-label">—</span>
+      </div>
+      <div class="section-body" id="profile-body"></div>
+    </div>
+  </div>
 
   <!-- ===== 喜用 + 宅氣 合併輸入 ===== -->
   <div class="section">
@@ -428,6 +438,47 @@ function calcSumDigitNum(n) {
 
 let _persons = [];
 
+const ELEM_COLOR = { '木':'#34d399','火':'#fb923c','土':'#f59e0b','金':'#94a3b8','水':'#38bdf8' };
+const ELEM_BG    = { '木':'rgba(52,211,153,0.12)','火':'rgba(251,146,60,0.12)','土':'rgba(245,158,11,0.12)','金':'rgba(148,163,184,0.12)','水':'rgba(56,189,248,0.12)' };
+
+function renderProfileCard(p) {
+  const card = document.getElementById('profile-card');
+  const body = document.getElementById('profile-body');
+  const label = document.getElementById('profile-name-label');
+  if (!p || !p.zong) { card.style.display='none'; return; }
+  label.textContent = `${p.name}・虛歲 ${p.age||'?'} 歲`;
+
+  const gridRow = (label, val, el) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:0.72rem;color:var(--text2);width:52px;flex-shrink:0;">${label}</span>
+      <span style="font-size:0.88rem;font-weight:600;color:var(--text);min-width:28px;">${val}</span>
+      ${el ? `<span style="font-size:0.72rem;padding:2px 8px;border-radius:10px;background:${ELEM_BG[el]};color:${ELEM_COLOR[el]};border:1px solid ${ELEM_COLOR[el]}40;">${el}</span>` : ''}
+    </div>`;
+
+  const flowBadge = `<span style="display:inline-block;padding:3px 12px;border-radius:12px;background:${p.flowColor||'#6366f1'};color:#fff;font-weight:700;font-size:0.82rem;">${p.flowStage||'—'}・${p.flowMod||''}</span>`;
+  const jihuiBadge = p.jihuiName ? `<span style="display:inline-block;padding:3px 12px;border-radius:12px;background:${p.jihuiColor||'#888'};color:#fff;font-weight:700;font-size:0.82rem;margin-left:8px;">${p.jihuiName}・${p.jihuiSeason}</span>` : '';
+
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <div style="font-size:0.72rem;color:var(--text2);margin-bottom:6px;letter-spacing:1px;">▸ 五格結構</div>
+        ${gridRow('命宮（總格）', p.zong, p.zongEl)}
+        ${gridRow('天格（父母）', p.tian, p.tianEl)}
+        ${gridRow('人格（疾財）', p.ren,  p.renEl)}
+        ${gridRow('地格（子女）', p.di,   p.diEl)}
+      </div>
+      <div>
+        <div style="font-size:0.72rem;color:var(--text2);margin-bottom:6px;letter-spacing:1px;">▸ 今年運勢</div>
+        <div style="margin-bottom:8px;">${flowBadge}</div>
+        <div style="font-size:0.78rem;color:var(--text2);line-height:1.6;margin-bottom:10px;">${p.flowDesc||''}</div>
+        <div style="font-size:0.72rem;color:var(--text2);margin-bottom:6px;letter-spacing:1px;">▸ 命宮機會點</div>
+        <div>${jihuiBadge}</div>
+        <div style="font-size:0.76rem;color:var(--text2);margin-top:5px;line-height:1.5;">${p.jihuiDir||''}・${p.jihuiDesc||''}</div>
+      </div>
+    </div>`;
+  card.style.display = 'block';
+}
+
 function applyPerson(idx) {
   const p = _persons[idx];
   if (!p) return;
@@ -445,24 +496,30 @@ function applyPerson(idx) {
     b.style.color         = i === idx ? '#c7d2fe' : 'var(--text2)';
     b.style.fontWeight    = i === idx ? '600' : 'normal';
   });
+  renderProfileCard(p);
   calcDingWei();
+  autoCalc();
 }
 
 function loadFromJiuGong() {
   try {
+    const raw  = localStorage.getItem('jb_profile');
+    const rawB = localStorage.getItem('jb_profile_b');
+    // fallback to old keys
     const zong  = localStorage.getItem('jb_zong');
     const name  = localStorage.getItem('jb_name_display') || localStorage.getItem('jb_name');
-    const zongB = localStorage.getItem('jb_zong_b');
-    const nameB = localStorage.getItem('jb_name_display_b') || localStorage.getItem('jb_name_b');
     if (!zong || !name) return;
 
-    _persons = [{ name, zong: parseInt(zong) }];
-    if (zongB && nameB) _persons.push({ name: nameB, zong: parseInt(zongB) });
+    const pA = raw  ? JSON.parse(raw)  : { name, zong: parseInt(zong) };
+    const pB = rawB ? JSON.parse(rawB) : null;
+
+    _persons = [pA];
+    if (pB && pB.name) _persons.push(pB);
 
     // 自動套用第一人
     applyPerson(0);
 
-    // 有資料就顯示切換列（1人只顯示名字，2人才顯示切換按鈕）
+    // 顯示頂端列
     document.getElementById('person-bar').style.display = 'flex';
     if (_persons.length > 1) {
       const btns = document.getElementById('person-btns');
@@ -476,9 +533,6 @@ function loadFromJiuGong() {
           ${p.name}（命宮${p.zong}・相併${sd}）
         </button>`;
       }).join('');
-      document.getElementById('person-bar').style.display = 'flex';
-      // 底部列有高度，加一點 padding 避免內容被蓋住
-      document.body.style.paddingBottom = '60px';
     }
   } catch(e) {}
 }
