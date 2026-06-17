@@ -411,27 +411,104 @@
       <!-- 方向選擇 -->
       <div id="fp-controls" style="display:none;margin-bottom:12px;">
 
-        <!-- 快速方向 -->
-        <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:6px;">平面圖「上方」朝哪個方向？</label>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;">
-          <button class="fp-dir-btn" data-deg="0"   onclick="setFpDeg(0,this)">↑ 北 0°</button>
-          <button class="fp-dir-btn" data-deg="45"  onclick="setFpDeg(45,this)">↑ 東北 45°</button>
-          <button class="fp-dir-btn" data-deg="90"  onclick="setFpDeg(90,this)">↑ 東 90°</button>
-          <button class="fp-dir-btn" data-deg="135" onclick="setFpDeg(135,this)">↑ 東南 135°</button>
-          <button class="fp-dir-btn" data-deg="180" onclick="setFpDeg(180,this)">↑ 南 180°</button>
-          <button class="fp-dir-btn" data-deg="225" onclick="setFpDeg(225,this)">↑ 西南 225°</button>
-          <button class="fp-dir-btn" data-deg="270" onclick="setFpDeg(270,this)">↑ 西 270°</button>
-          <button class="fp-dir-btn" data-deg="315" onclick="setFpDeg(315,this)">↑ 西北 315°</button>
+        <!-- === 定位方式選擇 === -->
+        <div style="margin-bottom:14px;">
+          <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:8px;">📍 選擇定位方式</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button onclick="showLocMode('compass')"
+              id="loc-tab-compass"
+              style="flex:1;min-width:120px;padding:9px 8px;border-radius:9px;border:1.5px solid var(--accent);
+                background:var(--accent-dim);color:var(--accent2);font-size:0.82rem;font-weight:600;cursor:pointer;">
+              🧭 方案一：手機指南針
+            </button>
+            <button onclick="showLocMode('map')"
+              id="loc-tab-map"
+              style="flex:1;min-width:120px;padding:9px 8px;border-radius:9px;border:1.5px solid var(--border);
+                background:transparent;color:var(--text2);font-size:0.82rem;font-weight:600;cursor:pointer;">
+              🗺️ 方案二：地圖查詢
+            </button>
+            <button onclick="showLocMode('manual')"
+              id="loc-tab-manual"
+              style="flex:1;min-width:100px;padding:9px 8px;border-radius:9px;border:1.5px solid var(--border);
+                background:transparent;color:var(--text2);font-size:0.82rem;font-weight:600;cursor:pointer;">
+              ✋ 手動選擇
+            </button>
+          </div>
         </div>
 
-        <!-- 精細旋轉滑桿 -->
-        <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:6px;">
-          精細旋轉：<strong id="fp-deg-display" style="color:var(--accent2);">0°</strong>
-          <span style="font-size:0.7rem;color:var(--text2);margin-left:6px;">（拖動滑桿微調）</span>
-        </label>
-        <input type="range" id="fp-rot-slider" min="0" max="359" value="0" step="1"
-          oninput="onFpSlider(this.value)"
-          style="width:100%;accent-color:var(--accent);cursor:pointer;margin-bottom:10px;">
+        <!-- 方案一：手機指南針 -->
+        <div id="loc-panel-compass" style="margin-bottom:14px;">
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;">
+            <div style="font-size:0.8rem;color:var(--text2);margin-bottom:10px;line-height:1.6;">
+              📱 把手機「上方」對齊平面圖的「上方」<br>再按下方按鈕，自動讀取羅盤角度
+            </div>
+            <button onclick="startCompass()"
+              style="padding:10px 24px;background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;
+                border-radius:8px;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;letter-spacing:2px;">
+              🧭 偵測方位
+            </button>
+            <div id="compass-status" style="margin-top:10px;font-size:0.8rem;color:var(--text2);min-height:20px;"></div>
+            <div id="compass-result" style="display:none;margin-top:8px;">
+              <div style="font-size:1.4rem;font-weight:800;color:var(--accent2);" id="compass-deg-big">—</div>
+              <div style="font-size:0.78rem;color:var(--text2);" id="compass-dir-name">—</div>
+              <button onclick="applyCompassDeg()"
+                style="margin-top:8px;padding:7px 20px;background:var(--green);border:none;border-radius:7px;
+                  color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;">
+                ✅ 套用此角度
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 方案二：Google Maps -->
+        <div id="loc-panel-map" style="display:none;margin-bottom:14px;">
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;">
+            <div style="font-size:0.8rem;color:var(--text2);margin-bottom:8px;line-height:1.6;">
+              🗺️ 在地圖上找到您的建築物，查看平面圖「上方」朝哪個方向，再手動選擇。
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <input type="text" id="map-addr-input" placeholder="輸入地址（例：台北市信義路100號）"
+                style="flex:1;padding:9px 11px;background:var(--bg);border:1px solid var(--border);
+                  border-radius:8px;color:var(--text);font-size:0.85rem;">
+              <button onclick="openMapSearch()"
+                style="padding:9px 14px;background:var(--accent);border:none;border-radius:8px;
+                  color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;">
+                搜尋
+              </button>
+            </div>
+            <div id="map-frame-wrap" style="display:none;border-radius:8px;overflow:hidden;margin-bottom:8px;">
+              <iframe id="map-iframe" width="100%" height="240" style="border:none;display:block;" allowfullscreen></iframe>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text2);">看完地圖後，請用下方「手動選擇」設定方向</div>
+          </div>
+        </div>
+
+        <!-- 手動選擇（預設隱藏，三個面板共用的是下方的滑桿/按鈕） -->
+        <div id="loc-panel-manual" style="display:none;"></div>
+
+        <!-- 快速方向（手動模式顯示 / 其他模式也可用） -->
+        <div id="fp-dir-buttons-wrap">
+          <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:6px;">平面圖「上方」朝哪個方向？</label>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;">
+            <button class="fp-dir-btn" data-deg="0"   onclick="setFpDeg(0,this)">↑ 北</button>
+            <button class="fp-dir-btn" data-deg="45"  onclick="setFpDeg(45,this)">↑ 東北</button>
+            <button class="fp-dir-btn" data-deg="90"  onclick="setFpDeg(90,this)">↑ 東</button>
+            <button class="fp-dir-btn" data-deg="135" onclick="setFpDeg(135,this)">↑ 東南</button>
+            <button class="fp-dir-btn" data-deg="180" onclick="setFpDeg(180,this)">↑ 南</button>
+            <button class="fp-dir-btn" data-deg="225" onclick="setFpDeg(225,this)">↑ 西南</button>
+            <button class="fp-dir-btn" data-deg="270" onclick="setFpDeg(270,this)">↑ 西</button>
+            <button class="fp-dir-btn" data-deg="315" onclick="setFpDeg(315,this)">↑ 西北</button>
+          </div>
+
+          <!-- 精細旋轉滑桿 -->
+          <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:6px;">
+            精細旋轉：<strong id="fp-deg-display" style="color:var(--accent2);">0°</strong>
+            <span style="font-size:0.7rem;color:var(--text2);margin-left:6px;">（拖動滑桿微調）</span>
+          </label>
+          <input type="range" id="fp-rot-slider" min="0" max="359" value="0" step="1"
+            oninput="onFpSlider(this.value)"
+            style="width:100%;accent-color:var(--accent);cursor:pointer;margin-bottom:10px;">
+        </div>
 
         <div style="font-size:0.75rem;color:var(--text2);margin-bottom:8px;">
           命宮相併數：<strong id="fp-ming-show" style="color:var(--accent2);">—</strong>
@@ -930,6 +1007,108 @@ const ROT_CW = {'北':'東','東':'南','南':'西','西':'北','東北':'東南
 function rotateDirCW(dir){ return ROT_CW[dir]||dir; }
 
 let _fpRotDeg = 0; // 平面圖「上方」對準的羅盤角度，0=北
+let _compassWatcher = null;
+let _compassLastDeg = 0;
+
+// ── 定位模式切換 ──
+function showLocMode(mode) {
+  ['compass','map','manual'].forEach(m => {
+    document.getElementById('loc-panel-'+m).style.display = (m===mode)?'block':'none';
+    const tab = document.getElementById('loc-tab-'+m);
+    if (tab) {
+      tab.style.border = (m===mode)?'1.5px solid var(--accent)':'1.5px solid var(--border)';
+      tab.style.background = (m===mode)?'var(--accent-dim)':'transparent';
+      tab.style.color = (m===mode)?'var(--accent2)':'var(--text2)';
+    }
+  });
+  // 手動模式顯示方向按鈕區；其他模式也保留（輔助用）
+  document.getElementById('fp-dir-buttons-wrap').style.display = (mode==='compass') ? 'none' : 'block';
+  if (mode !== 'compass') stopCompass();
+}
+
+// ── 方案一：手機指南針 ──
+function startCompass() {
+  const status = document.getElementById('compass-status');
+  const result = document.getElementById('compass-result');
+
+  // iOS 13+ 需要 requestPermission
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().then(perm => {
+      if (perm === 'granted') _listenCompass();
+      else { status.textContent = '❌ 已拒絕感應器權限，請在 Safari 設定中開啟'; }
+    }).catch(() => { status.textContent = '❌ 無法取得感應器權限'; });
+  } else if (window.DeviceOrientationEvent) {
+    _listenCompass();
+  } else {
+    status.textContent = '⚠️ 此裝置/瀏覽器不支援羅盤感應器，請改用手動選擇';
+  }
+}
+
+function _listenCompass() {
+  const status = document.getElementById('compass-status');
+  const result = document.getElementById('compass-result');
+  status.textContent = '📡 偵測中，請保持手機水平...';
+  let readings = [], stableCount = 0;
+
+  _compassWatcher = function(e) {
+    // webkitCompassHeading (iOS) 或 alpha (Android，需換算)
+    let deg = null;
+    if (e.webkitCompassHeading != null) {
+      deg = Math.round(e.webkitCompassHeading);
+    } else if (e.alpha != null) {
+      deg = Math.round((360 - e.alpha) % 360);
+    }
+    if (deg === null) return;
+
+    readings.push(deg);
+    if (readings.length > 5) readings.shift();
+    // 穩定性判斷
+    const spread = Math.max(...readings) - Math.min(...readings);
+    if (spread < 8 && readings.length >= 4) {
+      const avg = Math.round(readings.reduce((a,b)=>a+b,0)/readings.length);
+      _compassLastDeg = avg;
+      status.textContent = '✅ 已鎖定';
+      result.style.display = 'block';
+      document.getElementById('compass-deg-big').textContent = avg + '°';
+      const DEG_DIR = [[0,'北'],[45,'東北'],[90,'東'],[135,'東南'],[180,'南'],[225,'西南'],[270,'西'],[315,'西北'],[360,'北']];
+      const closest = DEG_DIR.reduce((p,c)=>Math.abs(c[0]-avg)<Math.abs(p[0]-avg)?c:p);
+      document.getElementById('compass-dir-name').textContent = '約朝 ' + closest[1] + ' 方向';
+    } else {
+      status.textContent = '📡 偵測中… 請保持平穩（誤差 '+spread+'°）';
+    }
+  };
+  window.addEventListener('deviceorientationabsolute', _compassWatcher, true);
+  window.addEventListener('deviceorientation', _compassWatcher, true);
+}
+
+function stopCompass() {
+  if (_compassWatcher) {
+    window.removeEventListener('deviceorientationabsolute', _compassWatcher, true);
+    window.removeEventListener('deviceorientation', _compassWatcher, true);
+    _compassWatcher = null;
+  }
+}
+
+function applyCompassDeg() {
+  stopCompass();
+  setFpDeg(_compassLastDeg, null);
+  // 同步滑桿
+  document.getElementById('fp-rot-slider').value = _compassLastDeg;
+  document.getElementById('fp-deg-display').textContent = _compassLastDeg + '°';
+  document.getElementById('compass-status').textContent = '✅ 已套用 ' + _compassLastDeg + '°';
+  // 切換到手動面板讓大人看到結果
+  showLocMode('manual');
+}
+
+// ── 方案二：Google Maps 搜尋 ──
+function openMapSearch() {
+  const addr = document.getElementById('map-addr-input').value.trim();
+  if (!addr) return;
+  const encoded = encodeURIComponent(addr);
+  const src = `https://maps.google.com/maps?q=${encoded}&output=embed&z=18`;
+  document.getElementById('map-iframe').src = src;
+  document.getElementById('map-frame-wrap').style.display = 'block';
+}
 
 function loadFloorPlan(input) {
   const file = input.files[0];
