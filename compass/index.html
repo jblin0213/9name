@@ -222,124 +222,101 @@ function initCanvas() {
 function drawCompass(heading) {
   const sz = canvasSize;
   const cx = sz/2, cy = sz/2;
-  const R = sz/2 - 4; // outer radius
+  const R = sz/2 - 4;
+  const hRad = heading * Math.PI / 180; // heading in radians
 
   ctx.clearRect(0,0,sz,sz);
   ctx.save();
   ctx.translate(cx, cy);
-  ctx.rotate(-heading * Math.PI / 180); // rotate entire disc
+  ctx.rotate(-hRad); // rotate entire disc
+
+  // Helper: draw upright text at (x,y) — counter-rotates to cancel disc rotation
+  function uprightText(text, x, y, font, fillStyle, align, baseline) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(hRad); // cancel the disc rotation
+    ctx.fillStyle = fillStyle;
+    ctx.font = font;
+    ctx.textAlign = align || 'center';
+    ctx.textBaseline = baseline || 'middle';
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
+  }
 
   // Ring radii
-  const r1 = R;         // outer edge
-  const r2 = R * 0.88;  // degree ring inner
-  const r3 = R * 0.76;  // gate ring inner
-  const r4 = R * 0.60;  // position ring inner (吉財兇忌)
-  const r5 = R * 0.44;  // flow year ring inner
-  const r6 = R * 0.28;  // center circle
+  const r1 = R;
+  const r2 = R * 0.88;
+  const r3 = R * 0.74;
+  const r4 = R * 0.58;
+  const r5 = R * 0.42;
+  const r6 = R * 0.26;
+
+  const DIRS_ORDER = ['北','東北','東','東南','南','西南','西','西北'];
+  const GONG_NUM_AT_DIR = {北:7,東北:1,東:5,東南:8,南:9,西南:2,西:3,西北:6};
 
   // ── Outer ring: degree markings ──
-  ctx.beginPath();
-  ctx.arc(0,0,r1,0,Math.PI*2);
-  ctx.fillStyle = '#1a2133';
-  ctx.fill();
-  ctx.strokeStyle = '#3a4a66';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+  ctx.beginPath(); ctx.arc(0,0,r1,0,Math.PI*2);
+  ctx.fillStyle='#1a2133'; ctx.fill();
+  ctx.strokeStyle='#3a4a66'; ctx.lineWidth=1.5; ctx.stroke();
 
-  // Degree ticks
-  for (let d = 0; d < 360; d++) {
-    const ang = (d-90)*Math.PI/180;
-    const isMajor = d%45===0;
-    const isMid = d%15===0;
-    const inner = isMajor ? r2+2 : (isMid ? r1-8 : r1-4);
+  for (let d=0;d<360;d++) {
+    const ang=(d-90)*Math.PI/180;
+    const isMajor=d%45===0, isMid=d%15===0;
+    const inner=isMajor?r2+2:(isMid?r1-8:r1-4);
     ctx.beginPath();
     ctx.moveTo(Math.cos(ang)*r1, Math.sin(ang)*r1);
     ctx.lineTo(Math.cos(ang)*inner, Math.sin(ang)*inner);
-    ctx.strokeStyle = isMajor ? '#fbbf24' : (isMid ? '#6b7280' : '#374151');
-    ctx.lineWidth = isMajor ? 2 : 1;
+    ctx.strokeStyle=isMajor?'#fbbf24':(isMid?'#6b7280':'#374151');
+    ctx.lineWidth=isMajor?2:1;
     ctx.stroke();
   }
 
-  // Degree labels at major positions
-  const degLabels = [
-    [0,'北','#f87171'],[45,'東北','#e2e8f0'],[90,'東','#e2e8f0'],[135,'東南','#e2e8f0'],
-    [180,'南','#f87171'],[225,'西南','#e2e8f0'],[270,'西','#e2e8f0'],[315,'西北','#e2e8f0']
-  ];
+  // Direction labels (upright)
+  const degLabels=[[0,'北','#f87171'],[45,'東北','#e2e8f0'],[90,'東','#e2e8f0'],[135,'東南','#e2e8f0'],
+    [180,'南','#f87171'],[225,'西南','#e2e8f0'],[270,'西','#e2e8f0'],[315,'西北','#e2e8f0']];
   degLabels.forEach(([d,label,color])=>{
-    const ang = (d-90)*Math.PI/180;
-    const lr = (r1+r2)/2;
-    ctx.save();
-    ctx.translate(Math.cos(ang)*lr, Math.sin(ang)*lr);
-    ctx.rotate(ang+Math.PI/2);
-    ctx.fillStyle = color;
-    ctx.font = 'bold '+(sz*0.032)+'px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(label, 0, 0);
-    ctx.restore();
+    const ang=(d-90)*Math.PI/180;
+    const lr=(r1+r2)/2;
+    uprightText(label, Math.cos(ang)*lr, Math.sin(ang)*lr, 'bold '+(sz*0.032)+'px sans-serif', color);
   });
 
-  // ── Ring 2: Inner boundary ──
+  // ── Ring 2 boundary ──
   ctx.beginPath(); ctx.arc(0,0,r2,0,Math.PI*2);
   ctx.strokeStyle='#3a4a66'; ctx.lineWidth=1; ctx.stroke();
 
   // ── Ring 2→3: 門名 ring ──
-  // Fill sectors
-  const SECT_COLORS = ['#1a2844','#1e2535','#1a2844','#1e2535','#1a2844','#1e2535','#1a2844','#1e2535'];
-  const DIRS_ORDER = ['北','東北','東','東南','南','西南','西','西北'];
-  const GONG_NUM_AT_DIR = {北:7,東北:1,東:5,東南:8,南:9,西南:2,西:3,西北:6};
-
-  DIRS_ORDER.forEach((dir,i) => {
-    const startA = ((i*45-22.5)-90)*Math.PI/180;
-    const endA = ((i*45+22.5)-90)*Math.PI/180;
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.arc(0,0,r2,startA,endA);
-    ctx.closePath();
-    ctx.fillStyle = SECT_COLORS[i];
-    ctx.fill();
-
-    // Sector lines
+  const SECT_COLORS=['#1a2844','#1e2535','#1a2844','#1e2535','#1a2844','#1e2535','#1a2844','#1e2535'];
+  DIRS_ORDER.forEach((dir,i)=>{
+    const startA=((i*45-22.5)-90)*Math.PI/180;
+    const endA=((i*45+22.5)-90)*Math.PI/180;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,r2,startA,endA); ctx.closePath();
+    ctx.fillStyle=SECT_COLORS[i]; ctx.fill();
     ctx.beginPath();
     ctx.moveTo(Math.cos(startA)*r3, Math.sin(startA)*r3);
     ctx.lineTo(Math.cos(startA)*r2, Math.sin(startA)*r2);
     ctx.strokeStyle='#3a4a66'; ctx.lineWidth=1; ctx.stroke();
   });
-
   ctx.beginPath(); ctx.arc(0,0,r3,0,Math.PI*2);
   ctx.strokeStyle='#3a4a66'; ctx.lineWidth=1; ctx.stroke();
 
-  // Gate names + 宮數
-  DIRS_ORDER.forEach((dir,i) => {
-    const ang = (i*45-90)*Math.PI/180;
-    const lr = (r2+r3)/2;
-    const gNum = GONG_NUM_AT_DIR[dir];
-    const gate = ZX_DATA[dir];
-    ctx.save();
-    ctx.translate(Math.cos(ang)*lr, Math.sin(ang)*lr);
-    ctx.rotate(ang+Math.PI/2);
-    // Gate short name
-    ctx.fillStyle = '#fbbf24';
-    ctx.font = 'bold '+(sz*0.028)+'px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(gate.short, 0, -2);
-    // Gong number
-    ctx.fillStyle = '#818cf8';
-    ctx.font = 'bold '+(sz*0.032)+'px sans-serif';
-    ctx.textBaseline = 'top';
-    ctx.fillText(gNum, 0, 2);
-    ctx.restore();
+  // Gate names + numbers (upright)
+  DIRS_ORDER.forEach((dir,i)=>{
+    const ang=(i*45-90)*Math.PI/180;
+    const lr=(r2+r3)/2;
+    const gNum=GONG_NUM_AT_DIR[dir];
+    const gate=ZX_DATA[dir];
+    const x=Math.cos(ang)*lr, y=Math.sin(ang)*lr;
+    uprightText(gate.short, x, y-sz*0.014, 'bold '+(sz*0.026)+'px sans-serif', '#fbbf24');
+    uprightText(String(gNum), x, y+sz*0.016, 'bold '+(sz*0.032)+'px sans-serif', '#818cf8');
   });
 
-  // ── Ring 3→4: 吉財兇忌 positions (personal) ──
+  // ── Ring 3→4: 吉財兇忌 ──
   ctx.beginPath(); ctx.arc(0,0,r4,0,Math.PI*2);
   ctx.fillStyle='#111827'; ctx.fill();
   ctx.strokeStyle='#3a4a66'; ctx.lineWidth=1; ctx.stroke();
 
-  // Sector lines for this ring
-  DIRS_ORDER.forEach((dir,i) => {
-    const startA = ((i*45-22.5)-90)*Math.PI/180;
+  DIRS_ORDER.forEach((dir,i)=>{
+    const startA=((i*45-22.5)-90)*Math.PI/180;
     ctx.beginPath();
     ctx.moveTo(Math.cos(startA)*r3, Math.sin(startA)*r3);
     ctx.lineTo(Math.cos(startA)*r4, Math.sin(startA)*r4);
@@ -347,100 +324,59 @@ function drawCompass(heading) {
   });
 
   if (currentPerson && currentPerson.zong) {
-    const ming = calcSumDigit(currentPerson.zong);
-    const pos = PERSONAL_POS[ming];
+    const ming=calcSumDigit(currentPerson.zong);
+    const pos=PERSONAL_POS[ming];
     if (pos) {
-      const TAG_STYLE = {
+      const TAG_STYLE={
         吉:{bg:'rgba(251,191,36,0.25)',color:'#fbbf24',text:'吉'},
         財:{bg:'rgba(16,185,129,0.25)',color:'#10b981',text:'財'},
         兇:{bg:'rgba(248,113,113,0.25)',color:'#f87171',text:'兇'},
         忌:{bg:'rgba(167,139,250,0.25)',color:'#a78bfa',text:'忌'}
       };
       Object.entries(pos).forEach(([type,dir])=>{
-        if (dir==='中宮') return; // center, handle separately
-        const idx = DIRS_ORDER.indexOf(dir);
-        if (idx<0) return;
-        const ang = (idx*45-90)*Math.PI/180;
-        const lr = (r3+r4)/2;
-        const st = TAG_STYLE[type];
-        // Background arc highlight
-        const startA = ((idx*45-22.5)-90)*Math.PI/180;
-        const endA = ((idx*45+22.5)-90)*Math.PI/180;
+        if (dir==='中宮') return;
+        const idx=DIRS_ORDER.indexOf(dir); if(idx<0) return;
+        const ang=(idx*45-90)*Math.PI/180;
+        const lr=(r3+r4)/2;
+        const st=TAG_STYLE[type];
+        const startA=((idx*45-22.5)-90)*Math.PI/180;
+        const endA=((idx*45+22.5)-90)*Math.PI/180;
         ctx.beginPath();
         ctx.moveTo(Math.cos(startA)*r4,Math.sin(startA)*r4);
         ctx.arc(0,0,r3,startA,endA);
         ctx.arc(0,0,r4,endA,startA,true);
-        ctx.closePath();
-        ctx.fillStyle=st.bg;
-        ctx.fill();
-        // Label
-        ctx.save();
-        ctx.translate(Math.cos(ang)*lr, Math.sin(ang)*lr);
-        ctx.rotate(ang+Math.PI/2);
-        ctx.fillStyle=st.color;
-        ctx.font='bold '+(sz*0.038)+'px sans-serif';
-        ctx.textAlign='center';
-        ctx.textBaseline='middle';
-        ctx.fillText(st.text+'位',0,0);
-        ctx.restore();
+        ctx.closePath(); ctx.fillStyle=st.bg; ctx.fill();
+        uprightText(st.text+'位', Math.cos(ang)*lr, Math.sin(ang)*lr, 'bold '+(sz*0.036)+'px sans-serif', st.color);
       });
-      // 中宮 label (if applicable)
       Object.entries(pos).forEach(([type,dir])=>{
         if (dir!=='中宮') return;
-        const st = TAG_STYLE[type];
-        ctx.fillStyle=st.color;
-        ctx.font='bold '+(sz*0.028)+'px sans-serif';
-        ctx.textAlign='center';
-        ctx.textBaseline='bottom';
-        ctx.fillText('中宮'+st.text, 0, r4+sz*0.014);
+        const st=TAG_STYLE[type];
+        uprightText('中宮'+st.text, 0, r4+sz*0.014, 'bold '+(sz*0.024)+'px sans-serif', st.color);
       });
     }
   } else {
-    // No person selected - show role names
-    DIRS_ORDER.forEach((dir,i) => {
-      const ang = (i*45-90)*Math.PI/180;
-      const lr = (r3+r4)/2;
-      const role = DIR_ROLE[dir]||'';
-      ctx.save();
-      ctx.translate(Math.cos(ang)*lr, Math.sin(ang)*lr);
-      ctx.rotate(ang+Math.PI/2);
-      ctx.fillStyle='#6b7280';
-      ctx.font=(sz*0.026)+'px sans-serif';
-      ctx.textAlign='center';
-      ctx.textBaseline='middle';
-      ctx.fillText(role.split('・')[0],0,0);
-      ctx.restore();
+    DIRS_ORDER.forEach((dir,i)=>{
+      const ang=(i*45-90)*Math.PI/180;
+      const lr=(r3+r4)/2;
+      const role=DIR_ROLE[dir]||'';
+      uprightText(role.split('・')[0], Math.cos(ang)*lr, Math.sin(ang)*lr, (sz*0.026)+'px sans-serif', '#6b7280');
     });
   }
 
-  // ── Ring 4→5: 流年/角色 ring ──
+  // ── Ring 4→5: 角色 ring ──
   ctx.beginPath(); ctx.arc(0,0,r5,0,Math.PI*2);
   ctx.fillStyle='#0e1520'; ctx.fill();
   ctx.strokeStyle='#2a3347'; ctx.lineWidth=1; ctx.stroke();
 
-  DIRS_ORDER.forEach((dir,i) => {
-    const ang = (i*45-90)*Math.PI/180;
-    const lr = (r4+r5)/2;
-    const role = DIR_ROLE[dir]||'';
-    const parts = role.split('・');
-    ctx.save();
-    ctx.translate(Math.cos(ang)*lr, Math.sin(ang)*lr);
-    ctx.rotate(ang+Math.PI/2);
-    ctx.fillStyle='#94a3b8';
-    ctx.font=(sz*0.024)+'px sans-serif';
-    ctx.textAlign='center';
-    ctx.textBaseline='bottom';
-    ctx.fillText(parts[0]||'',0,-1);
-    ctx.fillStyle='#6b7280';
-    ctx.font=(sz*0.020)+'px sans-serif';
-    ctx.textBaseline='top';
-    ctx.fillText(parts[1]||'',0,1);
-    ctx.restore();
-  });
-
-  // Sector lines for ring 4→5
-  DIRS_ORDER.forEach((dir,i) => {
-    const startA = ((i*45-22.5)-90)*Math.PI/180;
+  DIRS_ORDER.forEach((dir,i)=>{
+    const ang=(i*45-90)*Math.PI/180;
+    const lr=(r4+r5)/2;
+    const role=DIR_ROLE[dir]||'';
+    const parts=role.split('・');
+    const x=Math.cos(ang)*lr, y=Math.sin(ang)*lr;
+    uprightText(parts[0]||'', x, y-sz*0.010, (sz*0.022)+'px sans-serif', '#94a3b8');
+    uprightText(parts[1]||'', x, y+sz*0.010, (sz*0.018)+'px sans-serif', '#6b7280');
+    const startA=((i*45-22.5)-90)*Math.PI/180;
     ctx.beginPath();
     ctx.moveTo(Math.cos(startA)*r4, Math.sin(startA)*r4);
     ctx.lineTo(Math.cos(startA)*r5, Math.sin(startA)*r5);
@@ -452,29 +388,17 @@ function drawCompass(heading) {
   ctx.fillStyle='#111827'; ctx.fill();
   ctx.strokeStyle='#3a4a66'; ctx.lineWidth=1.5; ctx.stroke();
 
-  // Center: compass rose + 中宮 label
-  // N/S indicators
-  const northAng = -Math.PI/2;
+  // North triangle
   ctx.beginPath();
-  ctx.moveTo(0,-r6+4);
-  ctx.lineTo(-6,-r6+16);
-  ctx.lineTo(6,-r6+16);
-  ctx.closePath();
-  ctx.fillStyle='#f87171';
-  ctx.fill();
+  ctx.moveTo(0,-r6+4); ctx.lineTo(-6,-r6+16); ctx.lineTo(6,-r6+16);
+  ctx.closePath(); ctx.fillStyle='#f87171'; ctx.fill();
 
-  ctx.fillStyle='#6b7280';
-  ctx.font='bold '+(sz*0.022)+'px sans-serif';
-  ctx.textAlign='center';
-  ctx.textBaseline='middle';
-  ctx.fillText('中宮',0,0);
+  uprightText('中宮', 0, 0, 'bold '+(sz*0.022)+'px sans-serif', '#94a3b8');
   if (currentPerson) {
-    ctx.fillStyle='#818cf8';
-    ctx.font=(sz*0.020)+'px sans-serif';
-    ctx.fillText('命宮 '+calcSumDigit(currentPerson.zong),0,sz*0.018);
+    uprightText('命宮 '+calcSumDigit(currentPerson.zong), 0, sz*0.018, (sz*0.018)+'px sans-serif', '#818cf8');
   }
 
-  ctx.restore(); // un-rotate
+  ctx.restore();
 }
 
 function calcSumDigit(n) {
