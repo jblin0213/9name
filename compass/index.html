@@ -103,26 +103,37 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','微軟�
 .ar-hud-top .ar-dir{font-size:.9rem;color:var(--gold);font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,0.8);}
 
 /* AR direction labels */
-.ar-dirs{flex:1;position:relative;}
-.ar-dir-label{position:absolute;top:50%;transform:translate(-50%,-50%);text-align:center;
-  text-shadow:0 2px 8px rgba(0,0,0,0.9);pointer-events:none;transition:left 0.12s ease-out;}
-.ar-dir-label .dir-name{font-size:1.1rem;font-weight:800;color:#fff;}
-.ar-dir-label .dir-gate{font-size:.68rem;color:var(--gold);margin-top:2px;}
-.ar-dir-label .dir-tag{display:inline-block;margin-top:4px;padding:3px 10px;border-radius:6px;
-  font-size:.75rem;font-weight:700;}
-.ar-dir-label .dir-tag.ji{background:rgba(251,191,36,0.35);color:#fbbf24;}
-.ar-dir-label .dir-tag.cai{background:rgba(16,185,129,0.35);color:#10b981;}
-.ar-dir-label .dir-tag.xiong{background:rgba(248,113,113,0.35);color:#f87171;}
-.ar-dir-label .dir-tag.ji2{background:rgba(167,139,250,0.35);color:#a78bfa;}
-.ar-dir-label .dir-role{font-size:.62rem;color:rgba(255,255,255,0.6);margin-top:2px;}
-.ar-dir-label .dir-advice{font-size:.62rem;color:rgba(255,255,255,0.5);margin-top:1px;max-width:90px;}
+.ar-dirs{flex:1;position:relative;overflow:hidden;}
+.ar-dir-label{position:absolute;top:50%;text-align:center;
+  text-shadow:0 2px 12px rgba(0,0,0,1),0 0 20px rgba(0,0,0,0.8);pointer-events:none;
+  transition:left 0.3s ease-out, opacity 0.3s ease-out;}
+.ar-dir-label .dir-name{font-size:1.8rem;font-weight:900;color:#fff;letter-spacing:2px;}
+.ar-dir-label .dir-gate{font-size:1rem;color:var(--gold);margin-top:4px;font-weight:600;}
+.ar-dir-label .dir-tag{display:inline-block;margin-top:6px;padding:6px 16px;border-radius:8px;
+  font-size:1.1rem;font-weight:800;letter-spacing:1px;}
+.ar-dir-label .dir-tag.ji{background:rgba(251,191,36,0.5);color:#fbbf24;border:1px solid rgba(251,191,36,0.6);}
+.ar-dir-label .dir-tag.cai{background:rgba(16,185,129,0.5);color:#10b981;border:1px solid rgba(16,185,129,0.6);}
+.ar-dir-label .dir-tag.xiong{background:rgba(248,113,113,0.5);color:#f87171;border:1px solid rgba(248,113,113,0.6);}
+.ar-dir-label .dir-tag.ji2{background:rgba(167,139,250,0.5);color:#a78bfa;border:1px solid rgba(167,139,250,0.6);}
+.ar-dir-label .dir-role{font-size:.85rem;color:rgba(255,255,255,0.7);margin-top:4px;}
+.ar-dir-label .dir-advice{font-size:.85rem;color:rgba(255,255,255,0.6);margin-top:3px;max-width:140px;line-height:1.3;}
 
 /* AR bottom panel */
-.ar-hud-bottom{padding:10px 16px;
-  background:linear-gradient(0deg,rgba(0,0,0,0.7) 0%,transparent 100%);}
-.ar-hud-bottom .gate-info{font-size:.82rem;color:var(--gold);font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,0.8);}
-.ar-hud-bottom .gate-type{font-size:.72rem;color:rgba(255,255,255,0.6);}
-.ar-hud-bottom .gate-advice{font-size:.72rem;color:rgba(255,255,255,0.8);margin-top:4px;line-height:1.4;}
+.ar-hud-bottom{padding:14px 18px;
+  background:linear-gradient(0deg,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.5) 70%,transparent 100%);min-height:80px;}
+.ar-hud-bottom .gate-info{font-size:1.1rem;color:var(--gold);font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,0.8);}
+.ar-hud-bottom .gate-type{font-size:.92rem;color:rgba(255,255,255,0.7);margin-top:2px;}
+.ar-hud-bottom .gate-advice{font-size:1rem;color:rgba(255,255,255,0.9);margin-top:6px;line-height:1.5;font-weight:600;}
+.ar-hud-bottom .gate-door{font-size:.92rem;color:var(--accent2);margin-top:6px;}
+
+/* AR door selector */
+.ar-door-bar{width:100%;padding:8px 14px;background:var(--bg2);border-top:1px solid var(--border);
+  flex-shrink:0;display:none;}
+.ar-door-bar label{font-size:.85rem;color:var(--text2);margin-bottom:6px;display:block;}
+.ar-door-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.ar-door-btn{padding:6px 14px;border-radius:8px;border:1.5px solid var(--border);
+  background:var(--bg3);color:var(--text);font-size:.85rem;cursor:pointer;font-weight:600;}
+.ar-door-btn.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
 
 /* Crosshair */
 .ar-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
@@ -205,7 +216,23 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','微軟�
       <div class="gate-info" id="ar-gate-name">📱 按上方 AR 實景 啟動相機</div>
       <div class="gate-type" id="ar-gate-type"></div>
       <div class="gate-advice" id="ar-gate-advice"></div>
+      <div class="gate-door" id="ar-gate-door"></div>
     </div>
+  </div>
+  <!-- Door selector -->
+  <div class="ar-door-bar" id="ar-door-bar">
+    <label>🚪 開門方向分析（點擊選擇）</label>
+    <div class="ar-door-btns">
+      <button class="ar-door-btn" onclick="setARDoor('北',this)">北</button>
+      <button class="ar-door-btn" onclick="setARDoor('東北',this)">東北</button>
+      <button class="ar-door-btn" onclick="setARDoor('東',this)">東</button>
+      <button class="ar-door-btn" onclick="setARDoor('東南',this)">東南</button>
+      <button class="ar-door-btn" onclick="setARDoor('南',this)">南</button>
+      <button class="ar-door-btn" onclick="setARDoor('西南',this)">西南</button>
+      <button class="ar-door-btn" onclick="setARDoor('西',this)">西</button>
+      <button class="ar-door-btn" onclick="setARDoor('西北',this)">西北</button>
+    </div>
+    <div id="ar-door-result" style="margin-top:8px;font-size:.95rem;color:var(--text);line-height:1.6;"></div>
   </div>
 </div>
 
@@ -522,18 +549,27 @@ function _bindCompass() {
     window.removeEventListener('deviceorientation',_compassHandler,true);
   }
 
+  let _smoothDeg = null;
   _compassHandler = function(e) {
     if (isLocked) return;
     let deg = null;
-    if (e.webkitCompassHeading!=null) deg=Math.round(e.webkitCompassHeading);
-    else if (e.alpha!=null) deg=Math.round((360-e.alpha)%360);
+    if (e.webkitCompassHeading!=null) deg=e.webkitCompassHeading;
+    else if (e.alpha!=null) deg=(360-e.alpha)%360;
     if (deg===null) return;
 
     _readings.push(deg);
     if (_readings.length>8) _readings.shift();
 
-    currentDeg = deg;
-    updateDisplay(deg);
+    // 低通濾波：平滑指南針跳動（處理 0°/360° 交界）
+    if (_smoothDeg===null) { _smoothDeg=deg; }
+    else {
+      let diff=deg-_smoothDeg;
+      if (diff>180) diff-=360;
+      if (diff<-180) diff+=360;
+      _smoothDeg=((_smoothDeg+diff*0.15)%360+360)%360;
+    }
+    currentDeg = Math.round(_smoothDeg);
+    updateDisplay(currentDeg);
   };
   window.addEventListener('deviceorientationabsolute',_compassHandler,true);
   window.addEventListener('deviceorientation',_compassHandler,true);
@@ -768,6 +804,42 @@ function stopAR() {
   }
   const video = document.getElementById('ar-video');
   video.srcObject = null;
+}
+
+let arDoorDir = null;
+
+function setARDoor(dir, btn) {
+  // Toggle selection
+  document.querySelectorAll('.ar-door-btn').forEach(b=>b.classList.remove('active'));
+  if (arDoorDir === dir) {
+    arDoorDir = null;
+    document.getElementById('ar-door-result').innerHTML = '';
+    return;
+  }
+  arDoorDir = dir;
+  btn.classList.add('active');
+
+  const gate = ZX_DATA[dir];
+  if (!gate) return;
+
+  let html = `<div style="background:var(--bg3);border-radius:10px;padding:10px 14px;">`;
+  html += `<div style="font-size:1.1rem;font-weight:700;color:var(--gold);margin-bottom:4px;">🚪 ${dir}開門 — ${gate.name}</div>`;
+  html += `<div style="font-size:.95rem;color:var(--text2);margin-bottom:6px;">門型：${gate.type}</div>`;
+
+  if (currentPerson && currentPerson.zong) {
+    const ming = calcSumDigit(currentPerson.zong);
+    const pos = PERSONAL_POS[ming];
+    if (pos) {
+      let posTag = '';
+      if (dir===pos.吉) posTag = '⭐ 吉位 — ' + AR_ADVICE.吉;
+      else if (dir===pos.財) posTag = '💰 財位 — ' + AR_ADVICE.財;
+      else if (dir===pos.兇) posTag = '⚠️ 兇位 — ' + AR_ADVICE.兇;
+      else if (dir===pos.忌) posTag = '🚫 忌位 — ' + AR_ADVICE.忌;
+      if (posTag) html += `<div style="font-size:1rem;margin-top:4px;">${posTag}</div>`;
+    }
+  }
+  html += `</div>`;
+  document.getElementById('ar-door-result').innerHTML = html;
 }
 
 function updateAROverlay(deg) {
