@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0e1117">
+<title>九宮環境氣象學羅盤</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root {
+  --bg:#0e1117; --bg2:#161b27; --bg3:#1e2535;
+  --accent:#6366f1; --accent2:#818cf8; --accent-dim:rgba(99,102,241,0.15);
+  --text:#e2e8f0; --text2:#8892a4;
+  --green:#10b981; --blue:#38bdf8; --purple:#a78bfa;
+  --amber:#f59e0b; --red:#f87171; --border:#2a3347;
+  --gold:#fbbf24; --gold-dim:rgba(251,191,36,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none;}
+html,body{width:100%;height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','微軟正黑體',sans-serif;
+  display:flex;flex-direction:column;align-items:center;}
+
+/* Top bar */
+.top-bar{width:100%;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10;}
+.top-bar h1{font-size:.92rem;font-weight:700;letter-spacing:2px;}
+.top-bar h1 span{color:var(--accent2);}
+.top-bar .person-badge{font-size:.78rem;color:var(--gold);background:var(--gold-dim);
+  padding:3px 10px;border-radius:20px;cursor:pointer;}
+
+/* Compass area */
+.compass-area{flex:1;display:flex;align-items:center;justify-content:center;
+  position:relative;width:100%;overflow:hidden;}
+
+/* The rotating compass disc */
+.compass-disc{position:relative;transition:transform 0.15s ease-out;}
+
+/* Center fixed pointer (red triangle) */
+.center-pointer{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:20;pointer-events:none;}
+
+/* Degree readout */
+.deg-readout{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:15;
+  text-align:center;pointer-events:none;}
+.deg-readout .deg-num{font-size:2.2rem;font-weight:800;color:var(--text);
+  text-shadow:0 2px 12px rgba(0,0,0,0.7);}
+.deg-readout .deg-dir{font-size:.9rem;color:var(--gold);margin-top:2px;
+  text-shadow:0 1px 6px rgba(0,0,0,0.7);}
+
+/* Bottom info panel */
+.info-panel{width:100%;flex-shrink:0;background:var(--bg2);border-top:1px solid var(--border);
+  padding:10px 14px;max-height:35vh;overflow-y:auto;}
+.info-row{display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap;align-items:center;}
+.info-tag{font-size:.72rem;padding:3px 9px;border-radius:6px;font-weight:600;}
+.info-tag.ji{background:rgba(251,191,36,0.18);color:#fbbf24;}
+.info-tag.cai{background:rgba(16,185,129,0.18);color:#10b981;}
+.info-tag.xiong{background:rgba(248,113,113,0.18);color:#f87171;}
+.info-tag.ji2{background:rgba(167,139,250,0.18);color:#a78bfa;}
+.info-title{font-size:.88rem;font-weight:700;color:var(--text);}
+.info-sub{font-size:.75rem;color:var(--text2);line-height:1.5;}
+.gate-name{font-size:.82rem;color:var(--gold);font-weight:600;}
+
+/* Person modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;
+  align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;
+  padding:20px;width:90%;max-width:360px;}
+.modal-box h3{font-size:.95rem;margin-bottom:12px;color:var(--text);}
+.modal-btn{display:block;width:100%;padding:11px;margin-bottom:8px;background:var(--bg3);
+  border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-size:.88rem;
+  cursor:pointer;text-align:left;}
+.modal-btn:hover,.modal-btn.active{border-color:var(--accent);background:var(--accent-dim);}
+.modal-btn .sub{font-size:.72rem;color:var(--text2);}
+
+/* Calibration */
+.cal-bar{width:100%;padding:6px 14px;background:var(--bg3);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;flex-shrink:0;z-index:10;}
+.cal-bar button{padding:5px 12px;border-radius:7px;border:1px solid var(--border);
+  background:var(--bg2);color:var(--text);font-size:.78rem;cursor:pointer;}
+.cal-bar button:hover{border-color:var(--accent);}
+.cal-bar .status{font-size:.72rem;color:var(--text2);flex:1;}
+.cal-bar .lock-btn{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="top-bar">
+  <h1>🧭 九宮<span>羅盤</span></h1>
+  <div class="person-badge" onclick="openPersonModal()">
+    <span id="top-person">未選擇對象</span> ▾
+  </div>
+</div>
+
+<!-- Calibration bar -->
+<div class="cal-bar">
+  <button onclick="startCompass()">📡 偵測方位</button>
+  <button onclick="lockCompass()" class="lock-btn" id="lock-btn" style="display:none;">🔒 鎖定</button>
+  <button onclick="unlockCompass()" id="unlock-btn" style="display:none;">🔓 解鎖</button>
+  <div class="status" id="cal-status">點擊「偵測方位」啟動指南針</div>
+</div>
+
+<!-- Degree readout -->
+<div class="deg-readout">
+  <div class="deg-num" id="deg-num">—</div>
+  <div class="deg-dir" id="deg-dir">等待偵測</div>
+</div>
+
+<!-- Compass area -->
+<div class="compass-area" id="compass-area">
+  <!-- Center pointer (fixed, doesn't rotate) -->
+  <div class="center-pointer">
+    <svg width="28" height="28" viewBox="0 0 28 28">
+      <polygon points="14,0 8,28 14,22 20,28" fill="#f87171" stroke="#fff" stroke-width="1" opacity="0.9"/>
+    </svg>
+  </div>
+  <!-- Compass disc (rotates) — drawn by JS -->
+  <canvas id="compass-canvas"></canvas>
+</div>
+
+<!-- Bottom info panel -->
+<div class="info-panel" id="info-panel">
+  <div style="text-align:center;color:var(--text2);font-size:.82rem;padding:8px;">
+    啟動指南針後，指向任何方位即時顯示九宮分析
+  </div>
+</div>
+
+<!-- Person select modal -->
+<div class="modal-overlay" id="person-modal">
+  <div class="modal-box">
+    <h3>👤 選擇分析對象</h3>
+    <div id="person-list"></div>
+    <button class="modal-btn" onclick="closePersonModal()" style="text-align:center;color:var(--text2);margin-top:4px;">
+      取消
+    </button>
+  </div>
+</div>
+
+<script>
+// ===== 九宮數據 =====
+const NUM_TO_DIR={1:'北',2:'西南',3:'東',4:'東南',5:'中宮',6:'西北',7:'西',8:'東北',9:'南'};
+const DIR_ROLE={'北':'坐鎮・帝','西南':'文昌・相','東':'領旗・將','東南':'傳令・衛',
+  '中宮':'廟堂・廟','西北':'庫房・侯','西':'靠山・世','東北':'祿馬・帥','南':'指揮・王'};
+
+const PERSONAL_POS={
+  1:{吉:'北',財:'南',兇:'東南',忌:'中宮'},
+  2:{吉:'西南',財:'北',兇:'中宮',忌:'西北'},
+  3:{吉:'東',財:'西南',兇:'西北',忌:'西'},
+  4:{吉:'東南',財:'東',兇:'西',忌:'東北'},
+  5:{吉:'中宮',財:'東南',兇:'東北',忌:'南'},
+  6:{吉:'西北',財:'中宮',兇:'南',忌:'北'},
+  7:{吉:'西',財:'西北',兇:'北',忌:'西南'},
+  8:{吉:'東北',財:'西',兇:'西南',忌:'東'},
+  9:{吉:'南',財:'東北',兇:'東',忌:'東南'}
+};
+
+const ZX_DATA={
+  '北':{name:'獨裁門・稱霸門',type:'將門',short:'獨裁稱霸'},
+  '西南':{name:'無助門・外求門',type:'外門',short:'無助外求'},
+  '東':{name:'缺將門・獨步門',type:'虎門',short:'缺將獨步'},
+  '東南':{name:'不守門・迎賓門',type:'兵門',short:'不守迎賓'},
+  '西北':{name:'丟官門・修道門',type:'休門',short:'丟官修道'},
+  '西':{name:'勤勞門・再起門',type:'龍門',short:'勤勞再起'},
+  '東北':{name:'虛空門・遠征門',type:'空門',short:'虛空遠征'},
+  '南':{name:'號令門・進貢門',type:'天門',short:'號令進貢'}
+};
+
+// 方位角度範圍（中心角度）
+const DIR_ANGLES=[
+  {dir:'北',  center:0,   from:337.5,to:22.5},
+  {dir:'東北',center:45,  from:22.5, to:67.5},
+  {dir:'東',  center:90,  from:67.5, to:112.5},
+  {dir:'東南',center:135, from:112.5,to:157.5},
+  {dir:'南',  center:180, from:157.5,to:202.5},
+  {dir:'西南',center:225, from:202.5,to:247.5},
+  {dir:'西',  center:270, from:247.5,to:292.5},
+  {dir:'西北',center:315, from:292.5,to:337.5}
+];
+
+// 九宮數字對應角度位置（羅盤上的位置）
+const GONG_ANGLE={
+  7:0, 1:45, 5:90, 8:135, 9:180, 2:225, 3:270, 6:315
+};
+// 中宮(4)在中心
+
+function degToDir(deg) {
+  deg = ((deg%360)+360)%360;
+  for (const d of DIR_ANGLES) {
+    if (d.dir==='北') { if (deg>=337.5||deg<22.5) return d; }
+    else { if (deg>=d.from&&deg<d.to) return d; }
+  }
+  return DIR_ANGLES[0];
+}
+
+// ===== 狀態 =====
+let currentDeg = 0;
+let isLocked = false;
+let compassActive = false;
+let currentPerson = null; // {name, zong, ...}
+let canvasSize = 0;
+
+// ===== Canvas 繪製羅盤 =====
+const canvas = document.getElementById('compass-canvas');
+const ctx = canvas.getContext('2d');
+
+function initCanvas() {
+  const area = document.getElementById('compass-area');
+  const sz = Math.min(area.clientWidth, area.clientHeight) - 20;
+  canvasSize = sz;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = sz * dpr;
+  canvas.height = sz * dpr;
+  canvas.style.width = sz + 'px';
+  canvas.style.height = sz + 'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  drawCompass(0);
+}
+
+function drawCompass(heading) {
+  const sz = canvasSize;
+  const cx = sz/2, cy = sz/2;
+  const R = sz/2 - 4; // outer radius
+
+  ctx.clearRect(0,0,sz,sz);
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(-heading * Math.PI / 180); // rotate entire disc
+
+  // Ring radii
+  const r1 = R;         // outer edge
+  const r2 = R * 0.88;  // degree ring inner
+  const r3 = R * 0.76;  // gate ring inner
+  const r4 = R * 0.60;  // position ring inner (吉財兇忌)
+  const r5 = R * 0.44;  // flow year ring inner
+  const r6 = R * 0.28;  // center circle
+
+  // ── Outer ring: degree markings ──
+  ctx.beginPath();
+  ctx.arc(0,0,r1,0,Math.PI*2);
+  ctx.fillStyle = '#1a2133';
+  ctx.fill();
+  ctx.strokeStyle = '#3a4a66';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Degree ticks
+  for (let d = 0; d < 360; d++) {
+    const ang = (d-90)*Math.PI/180;
+    const isMajor = d%45===0;
+    const isMid = d%15===0;
+    const inner = isMajor ? r2+2 : (isMid ? r1-8 : r1-4);
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(ang)*r1, Math.sin(ang)*r1);
+    ctx.lineTo(Math.cos(ang)*inner, Math.sin(ang)*inner);
+    ctx.strokeStyle = isMajor ? '#fbbf24' : (isMid ? '#6b7280' : '#374151');
+    ctx.lineWidth = isMajor ? 2 : 1;
+    ctx.stroke();
+  }
+
+  // Degree labels at major positions
+  const degLabels = [
+    [0,'北','#f87171'],[45,'東北','#e2e8f0'],[90,'東','#e2e8f0'],[135,'東南','#e2e8f0'],
+    [180,'南','#f87171'],[225,'西南','#e2e8f0'],[270,'西','#e2e8f0'],[315,'西北','#e2e8f0']
+  ];
+  degLabels.forEach(([d,label,color])=>{
+    const ang = (d-90)*Math.PI/180;
+    const lr = (r1+r2)/2;
+    ctx.save();
+    ctx.translate(Math.cos(ang)*lr, Math.sin(ang)*lr);
+    ctx.rotate(ang+Math.PI/2);
+    ctx.fillStyle = color;
+    ctx.font = 'bold '+(sz*0.032)+'px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, 0, 0);
+    ctx.restore();
+  });
+
+  // ── Ring 2: Inner boundary ──
+  ctx.beginPath(); ctx.arc(0,0,r2,0,Math.PI*2);
+  ctx.strokeStyle='#3a4a66'; ctx.lineWidth=1; ctx.stroke();
+
+  // ── Ring 2→3: 門名 ring ──
+  // Fill sectors
+  const SECT_COLORS = ['#1a2844','#1e2535','#1a2844','#1e2535','#1a2844','#1e2535','#1a2844','#1e2535'];
+  const DIRS_ORDER = ['北','東北','東','東南','南','西南','西','西北'];
+  const GONG_NUM_AT_DIR = {北:7,東北:1,東:5,東南:8,南:9,西南:2,西:3,西北:6};
+
+  DIRS_ORDER.forEach((dir,i) => {
+    const startA = ((i*45-22.5)-90)*Math.PI/180;
+    const endA = ((i*45+22.5)-90)*Math.PI/180;
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.arc(0,0,r2,startA,endA);
+    ctx.closePath();
+    ctx.fillStyle = SECT_COLORS[i];
+    ctx.fill();
+
+    // Sector lines
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(startA)*r3, Math.sin(startA)*r3);
+    ctx.lineTo(Math.cos(startA)*r2, Math.sin(startA)*r2);
+    ctx.strokeStyle='#3a4a66'; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  ctx.beginPath(); ctx.arc(0,0,r3,0,Math.PI*2);
+  ctx.strokeStyle='#3a4a66'; ctx.lineWidth=1; ctx.stroke();
+
+  // Gate names + 宮數
+  DIRS_ORDER.forEach((dir,i) => {
+    const ang = (i*45-90)*Math.PI/180;
+    const lr = (r2+r3)/2;
+    const gNum = GONG_NUM_AT_DIR[dir];
+    const gate = ZX_DATA[dir];
+    ctx.save();
+    ctx.translate(Math.cos(ang)*lr, Math.sin(ang)*lr);
+    ctx.rotate(ang+Math.PI/2);
+    // Gate short name
+    ctx.fillStyle = '#fbbf24';
+    ctx.font = 'bold '+(sz*0.028)+'px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(gate.short, 0, -2);
+    // Gong number
+    ctx.fillStyle = '#818cf8';
+    ctx.font = 'bold '+(sz*0.032)+'px sans-serif';
+    ctx.textBaseline = 'top';
+    ctx.fillText(gNum, 0, 2);
+    ctx.restore();
+  });
+
+  // ── Ring 3→4: 吉財兇忌 positions (personal) ──
+  ctx.beginPath(); ctx.arc(0,0,r4,0,Math.PI*2);
+  ctx.fillStyle='#111827'; ctx.fill();
+  ctx.strokeStyle='#3a4a66'; ctx.lineWidth=1; ctx.stroke();
+
+  // Sector lines for this ring
+  DIRS_ORDER.forEach((dir,i) => {
+    const startA = ((i*45-22.5)-90)*Math.PI/180;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(startA)*r3, Math.sin(startA)*r3);
+    ctx.lineTo(Math.cos(startA)*r4, Math.sin(startA)*r4);
+    ctx.strokeStyle='#2a3347'; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  if (currentPerson && currentPerson.zong) {
+    const ming = calcSumDigit(currentPerson.zong);
+    const pos = PERSONAL_POS[ming];
+    if (pos) {
+      const TAG_STYLE = {
+        吉:{bg:'rgba(251,191,36,0.25)',color:'#fbbf24',text:'吉'},
+        財:{bg:'rgba(16,185,129,0.25)',color:'#10b981',text:'財'},
+        兇:{bg:'rgba(248,113,113,0.25)',color:'#f87171',text:'兇'},
+        忌:{bg:'rgba(167,139,250,0.25)',color:'#a78bfa',text:'忌'}
+      };
+      Object.entries(pos).forEach(([type,dir])=>{
+        if (dir==='中宮') return; // center, handle separately
+        const idx = DIRS_ORDER.indexOf(dir);
+        if (idx<0) return;
+        const ang = (idx*45-90)*Math.PI/180;
+        const lr = (r3+r4)/2;
+        const st = TAG_STYLE[type];
+        // Background arc highlight
+        const startA = ((idx*45-22.5)-90)*Math.PI/180;
+        const endA = ((idx*45+22.5)-90)*Math.PI/180;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(startA)*r4,Math.sin(startA)*r4);
+        ctx.arc(0,0,r3,startA,endA);
+        ctx.arc(0,0,r4,endA,startA,true);
+        ctx.closePath();
+        ctx.fillStyle=st.bg;
+        ctx.fill();
+        // Label
+        ctx.save();
+        ctx.translate(Math.cos(ang)*lr, Math.sin(ang)*lr);
+        ctx.rotate(ang+Math.PI/2);
+        ctx.fillStyle=st.color;
+        ctx.font='bold '+(sz*0.038)+'px sans-serif';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        ctx.fillText(st.text+'位',0,0);
+        ctx.restore();
+      });
+      // 中宮 label (if applicable)
+      Object.entries(pos).forEach(([type,dir])=>{
+        if (dir!=='中宮') return;
+        const st = TAG_STYLE[type];
+        ctx.fillStyle=st.color;
+        ctx.font='bold '+(sz*0.028)+'px sans-serif';
+        ctx.textAlign='center';
+        ctx.textBaseline='bottom';
+        ctx.fillText('中宮'+st.text, 0, r4+sz*0.014);
+      });
+    }
+  } else {
+    // No person selected - show role names
+    DIRS_ORDER.forEach((dir,i) => {
+      const ang = (i*45-90)*Math.PI/180;
+      const lr = (r3+r4)/2;
+      const role = DIR_ROLE[dir]||'';
+      ctx.save();
+      ctx.translate(Math.cos(ang)*lr, Math.sin(ang)*lr);
+      ctx.rotate(ang+Math.PI/2);
+      ctx.fillStyle='#6b7280';
+      ctx.font=(sz*0.026)+'px sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText(role.split('・')[0],0,0);
+      ctx.restore();
+    });
+  }
+
+  // ── Ring 4→5: 流年/角色 ring ──
+  ctx.beginPath(); ctx.arc(0,0,r5,0,Math.PI*2);
+  ctx.fillStyle='#0e1520'; ctx.fill();
+  ctx.strokeStyle='#2a3347'; ctx.lineWidth=1; ctx.stroke();
+
+  DIRS_ORDER.forEach((dir,i) => {
+    const ang = (i*45-90)*Math.PI/180;
+    const lr = (r4+r5)/2;
+    const role = DIR_ROLE[dir]||'';
+    const parts = role.split('・');
+    ctx.save();
+    ctx.translate(Math.cos(ang)*lr, Math.sin(ang)*lr);
+    ctx.rotate(ang+Math.PI/2);
+    ctx.fillStyle='#94a3b8';
+    ctx.font=(sz*0.024)+'px sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='bottom';
+    ctx.fillText(parts[0]||'',0,-1);
+    ctx.fillStyle='#6b7280';
+    ctx.font=(sz*0.020)+'px sans-serif';
+    ctx.textBaseline='top';
+    ctx.fillText(parts[1]||'',0,1);
+    ctx.restore();
+  });
+
+  // Sector lines for ring 4→5
+  DIRS_ORDER.forEach((dir,i) => {
+    const startA = ((i*45-22.5)-90)*Math.PI/180;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(startA)*r4, Math.sin(startA)*r4);
+    ctx.lineTo(Math.cos(startA)*r5, Math.sin(startA)*r5);
+    ctx.strokeStyle='#1e2535'; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  // ── Center circle ──
+  ctx.beginPath(); ctx.arc(0,0,r6,0,Math.PI*2);
+  ctx.fillStyle='#111827'; ctx.fill();
+  ctx.strokeStyle='#3a4a66'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // Center: compass rose + 中宮 label
+  // N/S indicators
+  const northAng = -Math.PI/2;
+  ctx.beginPath();
+  ctx.moveTo(0,-r6+4);
+  ctx.lineTo(-6,-r6+16);
+  ctx.lineTo(6,-r6+16);
+  ctx.closePath();
+  ctx.fillStyle='#f87171';
+  ctx.fill();
+
+  ctx.fillStyle='#6b7280';
+  ctx.font='bold '+(sz*0.022)+'px sans-serif';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText('中宮',0,0);
+  if (currentPerson) {
+    ctx.fillStyle='#818cf8';
+    ctx.font=(sz*0.020)+'px sans-serif';
+    ctx.fillText('命宮 '+calcSumDigit(currentPerson.zong),0,sz*0.018);
+  }
+
+  ctx.restore(); // un-rotate
+}
+
+function calcSumDigit(n) {
+  let s = parseInt(n);
+  while (s > 9) { s = String(s).split('').reduce((a,b)=>a+parseInt(b),0); }
+  return s || 9;
+}
+
+// ===== 指南針 =====
+let _compassHandler = null;
+let _readings = [];
+
+function startCompass() {
+  if (compassActive && !isLocked) return;
+  isLocked = false;
+  document.getElementById('lock-btn').style.display = 'inline-block';
+  document.getElementById('unlock-btn').style.display = 'none';
+
+  // iOS permission
+  if (typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function') {
+    DeviceOrientationEvent.requestPermission().then(p=>{
+      if (p==='granted') _bindCompass();
+      else document.getElementById('cal-status').textContent = '❌ 感應器權限被拒絕';
+    }).catch(()=>{ document.getElementById('cal-status').textContent='❌ 無法取得權限'; });
+  } else if (window.DeviceOrientationEvent) {
+    _bindCompass();
+  } else {
+    document.getElementById('cal-status').textContent='⚠️ 此裝置不支援指南針，可用手動模式';
+    enableManualMode();
+  }
+}
+
+function _bindCompass() {
+  compassActive = true;
+  _readings = [];
+  document.getElementById('cal-status').textContent = '📡 偵測中…請保持水平';
+
+  if (_compassHandler) {
+    window.removeEventListener('deviceorientationabsolute',_compassHandler,true);
+    window.removeEventListener('deviceorientation',_compassHandler,true);
+  }
+
+  _compassHandler = function(e) {
+    if (isLocked) return;
+    let deg = null;
+    if (e.webkitCompassHeading!=null) deg=Math.round(e.webkitCompassHeading);
+    else if (e.alpha!=null) deg=Math.round((360-e.alpha)%360);
+    if (deg===null) return;
+
+    _readings.push(deg);
+    if (_readings.length>8) _readings.shift();
+
+    currentDeg = deg;
+    updateDisplay(deg);
+  };
+  window.addEventListener('deviceorientationabsolute',_compassHandler,true);
+  window.addEventListener('deviceorientation',_compassHandler,true);
+
+  // Fallback: if no events fire in 3s, switch to manual
+  setTimeout(()=>{
+    if (_readings.length===0 && compassActive) {
+      document.getElementById('cal-status').textContent='⚠️ 未偵測到羅盤，使用手動旋轉模式';
+      enableManualMode();
+    }
+  }, 3000);
+}
+
+function lockCompass() {
+  isLocked = true;
+  document.getElementById('lock-btn').style.display = 'none';
+  document.getElementById('unlock-btn').style.display = 'inline-block';
+  document.getElementById('cal-status').textContent = '🔒 已鎖定在 '+currentDeg+'°';
+}
+
+function unlockCompass() {
+  isLocked = false;
+  document.getElementById('lock-btn').style.display = 'inline-block';
+  document.getElementById('unlock-btn').style.display = 'none';
+  document.getElementById('cal-status').textContent = '📡 偵測中…';
+}
+
+// Manual mode (touch drag to rotate)
+let manualMode = false;
+let touchStartAngle = 0;
+let touchStartDeg = 0;
+
+function enableManualMode() {
+  manualMode = true;
+  const area = document.getElementById('compass-area');
+
+  area.addEventListener('touchstart', e=>{
+    const t = e.touches[0];
+    const rect = area.getBoundingClientRect();
+    const dx = t.clientX - (rect.left+rect.width/2);
+    const dy = t.clientY - (rect.top+rect.height/2);
+    touchStartAngle = Math.atan2(dy,dx)*180/Math.PI;
+    touchStartDeg = currentDeg;
+    e.preventDefault();
+  }, {passive:false});
+
+  area.addEventListener('touchmove', e=>{
+    const t = e.touches[0];
+    const rect = area.getBoundingClientRect();
+    const dx = t.clientX - (rect.left+rect.width/2);
+    const dy = t.clientY - (rect.top+rect.height/2);
+    const ang = Math.atan2(dy,dx)*180/Math.PI;
+    const delta = ang - touchStartAngle;
+    currentDeg = ((touchStartDeg - delta)%360+360)%360;
+    updateDisplay(Math.round(currentDeg));
+    e.preventDefault();
+  }, {passive:false});
+
+  // Mouse drag for desktop
+  let mouseDown = false;
+  area.addEventListener('mousedown', e=>{
+    const rect = area.getBoundingClientRect();
+    const dx = e.clientX - (rect.left+rect.width/2);
+    const dy = e.clientY - (rect.top+rect.height/2);
+    touchStartAngle = Math.atan2(dy,dx)*180/Math.PI;
+    touchStartDeg = currentDeg;
+    mouseDown = true;
+  });
+  window.addEventListener('mousemove', e=>{
+    if (!mouseDown) return;
+    const rect = area.getBoundingClientRect();
+    const dx = e.clientX - (rect.left+rect.width/2);
+    const dy = e.clientY - (rect.top+rect.height/2);
+    const ang = Math.atan2(dy,dx)*180/Math.PI;
+    const delta = ang - touchStartAngle;
+    currentDeg = ((touchStartDeg - delta)%360+360)%360;
+    updateDisplay(Math.round(currentDeg));
+  });
+  window.addEventListener('mouseup', ()=>{ mouseDown=false; });
+}
+
+function updateDisplay(deg) {
+  deg = Math.round(((deg%360)+360)%360);
+  document.getElementById('deg-num').textContent = deg + '°';
+  const d = degToDir(deg);
+  document.getElementById('deg-dir').textContent = d.dir;
+  drawCompass(deg);
+  updateInfoPanel(deg, d.dir);
+
+  const spread = _readings.length>=4 ? Math.max(..._readings)-Math.min(..._readings) : 999;
+  if (!manualMode) {
+    document.getElementById('cal-status').textContent = spread<10
+      ? '✅ 信號穩定' : '📡 偵測中…（誤差 '+spread+'°）';
+  }
+}
+
+function updateInfoPanel(deg, dir) {
+  const panel = document.getElementById('info-panel');
+  const gate = ZX_DATA[dir];
+  if (!gate) return;
+
+  let html = '';
+  html += `<div style="margin-bottom:6px;">`;
+  html += `<span style="font-size:.72rem;color:var(--text2);">指向</span> `;
+  html += `<span style="font-size:1.1rem;font-weight:800;color:var(--gold);">${dir}</span> `;
+  html += `<span style="font-size:.82rem;color:var(--text2);">${deg}°</span>`;
+  html += `</div>`;
+
+  html += `<div class="gate-name">🚪 ${gate.name}</div>`;
+  html += `<div style="font-size:.72rem;color:var(--text2);margin-bottom:6px;">類型：${gate.type}</div>`;
+
+  if (currentPerson && currentPerson.zong) {
+    const ming = calcSumDigit(currentPerson.zong);
+    const pos = PERSONAL_POS[ming];
+    if (pos) {
+      let posType = '—';
+      if (dir===pos.吉) posType = '<span class="info-tag ji">吉位</span> 命宮位置，坐這裡最旺';
+      else if (dir===pos.財) posType = '<span class="info-tag cai">財位</span> 財運位置，可供財神';
+      else if (dir===pos.兇) posType = '<span class="info-tag xiong">兇位</span> 忌坐辦公，廁所無妨';
+      else if (dir===pos.忌) posType = '<span class="info-tag ji2">忌位</span> 不宜睡此方位';
+      html += `<div style="margin-top:6px;font-size:.85rem;">${posType}</div>`;
+    }
+  } else {
+    html += `<div style="margin-top:6px;font-size:.78rem;color:var(--text2);">👆 點右上角選擇分析對象，即時顯示吉財兇忌</div>`;
+  }
+
+  panel.innerHTML = html;
+}
+
+// ===== 人物選擇 =====
+function loadPersons() {
+  const persons = [];
+  try {
+    const rawA = localStorage.getItem('jb_profile');
+    if (rawA) persons.push(JSON.parse(rawA));
+  } catch(e){}
+  try {
+    const rawB = localStorage.getItem('jb_profile_b');
+    if (rawB) persons.push(JSON.parse(rawB));
+  } catch(e){}
+  return persons;
+}
+
+function openPersonModal() {
+  const persons = loadPersons();
+  const list = document.getElementById('person-list');
+  if (persons.length===0) {
+    list.innerHTML = '<div style="color:var(--text2);font-size:.82rem;padding:12px;">⚠️ 尚未計算任何人的命格<br>請先到<a href="../" style="color:var(--accent2);">九宮姓名學工具</a>計算後再回來</div>';
+  } else {
+    list.innerHTML = persons.map((p,i)=>`
+      <button class="modal-btn ${currentPerson&&currentPerson.name===p.name?'active':''}"
+        onclick="selectPerson(${i})">
+        <strong>${p.name}</strong> — 命宮 ${calcSumDigit(p.zong)}
+        <div class="sub">${p.flowStage?'流年：'+p.flowStage+'・'+p.flowMod:''}</div>
+      </button>
+    `).join('');
+  }
+  document.getElementById('person-modal').classList.add('open');
+}
+
+function closePersonModal() {
+  document.getElementById('person-modal').classList.remove('open');
+}
+
+function selectPerson(idx) {
+  const persons = loadPersons();
+  currentPerson = persons[idx]||null;
+  if (currentPerson) {
+    document.getElementById('top-person').textContent = currentPerson.name+'・命宮'+calcSumDigit(currentPerson.zong);
+  }
+  closePersonModal();
+  drawCompass(currentDeg);
+  updateDisplay(currentDeg);
+}
+
+// ===== Init =====
+window.addEventListener('resize', initCanvas);
+window.addEventListener('load', ()=>{
+  initCanvas();
+
+  // Auto-load first person if available
+  const persons = loadPersons();
+  if (persons.length>0) {
+    currentPerson = persons[0];
+    document.getElementById('top-person').textContent = currentPerson.name+'・命宮'+calcSumDigit(currentPerson.zong);
+  }
+
+  drawCompass(0);
+
+  // Enable manual mode by default (compass adds on top)
+  enableManualMode();
+  document.getElementById('cal-status').textContent = '🖐️ 拖動羅盤旋轉 或 按「偵測方位」用感應器';
+});
+</script>
+</body>
+</html>

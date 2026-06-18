@@ -1,0 +1,14 @@
+{
+  "name": "九宮環境氣象學羅盤",
+  "short_name": "九宮羅盤",
+  "description": "數位九宮羅盤 — 即時方位偵測與吉財兇忌分析",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1117",
+  "theme_color": "#0e1117",
+  "icons": [
+    { "src": "../icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "../icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
