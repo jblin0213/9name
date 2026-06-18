@@ -518,7 +518,21 @@ function calcSumDigit(n) {
 
 // ===== 指南針 =====
 let _compassHandler = null;
+let _compassHandlerRel = null;
+let _hasAbsolute = false;
 let _readings = [];
+
+// 圓周平均：把角度轉成向量平均，正確處理 0°/360° 交界，濾掉雜訊
+function circularMean(arr) {
+  if (!arr.length) return _targetDeg || 0;
+  let sx=0, sy=0;
+  for (const a of arr) {
+    const r = a * Math.PI/180;
+    sx += Math.cos(r); sy += Math.sin(r);
+  }
+  let deg = Math.atan2(sy, sx) * 180/Math.PI;
+  return (deg%360+360)%360;
+}
 
 // rAF 渲染迴圈：感應器更新 _targetDeg，迴圈讓 _dispDeg 平滑追上
 let _targetDeg = null;   // 感應器最新目標角度
@@ -578,23 +592,43 @@ function _bindCompass() {
     window.removeEventListener('deviceorientationabsolute',_compassHandler,true);
     window.removeEventListener('deviceorientation',_compassHandler,true);
   }
+  if (_compassHandlerRel) {
+    window.removeEventListener('deviceorientation',_compassHandlerRel,true);
+  }
 
-  _compassHandler = function(e) {
-    if (isLocked) return;
-    let deg = null;
-    if (e.webkitCompassHeading!=null) deg=e.webkitCompassHeading;
-    else if (e.alpha!=null) deg=(360-e.alpha)%360;
-    if (deg===null) return;
+  _hasAbsolute = false;
 
+  // 共用：收進一筆讀數 → 濾波 → 更新目標
+  function pushReading(deg) {
+    if (isLocked || deg===null || isNaN(deg)) return;
     _readings.push(deg);
-    if (_readings.length>8) _readings.shift();
-
-    // 感應器只負責更新「目標角度」，畫面交給 rAF 渲染迴圈平滑追上
-    _targetDeg = deg;
+    if (_readings.length>12) _readings.shift();
+    // 圓周平均：濾掉磁力計尖刺雜訊（處理 0°/360° 交界）
+    _targetDeg = circularMean(_readings);
     startRenderLoop();
+  }
+
+  // 來源一：deviceorientationabsolute — 一定是絕對方位（指真北），優先採用
+  _compassHandler = function(e) {
+    if (e.alpha==null) return;
+    _hasAbsolute = true;
+    pushReading((360-e.alpha)%360);
   };
+  // 來源二：deviceorientation — iOS 的 webkitCompassHeading 也是絕對的；
+  //         安卓的 alpha 只在沒有絕對來源時當備援，避免兩來源打架
+  _compassHandlerRel = function(e) {
+    if (e.webkitCompassHeading!=null) {   // iOS：本身就是絕對方位
+      _hasAbsolute = true;
+      pushReading(e.webkitCompassHeading);
+      return;
+    }
+    if (_hasAbsolute) return;             // 安卓：已有絕對來源就忽略相對的
+    if (e.alpha==null) return;
+    pushReading((360-e.alpha)%360);
+  };
+
   window.addEventListener('deviceorientationabsolute',_compassHandler,true);
-  window.addEventListener('deviceorientation',_compassHandler,true);
+  window.addEventListener('deviceorientation',_compassHandlerRel,true);
 
   // Fallback: if no events fire in 3s, switch to manual
   setTimeout(()=>{
