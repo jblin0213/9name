@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0e1117">
@@ -51,16 +51,16 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','微軟�
 
 /* Bottom info panel */
 .info-panel{width:100%;flex-shrink:0;background:var(--bg2);border-top:1px solid var(--border);
-  padding:10px 14px;max-height:35vh;overflow-y:auto;}
+  padding:12px 16px;max-height:35vh;overflow-y:auto;}
 .info-row{display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap;align-items:center;}
-.info-tag{font-size:.72rem;padding:3px 9px;border-radius:6px;font-weight:600;}
+.info-tag{font-size:.92rem;padding:4px 12px;border-radius:6px;font-weight:600;}
 .info-tag.ji{background:rgba(251,191,36,0.18);color:#fbbf24;}
 .info-tag.cai{background:rgba(16,185,129,0.18);color:#10b981;}
 .info-tag.xiong{background:rgba(248,113,113,0.18);color:#f87171;}
 .info-tag.ji2{background:rgba(167,139,250,0.18);color:#a78bfa;}
-.info-title{font-size:.88rem;font-weight:700;color:var(--text);}
-.info-sub{font-size:.75rem;color:var(--text2);line-height:1.5;}
-.gate-name{font-size:.82rem;color:var(--gold);font-weight:600;}
+.info-title{font-size:1.05rem;font-weight:700;color:var(--text);}
+.info-sub{font-size:.92rem;color:var(--text2);line-height:1.5;}
+.gate-name{font-size:1rem;color:var(--gold);font-weight:600;}
 
 /* Person modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;
@@ -358,7 +358,7 @@ function drawCompass(heading) {
   degLabels.forEach(([d,label,color])=>{
     const ang=(d-90)*Math.PI/180;
     const lr=(r1+r2)/2;
-    uprightText(label, Math.cos(ang)*lr, Math.sin(ang)*lr, 'bold '+(sz*0.032)+'px sans-serif', color);
+    uprightText(label, Math.cos(ang)*lr, Math.sin(ang)*lr, 'bold '+(sz*0.045)+'px sans-serif', color);
   });
 
   // ── Ring 2 boundary ──
@@ -387,8 +387,8 @@ function drawCompass(heading) {
     const gNum=GONG_NUM_AT_DIR[dir];
     const gate=ZX_DATA[dir];
     const x=Math.cos(ang)*lr, y=Math.sin(ang)*lr;
-    uprightText(gate.short, x, y-sz*0.014, 'bold '+(sz*0.026)+'px sans-serif', '#fbbf24');
-    uprightText(String(gNum), x, y+sz*0.016, 'bold '+(sz*0.032)+'px sans-serif', '#818cf8');
+    uprightText(gate.short, x, y-sz*0.018, 'bold '+(sz*0.036)+'px sans-serif', '#fbbf24');
+    uprightText(String(gNum), x, y+sz*0.018, 'bold '+(sz*0.044)+'px sans-serif', '#818cf8');
   });
 
   // ── Ring 3→4: 吉財兇忌 ──
@@ -427,12 +427,12 @@ function drawCompass(heading) {
         ctx.arc(0,0,r3,startA,endA);
         ctx.arc(0,0,r4,endA,startA,true);
         ctx.closePath(); ctx.fillStyle=st.bg; ctx.fill();
-        uprightText(st.text+'位', Math.cos(ang)*lr, Math.sin(ang)*lr, 'bold '+(sz*0.036)+'px sans-serif', st.color);
+        uprightText(st.text+'位', Math.cos(ang)*lr, Math.sin(ang)*lr, 'bold '+(sz*0.048)+'px sans-serif', st.color);
       });
       Object.entries(pos).forEach(([type,dir])=>{
         if (dir!=='中宮') return;
         const st=TAG_STYLE[type];
-        uprightText('中宮'+st.text, 0, r4+sz*0.014, 'bold '+(sz*0.024)+'px sans-serif', st.color);
+        uprightText('中宮'+st.text, 0, r4+sz*0.014, 'bold '+(sz*0.032)+'px sans-serif', st.color);
       });
     }
   } else {
@@ -440,7 +440,7 @@ function drawCompass(heading) {
       const ang=(i*45-90)*Math.PI/180;
       const lr=(r3+r4)/2;
       const role=DIR_ROLE[dir]||'';
-      uprightText(role.split('・')[0], Math.cos(ang)*lr, Math.sin(ang)*lr, (sz*0.026)+'px sans-serif', '#6b7280');
+      uprightText(role.split('・')[0], Math.cos(ang)*lr, Math.sin(ang)*lr, (sz*0.034)+'px sans-serif', '#6b7280');
     });
   }
 
@@ -455,8 +455,8 @@ function drawCompass(heading) {
     const role=DIR_ROLE[dir]||'';
     const parts=role.split('・');
     const x=Math.cos(ang)*lr, y=Math.sin(ang)*lr;
-    uprightText(parts[0]||'', x, y-sz*0.010, (sz*0.022)+'px sans-serif', '#94a3b8');
-    uprightText(parts[1]||'', x, y+sz*0.010, (sz*0.018)+'px sans-serif', '#6b7280');
+    uprightText(parts[0]||'', x, y-sz*0.012, (sz*0.030)+'px sans-serif', '#94a3b8');
+    uprightText(parts[1]||'', x, y+sz*0.012, (sz*0.024)+'px sans-serif', '#6b7280');
     const startA=((i*45-22.5)-90)*Math.PI/180;
     ctx.beginPath();
     ctx.moveTo(Math.cos(startA)*r4, Math.sin(startA)*r4);
@@ -474,9 +474,9 @@ function drawCompass(heading) {
   ctx.moveTo(0,-r6+4); ctx.lineTo(-6,-r6+16); ctx.lineTo(6,-r6+16);
   ctx.closePath(); ctx.fillStyle='#f87171'; ctx.fill();
 
-  uprightText('中宮', 0, 0, 'bold '+(sz*0.022)+'px sans-serif', '#94a3b8');
+  uprightText('中宮', 0, -sz*0.008, 'bold '+(sz*0.030)+'px sans-serif', '#94a3b8');
   if (currentPerson) {
-    uprightText('命宮 '+calcSumDigit(currentPerson.zong), 0, sz*0.018, (sz*0.018)+'px sans-serif', '#818cf8');
+    uprightText('命宮 '+calcSumDigit(currentPerson.zong), 0, sz*0.022, (sz*0.026)+'px sans-serif', '#818cf8');
   }
 
   ctx.restore();
@@ -641,13 +641,13 @@ function updateInfoPanel(deg, dir) {
 
   let html = '';
   html += `<div style="margin-bottom:6px;">`;
-  html += `<span style="font-size:.72rem;color:var(--text2);">指向</span> `;
-  html += `<span style="font-size:1.1rem;font-weight:800;color:var(--gold);">${dir}</span> `;
-  html += `<span style="font-size:.82rem;color:var(--text2);">${deg}°</span>`;
+  html += `<span style="font-size:.92rem;color:var(--text2);">指向</span> `;
+  html += `<span style="font-size:1.4rem;font-weight:800;color:var(--gold);">${dir}</span> `;
+  html += `<span style="font-size:1rem;color:var(--text2);">${deg}°</span>`;
   html += `</div>`;
 
   html += `<div class="gate-name">🚪 ${gate.name}</div>`;
-  html += `<div style="font-size:.72rem;color:var(--text2);margin-bottom:6px;">類型：${gate.type}</div>`;
+  html += `<div style="font-size:.92rem;color:var(--text2);margin-bottom:6px;">類型：${gate.type}</div>`;
 
   if (currentPerson && currentPerson.zong) {
     const ming = calcSumDigit(currentPerson.zong);
@@ -658,10 +658,10 @@ function updateInfoPanel(deg, dir) {
       else if (dir===pos.財) posType = '<span class="info-tag cai">財位</span> 財運位置，可供財神';
       else if (dir===pos.兇) posType = '<span class="info-tag xiong">兇位</span> 忌坐辦公，廁所無妨';
       else if (dir===pos.忌) posType = '<span class="info-tag ji2">忌位</span> 不宜睡此方位';
-      html += `<div style="margin-top:6px;font-size:.85rem;">${posType}</div>`;
+      html += `<div style="margin-top:8px;font-size:1rem;">${posType}</div>`;
     }
   } else {
-    html += `<div style="margin-top:6px;font-size:.78rem;color:var(--text2);">👆 點右上角選擇分析對象，即時顯示吉財兇忌</div>`;
+    html += `<div style="margin-top:8px;font-size:.95rem;color:var(--text2);">👆 點右上角選擇分析對象，即時顯示吉財兇忌</div>`;
   }
 
   panel.innerHTML = html;
@@ -870,10 +870,10 @@ window.addEventListener('load', ()=>{
   }
 
   drawCompass(0);
-
-  // Enable manual mode by default (compass adds on top)
   enableManualMode();
-  document.getElementById('cal-status').textContent = '🖐️ 拖動羅盤旋轉 或 按「偵測方位」用感應器';
+
+  // 自動啟動指南針
+  startCompass();
 });
 </script>
 </body>
