@@ -83,6 +83,49 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','微軟�
 .cal-bar button:hover{border-color:var(--accent);}
 .cal-bar .status{font-size:.72rem;color:var(--text2);flex:1;}
 .cal-bar .lock-btn{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
+
+/* Mode tabs */
+.mode-tabs{display:flex;gap:0;width:100%;flex-shrink:0;z-index:10;}
+.mode-tab{flex:1;padding:9px 0;text-align:center;font-size:.82rem;font-weight:600;cursor:pointer;
+  border:none;border-bottom:2px solid transparent;background:var(--bg2);color:var(--text2);
+  transition:all 0.2s;}
+.mode-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:var(--bg3);}
+
+/* AR view */
+.ar-view{display:none;position:relative;flex:1;width:100%;overflow:hidden;background:#000;}
+.ar-view video{width:100%;height:100%;object-fit:cover;}
+.ar-overlay{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;}
+
+/* AR HUD top */
+.ar-hud-top{padding:10px 16px;display:flex;justify-content:center;align-items:center;gap:8px;
+  background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,transparent 100%);}
+.ar-hud-top .ar-deg{font-size:1.6rem;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.8);}
+.ar-hud-top .ar-dir{font-size:.9rem;color:var(--gold);font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,0.8);}
+
+/* AR direction labels */
+.ar-dirs{flex:1;position:relative;}
+.ar-dir-label{position:absolute;top:50%;transform:translate(-50%,-50%);text-align:center;
+  text-shadow:0 2px 8px rgba(0,0,0,0.9);pointer-events:none;transition:left 0.12s ease-out;}
+.ar-dir-label .dir-name{font-size:1.1rem;font-weight:800;color:#fff;}
+.ar-dir-label .dir-gate{font-size:.68rem;color:var(--gold);margin-top:2px;}
+.ar-dir-label .dir-tag{display:inline-block;margin-top:4px;padding:3px 10px;border-radius:6px;
+  font-size:.75rem;font-weight:700;}
+.ar-dir-label .dir-tag.ji{background:rgba(251,191,36,0.35);color:#fbbf24;}
+.ar-dir-label .dir-tag.cai{background:rgba(16,185,129,0.35);color:#10b981;}
+.ar-dir-label .dir-tag.xiong{background:rgba(248,113,113,0.35);color:#f87171;}
+.ar-dir-label .dir-tag.ji2{background:rgba(167,139,250,0.35);color:#a78bfa;}
+.ar-dir-label .dir-role{font-size:.62rem;color:rgba(255,255,255,0.6);margin-top:2px;}
+.ar-dir-label .dir-advice{font-size:.62rem;color:rgba(255,255,255,0.5);margin-top:1px;max-width:90px;}
+
+/* AR bottom panel */
+.ar-hud-bottom{padding:10px 16px;
+  background:linear-gradient(0deg,rgba(0,0,0,0.7) 0%,transparent 100%);}
+.ar-hud-bottom .gate-info{font-size:.82rem;color:var(--gold);font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,0.8);}
+.ar-hud-bottom .gate-type{font-size:.72rem;color:rgba(255,255,255,0.6);}
+.ar-hud-bottom .gate-advice{font-size:.72rem;color:rgba(255,255,255,0.8);margin-top:4px;line-height:1.4;}
+
+/* Crosshair */
+.ar-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
 </style>
 </head>
 <body>
@@ -95,36 +138,74 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC','微軟�
   </div>
 </div>
 
-<!-- Calibration bar -->
-<div class="cal-bar">
-  <button onclick="startCompass()">📡 偵測方位</button>
-  <button onclick="lockCompass()" class="lock-btn" id="lock-btn" style="display:none;">🔒 鎖定</button>
-  <button onclick="unlockCompass()" id="unlock-btn" style="display:none;">🔓 解鎖</button>
-  <div class="status" id="cal-status">點擊「偵測方位」啟動指南針</div>
+<!-- Mode tabs -->
+<div class="mode-tabs">
+  <button class="mode-tab active" id="tab-compass" onclick="switchMode('compass')">🧭 羅盤模式</button>
+  <button class="mode-tab" id="tab-ar" onclick="switchMode('ar')">📸 AR 實景</button>
 </div>
 
-<!-- Degree readout -->
-<div class="deg-readout">
-  <div class="deg-num" id="deg-num">—</div>
-  <div class="deg-dir" id="deg-dir">等待偵測</div>
-</div>
-
-<!-- Compass area -->
-<div class="compass-area" id="compass-area">
-  <!-- Center pointer (fixed, doesn't rotate) -->
-  <div class="center-pointer">
-    <svg width="28" height="28" viewBox="0 0 28 28">
-      <polygon points="14,0 8,28 14,22 20,28" fill="#f87171" stroke="#fff" stroke-width="1" opacity="0.9"/>
-    </svg>
+<!-- ====== COMPASS MODE ====== -->
+<div id="mode-compass" style="display:flex;flex-direction:column;flex:1;width:100%;overflow:hidden;">
+  <!-- Calibration bar -->
+  <div class="cal-bar">
+    <button onclick="startCompass()">📡 偵測方位</button>
+    <button onclick="lockCompass()" class="lock-btn" id="lock-btn" style="display:none;">🔒 鎖定</button>
+    <button onclick="unlockCompass()" id="unlock-btn" style="display:none;">🔓 解鎖</button>
+    <div class="status" id="cal-status">點擊「偵測方位」啟動指南針</div>
   </div>
-  <!-- Compass disc (rotates) — drawn by JS -->
-  <canvas id="compass-canvas"></canvas>
+
+  <!-- Degree readout -->
+  <div class="deg-readout">
+    <div class="deg-num" id="deg-num">—</div>
+    <div class="deg-dir" id="deg-dir">等待偵測</div>
+  </div>
+
+  <!-- Compass area -->
+  <div class="compass-area" id="compass-area">
+    <div class="center-pointer">
+      <svg width="28" height="28" viewBox="0 0 28 28">
+        <polygon points="14,0 8,28 14,22 20,28" fill="#f87171" stroke="#fff" stroke-width="1" opacity="0.9"/>
+      </svg>
+    </div>
+    <canvas id="compass-canvas"></canvas>
+  </div>
+
+  <!-- Bottom info panel -->
+  <div class="info-panel" id="info-panel">
+    <div style="text-align:center;color:var(--text2);font-size:.82rem;padding:8px;">
+      啟動指南針後，指向任何方位即時顯示九宮分析
+    </div>
+  </div>
 </div>
 
-<!-- Bottom info panel -->
-<div class="info-panel" id="info-panel">
-  <div style="text-align:center;color:var(--text2);font-size:.82rem;padding:8px;">
-    啟動指南針後，指向任何方位即時顯示九宮分析
+<!-- ====== AR MODE ====== -->
+<div class="ar-view" id="mode-ar">
+  <video id="ar-video" autoplay playsinline muted></video>
+  <div class="ar-overlay">
+    <!-- Top HUD -->
+    <div class="ar-hud-top">
+      <div class="ar-deg" id="ar-deg">—</div>
+      <div class="ar-dir" id="ar-dir-name">—</div>
+    </div>
+    <!-- Direction labels floating in 3D space -->
+    <div class="ar-dirs" id="ar-dirs"></div>
+    <!-- Crosshair -->
+    <div class="ar-crosshair">
+      <svg width="40" height="40" viewBox="0 0 40 40">
+        <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+        <line x1="20" y1="0" x2="20" y2="12" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+        <line x1="20" y1="28" x2="20" y2="40" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+        <line x1="0" y1="20" x2="12" y2="20" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+        <line x1="28" y1="20" x2="40" y2="20" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+        <circle cx="20" cy="20" r="3" fill="rgba(248,113,113,0.8)"/>
+      </svg>
+    </div>
+    <!-- Bottom HUD -->
+    <div class="ar-hud-bottom" id="ar-hud-bottom">
+      <div class="gate-info" id="ar-gate-name">📱 按上方 AR 實景 啟動相機</div>
+      <div class="gate-type" id="ar-gate-type"></div>
+      <div class="gate-advice" id="ar-gate-advice"></div>
+    </div>
   </div>
 </div>
 
@@ -539,8 +620,12 @@ function updateDisplay(deg) {
   document.getElementById('deg-num').textContent = deg + '°';
   const d = degToDir(deg);
   document.getElementById('deg-dir').textContent = d.dir;
-  drawCompass(deg);
-  updateInfoPanel(deg, d.dir);
+
+  if (currentMode === 'compass') {
+    drawCompass(deg);
+    updateInfoPanel(deg, d.dir);
+  }
+  updateAROverlay(deg);
 
   const spread = _readings.length>=4 ? Math.max(..._readings)-Math.min(..._readings) : 999;
   if (!manualMode) {
@@ -624,12 +709,156 @@ function selectPerson(idx) {
     document.getElementById('top-person').textContent = currentPerson.name+'・命宮'+calcSumDigit(currentPerson.zong);
   }
   closePersonModal();
-  drawCompass(currentDeg);
   updateDisplay(currentDeg);
+  if (currentMode==='compass') drawCompass(currentDeg);
+}
+
+// ===== Mode Switch =====
+let currentMode = 'compass';
+let arStream = null;
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('tab-compass').classList.toggle('active', mode==='compass');
+  document.getElementById('tab-ar').classList.toggle('active', mode==='ar');
+  document.getElementById('mode-compass').style.display = mode==='compass' ? '' : 'none';
+  document.getElementById('mode-ar').style.display = mode==='ar' ? 'flex' : 'none';
+
+  if (mode==='ar') {
+    startAR();
+  } else {
+    stopAR();
+    initCanvas();
+    drawCompass(currentDeg);
+  }
+}
+
+// ===== AR Mode =====
+const AR_ADVICE = {
+  吉:'命宮位置，坐這裡發揮最強',
+  財:'財運位置，可供奉財神',
+  兇:'忌坐辦公，廁所無妨',
+  忌:'不宜在此方位睡覺'
+};
+
+async function startAR() {
+  const video = document.getElementById('ar-video');
+  if (arStream) return; // already running
+
+  try {
+    arStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width:{ideal:1280}, height:{ideal:720} },
+      audio: false
+    });
+    video.srcObject = arStream;
+    video.play();
+
+    // Start compass if not already
+    if (!compassActive) startCompass();
+
+  } catch(err) {
+    document.getElementById('ar-gate-name').textContent = '❌ 無法開啟相機：' + (err.message||err);
+  }
+}
+
+function stopAR() {
+  if (arStream) {
+    arStream.getTracks().forEach(t=>t.stop());
+    arStream = null;
+  }
+  const video = document.getElementById('ar-video');
+  video.srcObject = null;
+}
+
+function updateAROverlay(deg) {
+  if (currentMode !== 'ar') return;
+
+  deg = Math.round(((deg%360)+360)%360);
+  document.getElementById('ar-deg').textContent = deg + '°';
+  const facing = degToDir(deg);
+  document.getElementById('ar-dir-name').textContent = facing.dir;
+
+  // Gate info for center direction
+  const gate = ZX_DATA[facing.dir];
+  if (gate) {
+    document.getElementById('ar-gate-name').textContent = '🚪 ' + gate.name;
+    document.getElementById('ar-gate-type').textContent = gate.type;
+
+    let advice = '';
+    if (currentPerson && currentPerson.zong) {
+      const ming = calcSumDigit(currentPerson.zong);
+      const pos = PERSONAL_POS[ming];
+      if (pos) {
+        if (facing.dir===pos.吉) advice = '⭐ 吉位 — ' + AR_ADVICE.吉;
+        else if (facing.dir===pos.財) advice = '💰 財位 — ' + AR_ADVICE.財;
+        else if (facing.dir===pos.兇) advice = '⚠️ 兇位 — ' + AR_ADVICE.兇;
+        else if (facing.dir===pos.忌) advice = '🚫 忌位 — ' + AR_ADVICE.忌;
+      }
+    }
+    document.getElementById('ar-gate-advice').textContent = advice;
+  }
+
+  // Render floating direction labels
+  renderARLabels(deg);
+}
+
+function renderARLabels(heading) {
+  const container = document.getElementById('ar-dirs');
+  const W = container.clientWidth;
+  const FOV = 70; // approximate camera field of view in degrees
+
+  // All 8 directions
+  const DIRS = [
+    {dir:'北',deg:0},{dir:'東北',deg:45},{dir:'東',deg:90},{dir:'東南',deg:135},
+    {dir:'南',deg:180},{dir:'西南',deg:225},{dir:'西',deg:270},{dir:'西北',deg:315}
+  ];
+
+  let html = '';
+  const ming = (currentPerson && currentPerson.zong) ? calcSumDigit(currentPerson.zong) : null;
+  const pos = ming ? PERSONAL_POS[ming] : null;
+
+  DIRS.forEach(d => {
+    // Angular difference from heading
+    let diff = d.deg - heading;
+    // Normalize to -180..180
+    while (diff > 180) diff -= 360;
+    while (diff < -180) diff += 360;
+
+    // Only show labels within ~±90° (visible range)
+    if (Math.abs(diff) > 90) return;
+
+    // Map angle to screen X position
+    const xPct = 50 + (diff / FOV) * 100; // percentage from left
+
+    const gate = ZX_DATA[d.dir];
+    const role = DIR_ROLE[d.dir] || '';
+
+    // Determine tag
+    let tagHtml = '';
+    if (pos) {
+      if (d.dir===pos.吉) tagHtml='<div class="dir-tag ji">⭐ 吉位</div>';
+      else if (d.dir===pos.財) tagHtml='<div class="dir-tag cai">💰 財位</div>';
+      else if (d.dir===pos.兇) tagHtml='<div class="dir-tag xiong">⚠️ 兇位</div>';
+      else if (d.dir===pos.忌) tagHtml='<div class="dir-tag ji2">🚫 忌位</div>';
+    }
+
+    // Scale: closer to center = bigger
+    const scale = 1 - Math.abs(diff)/120 * 0.3;
+    const opacity = 1 - Math.abs(diff)/90 * 0.5;
+
+    html += `<div class="ar-dir-label" style="left:${xPct}%;opacity:${opacity.toFixed(2)};transform:translate(-50%,-50%) scale(${scale.toFixed(2)});">
+      <div class="dir-name">${d.dir}</div>
+      <div class="dir-gate">${gate ? gate.short : ''}</div>
+      ${tagHtml}
+      <div class="dir-role">${role}</div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
 }
 
 // ===== Init =====
-window.addEventListener('resize', initCanvas);
+window.addEventListener('resize', ()=>{ if(currentMode==='compass') initCanvas(); });
 window.addEventListener('load', ()=>{
   initCanvas();
 
