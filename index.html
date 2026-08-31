@@ -363,12 +363,8 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
       <div id="qiancheng-section"></div>
     </div>
     <div class="card">
-      <div class="card-title">✦ 流年運程</div>
-      <div id="flowyear-section"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">✦ 流年機會點</div>
-      <div id="jihui-section"></div>
+      <div class="card-title">✦ 流年運程與機會點</div>
+      <div id="flowkutsu-section"></div>
     </div>
     <div class="card">
       <div class="card-title">✦ 五格分析</div>
@@ -400,12 +396,8 @@ th{background:#f8efd8;color:var(--red);font-weight:bold;font-size:.9em}
       <div id="qiancheng-section_b"></div>
     </div>
     <div class="card">
-      <div class="card-title">✦ 流年運程</div>
-      <div id="flowyear-section_b"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">✦ 流年機會點</div>
-      <div id="jihui-section_b"></div>
+      <div class="card-title">✦ 流年運程與機會點</div>
+      <div id="flowkutsu-section_b"></div>
     </div>
     <div class="card">
       <div class="card-title">✦ 五格分析</div>
@@ -951,8 +943,7 @@ function render(name,by,bm,bd,isFX){
   lastSvgA=renderDiagram(chars,grids,s,n1,n2,n3,isFX);
   renderActivationNote(grids,age,chars,isFX);
   renderMingGongQianCheng(grids.zong);
-  renderFlowYear(grids.zong,age,name);
-  renderJihuiDian(grids,calcYearStartAge(by));
+  renderFlowKutsuCard(grids.zong,age,by);
   renderGrids(grids,chars,isFX);
   renderWuXing(grids);
   renderPalaces(grids,by,age);
@@ -1442,56 +1433,6 @@ function calcFlowYear(zongVal,age){
   return{stage:FLOW_STAGES[offset],offset,units};
 }
 
-function renderFlowYear(zongVal,age,name){
-  const{stage,offset,units}=calcFlowYear(zongVal,age);
-  const CX=130,CY=130,RO=110,RI=55,N=10;
-  const step=2*Math.PI/N;
-  let sv=`<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:240px;display:block;margin:0 auto">`;
-  for(let i=0;i<N;i++){
-    const s=FLOW_STAGES[i];
-    const a0=i*step+Math.PI/2-step/2,a1=(i+1)*step+Math.PI/2-step/2;
-    const x0=CX+RI*Math.cos(a0),y0=CY+RI*Math.sin(a0);
-    const x1=CX+RO*Math.cos(a0),y1=CY+RO*Math.sin(a0);
-    const x2=CX+RO*Math.cos(a1),y2=CY+RO*Math.sin(a1);
-    const x3=CX+RI*Math.cos(a1),y3=CY+RI*Math.sin(a1);
-    const isCur=i===offset,isNxt=i===(offset+1)%N;
-    const fill=isCur?s.color:isNxt?s.color+'55':'#f5f0e0';
-    const sw=isCur?2.5:1;
-    const sc=isCur?'white':isNxt?s.color:'#d4c090';
-    sv+=`<path d="M${x0},${y0}L${x1},${y1}A${RO},${RO} 0 0,1 ${x2},${y2}L${x3},${y3}A${RI},${RI} 0 0,0 ${x0},${y0}" fill="${fill}" stroke="${sc}" stroke-width="${sw}"/>`;
-    const ma=a0+step/2,lr=(RI+RO)/2;
-    const lx=CX+lr*Math.cos(ma),ly=CY+lr*Math.sin(ma);
-    sv+=`<text x="${lx}" y="${ly+1}" text-anchor="middle" dominant-baseline="middle" fill="${isCur?'white':s.color}" font-size="${isCur?10:8.5}" font-weight="${isCur?'bold':'normal'}" font-family="serif">${s.name}</text>`;
-  }
-  sv+=`<circle cx="${CX}" cy="${CY}" r="48" fill="#fff8f0" stroke="#c8981a" stroke-width="2"/>`;
-  sv+=`<text x="${CX}" y="${CY-14}" text-anchor="middle" fill="#7a5430" font-size="9.5" font-family="sans-serif">命宮 ${zongVal}</text>`;
-  sv+=`<text x="${CX}" y="${CY+4}" text-anchor="middle" fill="${stage.color}" font-size="18" font-weight="bold" font-family="serif">${stage.name}</text>`;
-  sv+=`<text x="${CX}" y="${CY+20}" text-anchor="middle" fill="${stage.color}" font-size="9" font-family="sans-serif">${stage.mod}</text>`;
-  sv+=`</svg>`;
-
-  let html=`<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">`;
-  html+=`<div class="svg-zoomable" style="flex:0 0 auto" onclick="openSvgModal(this.querySelector('svg'))">${sv}</div>`;
-  html+=`<div style="flex:1;min-width:160px">
-    <div style="background:${stage.color};color:white;padding:8px 16px;border-radius:8px;display:inline-block;font-weight:bold;font-size:1.1em;margin-bottom:10px">${stage.name}（${stage.mod}）</div>
-    <div style="color:#4a2a00;font-size:.9em;line-height:1.7;padding:10px 14px;background:#fdf8ef;border-radius:6px;border-left:3px solid ${stage.color}">
-      <b>今年運勢：</b>${stage.desc}<br>
-      <b>命宮個位：</b>${units} → ${age}歲走 <b style="color:${stage.color}">${stage.name}</b>
-    </div>
-    <div style="margin-top:10px;font-size:.82em;color:var(--sub)">
-      <b>近五年運程：</b><br>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
-        ${[-2,-1,0,1,2].map(d=>{
-          const a=age+d,o=(a%10-units+10+3)%10,st=FLOW_STAGES[o];
-          const isc=d===0;
-          return`<span style="padding:3px 9px;border-radius:12px;background:${isc?st.color:'#f0e8d0'};color:${isc?'white':st.color};font-weight:${isc?'bold':'normal'};border:1px solid ${st.color}">${a}歲 ${st.name}</span>`;
-        }).join('')}
-      </div>
-    </div>
-  </div>`;
-  html+=`</div>`;
-  targetEl('flowyear-section').innerHTML=html;
-}
-
 /* ── 流年機會點 ── */
 const JIHUI_INFO=[
   {name:'名',season:'四季交接',time:'全天',  dir:'中間',desc:'凝聚混雜，起落變化',    color:'#C8981A',bg:'#fffbe8'},
@@ -1610,92 +1551,36 @@ function calcJihuiInfo(gongNum,xb){
   return JIHUI_INFO[col];
 }
 
-function renderJihuiDian(grids,age,ctx){
-  ctx=ctx||'';
-  const rocy=new Date().getFullYear()-1911;
-  const el=document.getElementById('jihui-section'+ctx);
-  if(!el)return;
-  const palaces=[
-    {label:'命宮',  val:grids.zong},
-    {label:'父母宮',val:grids.tian},
-    {label:'疾惡宮',val:grids.ren},
-    {label:'奴僕宮',val:grids.di},
-    {label:'遷移宮',val:grids.wai},
-  ];
-  window['_jihuiPalaces'+ctx]=palaces;
-  const fy=calcFlowYear(grids.zong,age||0);
-  window['_jihuiFlowName'+ctx]=fy.stage.name;
-  el.innerHTML=`
-    <div style="margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-      <select id="jihui-type${ctx}" onchange="jihuiTypeChange('${ctx}')" style="padding:5px 8px;border:1px solid #c8981a;border-radius:6px;background:#fffdf5;color:#4a2a00;font-size:.88em">
-        <option value="roc">民國年（台灣）</option>
-        <option value="ce">西元年（國外）</option>
-        <option value="prc">中共建國年（中國）</option>
-      </select>
-      <input id="jihui-yr${ctx}" type="number" value="${rocy}" min="1" max="9999"
-        oninput="updateJihuiDian('${ctx}')"
-        style="width:72px;padding:5px 8px;border:1px solid #c8981a;border-radius:6px;background:#fffdf5;color:#4a2a00;font-size:.9em;text-align:center">
-      <span id="jihui-xb${ctx}" style="font-size:.85em;color:#8B1A1A;font-weight:bold"></span>
-    </div>
-    <div id="jihui-rows${ctx}"></div>
-    <div style="margin-top:10px;font-size:.75em;color:#aaa;line-height:1.6">
-      ＊台灣用民國年／出國用西元年／中國用中共建國年（1949起算）
-    </div>`;
-  updateJihuiDian(ctx);
-}
-
-function jihuiTypeChange(ctx){
-  ctx=ctx||'';
-  const typeEl=document.getElementById('jihui-type'+ctx);
-  const yrEl=document.getElementById('jihui-yr'+ctx);
-  if(!typeEl||!yrEl)return;
-  const t=typeEl.value,yr=parseInt(yrEl.value)||1;
-  if(t==='roc'&&typeEl.dataset.prev==='ce')   yrEl.value=yr-1911;
-  else if(t==='roc'&&typeEl.dataset.prev==='prc') yrEl.value=yr+1911-1948;
-  else if(t==='ce'&&typeEl.dataset.prev==='roc')  yrEl.value=yr+1911;
-  else if(t==='ce'&&typeEl.dataset.prev==='prc')  yrEl.value=yr+1948;
-  else if(t==='prc'&&typeEl.dataset.prev==='roc') yrEl.value=yr+1911-1948;
-  else if(t==='prc'&&typeEl.dataset.prev==='ce')  yrEl.value=yr-1948;
-  typeEl.dataset.prev=t;
-  updateJihuiDian(ctx);
-}
-
-function updateJihuiDian(ctx){
-  ctx=ctx||'';
-  const typeEl=document.getElementById('jihui-type'+ctx);
-  const yrEl=document.getElementById('jihui-yr'+ctx);
-  const xbEl=document.getElementById('jihui-xb'+ctx);
-  const rowsEl=document.getElementById('jihui-rows'+ctx);
-  if(!typeEl||!yrEl||!xbEl||!rowsEl)return;
-  if(!typeEl.dataset.prev)typeEl.dataset.prev=typeEl.value;
-  const yr=parseInt(yrEl.value)||1;
-  const xb=calcSumDigit(yr);
-  const typeName={'roc':'民國','ce':'西元','prc':'中共建國'}[typeEl.value]||'';
-  xbEl.textContent=`${typeName}${yr}年 → 相併數 ${xb}`;
-  const palaces=window['_jihuiPalaces'+ctx];
-  if(!palaces)return;
-  let html='<div style="display:flex;flex-direction:column;gap:8px">';
-  for(const p of palaces){
-    if(!p.val||p.val<1)continue;
-    const info=calcJihuiInfo(p.val,xb);
-    const fn=window['_jihuiFlowName'+ctx]||'';
-    const jk=fn?JAHUI_KUTSU[fn+'/'+info.name]:null;
-    html+=`<div style="padding:10px 14px;background:${info.bg};border-radius:8px;border-left:4px solid ${info.color};margin-bottom:2px">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <div style="min-width:50px;font-size:.85em;color:#7a5430;font-weight:bold">${p.label}</div>
-        <div style="min-width:26px;font-size:.8em;color:#bbb;text-align:center">(${p.val})</div>
-        <div style="background:${info.color};color:white;padding:4px 13px;border-radius:16px;font-weight:bold;font-size:1.05em;min-width:36px;text-align:center">${info.name}</div>
-        <div style="font-size:.82em;color:#4a2a00">
-          <span style="color:${info.color};font-weight:bold">${info.season}・${info.dir}・${info.time}</span>　${info.desc}
-        </div>
+/* ── 流年運程＋機會點：合併卡片（單人／雙人共用）── */
+function buildFlowKutsuCard(zong,age,by,bg,border){
+  const curROC=TODAY.getFullYear()-1911;
+  const fy=calcFlowYear(zong,age);
+  const xbNow=calcSumDigit(curROC);
+  const jh=calcJihuiInfo(zong,xbNow);
+  const kutsuStageName=calcFlowYear(zong,calcYearStartAge(by)).stage.name;
+  const k=JAHUI_KUTSU[kutsuStageName+'/'+jh.name];
+  return`<div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:14px;text-align:center">
+    <div style="font-size:.78em;color:var(--sub);margin-bottom:5px">流年運程</div>
+    <div style="background:${fy.stage.color};color:white;padding:6px 18px;border-radius:20px;display:inline-block;font-weight:bold;font-size:1.1em">${fy.stage.name}（${fy.stage.mod}）</div>
+    <div style="font-size:.85em;color:#666;margin-top:6px">${fy.stage.desc}</div>
+    <div style="margin:9px 0 4px;font-size:.75em;color:#aaa;letter-spacing:.5px">▸ 大運口訣</div>
+    <div style="font-size:.92em;font-weight:bold;color:${fy.stage.color};font-style:italic">「${fy.stage.kutsu}」</div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #ddd">
+      <div style="font-size:.75em;color:#aaa;margin-bottom:5px">▸ 命宮機會點（民國${curROC}年・相併數${xbNow}）</div>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:${jh.bg};padding:6px 14px;border-radius:20px;border:1px solid ${jh.color}">
+        <span style="background:${jh.color};color:white;padding:2px 11px;border-radius:12px;font-weight:bold;font-size:1em">${jh.name}</span>
+        <span style="font-size:.82em;color:${jh.color};font-weight:bold">${jh.season}・${jh.dir}・${jh.time}</span>
       </div>
-      ${jk&&p.label==='命宮'?`<div style="margin-top:6px;padding:5px 10px;background:rgba(255,255,255,.6);border-radius:6px;font-size:.82em;color:#4a2a00">
-        <span style="color:#8B1A1A;font-weight:bold">【${fn}/${info.name}・${jk.gua}】</span>　<span style="font-style:italic;color:#5a3010">「${jk.kutsu}」</span>
-      </div>`:''}
-    </div>`;
-  }
-  html+='</div>';
-  rowsEl.innerHTML=html;
+      <div style="font-size:.82em;color:#666;margin-top:5px">${jh.desc}</div>
+      ${k?`<div style="margin-top:8px;padding:6px 12px;background:rgba(255,255,255,.55);border-radius:6px;font-size:.85em;color:#4a2a00"><span style="color:#8B1A1A;font-weight:bold">【${kutsuStageName}/${jh.name}・${k.gua}】</span><br><span style="font-style:italic">「${k.kutsu}」</span></div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderFlowKutsuCard(zong,age,by,ctx){
+  const el=document.getElementById('flowkutsu-section'+(ctx||''));
+  if(!el)return;
+  el.innerHTML=buildFlowKutsuCard(zong,age,by,'#fff8f0','#e8d0a0');
 }
 
 function saveManualDual(encA,by,bm,bd,isFX,encB,byB,bmB,bdB,isFXB){
@@ -1845,8 +1730,7 @@ function doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,byA,bmA,bdA,isFXA){
   }catch(e){}
   renderActivationNote(dataB.grids,dataB.age,dataB.chars,isFXB);
   renderMingGongQianCheng(dataB.grids.zong,'_b');
-  renderFlowYear(dataB.grids.zong,dataB.age,nameB);
-  renderJihuiDian(dataB.grids,calcYearStartAge(dataB.by),'_b');
+  renderFlowKutsuCard(dataB.grids.zong,dataB.age,dataB.by,'_b');
   renderGrids(dataB.grids,dataB.chars,isFXB,'_b');
   renderWuXing(dataB.grids,'_b');
   renderPalaces(dataB.grids,byB,dataB.age);
@@ -1859,11 +1743,7 @@ function doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,byA,bmA,bdA,isFXA){
 
 function renderComparison(dataA,dataB){
   const curROC=TODAY.getFullYear()-1911;
-  const fyA=calcFlowYear(dataA.grids.zong,dataA.age);
-  const fyB=calcFlowYear(dataB.grids.zong,dataB.age);
-  const kutsuStageA=calcFlowYear(dataA.grids.zong,calcYearStartAge(dataA.by)).stage.name;
-  const kutsuStageB=calcFlowYear(dataB.grids.zong,calcYearStartAge(dataB.by)).stage.name;
-
+  const xbNow=calcSumDigit(curROC);
   // ── 兩人命格圖並列 ──
   let html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
     <div>
@@ -1876,31 +1756,10 @@ function renderComparison(dataA,dataB){
     </div>
   </div>`;
 
-  // ── 流年運程對比 ──
-  const xbNow=calcSumDigit(curROC);
-  const jhA=calcJihuiInfo(dataA.grids.zong,xbNow);
-  const jhB=calcJihuiInfo(dataB.grids.zong,xbNow);
-  function compFlowCard(fy,jh,bg,border,kutsuStageName){
-    return`<div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:12px;text-align:center">
-      <div style="font-size:.75em;color:var(--sub);margin-bottom:5px">流年運程</div>
-      <div style="background:${fy.stage.color};color:white;padding:5px 16px;border-radius:20px;display:inline-block;font-weight:bold;font-size:1.05em">${fy.stage.name}（${fy.stage.mod}）</div>
-      <div style="font-size:.8em;color:#666;margin-top:5px">${fy.stage.desc}</div>
-      <div style="margin:8px 0 4px;font-size:.72em;color:#aaa;letter-spacing:.5px">▸ 大運口訣</div>
-      <div style="font-size:.88em;font-weight:bold;color:${fy.stage.color};font-style:italic">「${fy.stage.kutsu}」</div>
-      <div style="margin-top:10px;padding-top:8px;border-top:1px dashed #ddd">
-        <div style="font-size:.72em;color:#aaa;margin-bottom:4px">▸ 命宮機會點（民國${curROC}年・相併數${xbNow}）</div>
-        <div style="display:inline-flex;align-items:center;gap:6px;background:${jh.bg};padding:5px 12px;border-radius:20px;border:1px solid ${jh.color}">
-          <span style="background:${jh.color};color:white;padding:2px 10px;border-radius:12px;font-weight:bold;font-size:.95em">${jh.name}</span>
-          <span style="font-size:.78em;color:${jh.color};font-weight:bold">${jh.season}・${jh.dir}</span>
-        </div>
-        <div style="font-size:.78em;color:#666;margin-top:4px">${jh.desc}</div>
-        ${(()=>{const k=JAHUI_KUTSU[kutsuStageName+'/'+jh.name];return k?`<div style="margin-top:6px;padding:5px 10px;background:rgba(255,255,255,.55);border-radius:6px;font-size:.8em;color:#4a2a00"><span style="color:#8B1A1A;font-weight:bold">【${kutsuStageName}/${jh.name}・${k.gua}】</span><br><span style="font-style:italic">「${k.kutsu}」</span></div>`:'';})()}
-      </div>
-    </div>`;
-  }
+  // ── 流年運程與機會點對比（跟單人查詢共用同一張卡片）──
   html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px" class="dual-summary-grid">
-    ${compFlowCard(fyA,jhA,'#fff8f0','#e8d0a0',kutsuStageA)}
-    ${compFlowCard(fyB,jhB,'#f0f4ff','#c0d0f0',kutsuStageB)}
+    ${buildFlowKutsuCard(dataA.grids.zong,dataA.age,dataA.by,'#fff8f0','#e8d0a0')}
+    ${buildFlowKutsuCard(dataB.grids.zong,dataB.age,dataB.by,'#f0f4ff','#c0d0f0')}
   </div>`;
 
   // ── 宮位發動現況對比 ──
