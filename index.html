@@ -1861,6 +1861,8 @@ function renderComparison(dataA,dataB){
   const curROC=TODAY.getFullYear()-1911;
   const fyA=calcFlowYear(dataA.grids.zong,dataA.age);
   const fyB=calcFlowYear(dataB.grids.zong,dataB.age);
+  const kutsuStageA=calcFlowYear(dataA.grids.zong,calcYearStartAge(dataA.by)).stage.name;
+  const kutsuStageB=calcFlowYear(dataB.grids.zong,calcYearStartAge(dataB.by)).stage.name;
 
   // ── 兩人命格圖並列 ──
   let html=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
@@ -1878,7 +1880,7 @@ function renderComparison(dataA,dataB){
   const xbNow=calcSumDigit(curROC);
   const jhA=calcJihuiInfo(dataA.grids.zong,xbNow);
   const jhB=calcJihuiInfo(dataB.grids.zong,xbNow);
-  function compFlowCard(fy,jh,bg,border){
+  function compFlowCard(fy,jh,bg,border,kutsuStageName){
     return`<div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:12px;text-align:center">
       <div style="font-size:.75em;color:var(--sub);margin-bottom:5px">流年運程</div>
       <div style="background:${fy.stage.color};color:white;padding:5px 16px;border-radius:20px;display:inline-block;font-weight:bold;font-size:1.05em">${fy.stage.name}（${fy.stage.mod}）</div>
@@ -1892,13 +1894,13 @@ function renderComparison(dataA,dataB){
           <span style="font-size:.78em;color:${jh.color};font-weight:bold">${jh.season}・${jh.dir}</span>
         </div>
         <div style="font-size:.78em;color:#666;margin-top:4px">${jh.desc}</div>
-        ${(()=>{const k=JAHUI_KUTSU[fy.stage.name+'/'+jh.name];return k?`<div style="margin-top:6px;padding:5px 10px;background:rgba(255,255,255,.55);border-radius:6px;font-size:.8em;color:#4a2a00"><span style="color:#8B1A1A;font-weight:bold">【${fy.stage.name}/${jh.name}・${k.gua}】</span><br><span style="font-style:italic">「${k.kutsu}」</span></div>`:'';})()}
+        ${(()=>{const k=JAHUI_KUTSU[kutsuStageName+'/'+jh.name];return k?`<div style="margin-top:6px;padding:5px 10px;background:rgba(255,255,255,.55);border-radius:6px;font-size:.8em;color:#4a2a00"><span style="color:#8B1A1A;font-weight:bold">【${kutsuStageName}/${jh.name}・${k.gua}】</span><br><span style="font-style:italic">「${k.kutsu}」</span></div>`:'';})()}
       </div>
     </div>`;
   }
   html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px" class="dual-summary-grid">
-    ${compFlowCard(fyA,jhA,'#fff8f0','#e8d0a0')}
-    ${compFlowCard(fyB,jhB,'#f0f4ff','#c0d0f0')}
+    ${compFlowCard(fyA,jhA,'#fff8f0','#e8d0a0',kutsuStageA)}
+    ${compFlowCard(fyB,jhB,'#f0f4ff','#c0d0f0',kutsuStageB)}
   </div>`;
 
   // ── 宮位發動現況對比 ──
