@@ -1961,10 +1961,10 @@ function renderComparison(dataA,dataB){
     const suiColor=isRomantic?'#8B1A1A':'#1a3a6b';
     const suiBg=isRomantic?'#fffaf5':'#f0f4ff';
     const suiBorder=isRomantic?'#e8d0a0':'#c0d0f0';
-    // B命宮值 = A虛歲 → B是A今年的歲值X
-    const suiBtoA=(dataB.grids.zong===dataA.age);
-    // A命宮值 = B虛歲 → A是B今年的歲值X
-    const suiAtoB=(dataA.grids.zong===dataB.age);
+    // B命宮氣化 = A虛歲氣化 → B是A今年的歲值X
+    const suiBtoA=(calcSumDigit(dataB.grids.zong)===calcSumDigit(dataA.age));
+    // A命宮氣化 = B虛歲氣化 → A是B今年的歲值X
+    const suiAtoB=(calcSumDigit(dataA.grids.zong)===calcSumDigit(dataB.age));
     const hasSui=suiBtoA||suiAtoB;
     const suiRows=[];
     if(suiBtoA)suiRows.push(`<div style="background:rgba(255,255,255,.6);border-radius:6px;padding:4px 8px;font-size:.85em"><b style="color:#8B1A1A">${dataB.name}</b><span style="color:#999;font-size:.85em">（命宮${dataB.grids.zong}）</span> 是 <b style="color:#1a3a6b">${dataA.name}</b><span style="color:#999;font-size:.85em">（${dataA.age}歲）</span> 今年的${suiLabel}</div>`);
