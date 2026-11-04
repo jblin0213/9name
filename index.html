@@ -662,13 +662,8 @@ function calcAge(by,bm,bd){
 
 /* ── 口訣專用：年度虛歲（整個西元年固定不變，不受生日切換影響）── */
 function calcYearStartAge(by,bm,bd){
-  // 年初(1/1)當天的虛歲：沿用 calcAge 同一套切換月規則，只是把「今天」換成今年1/1
-  const cur=TODAY.getFullYear();
-  const cutoff=((bm+5)%12)+1;
-  const isPast=new Date(cur,0,1)>new Date(cur,cutoff-1,bd);
-  const diff=cur-1911-by;
-  const ov=new Date(cur,bm+5,bd).getFullYear()-cur;
-  return (isPast?2:1)+diff-ov;
+  // 口訣專用：西元年份虛歲＝今年-出生年+1，整年固定，跟生日月份無關（大人 2026/11/04 確認）
+  return TODAY.getFullYear()-1911-by+1;
 }
 
 function getAgeRange(by,bm,bd){
