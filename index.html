@@ -1962,13 +1962,15 @@ function renderComparison(dataA,dataB){
     const suiBg=isRomantic?'#fffaf5':'#f0f4ff';
     const suiBorder=isRomantic?'#e8d0a0':'#c0d0f0';
     // B命宮氣化 = A虛歲氣化 → B是A今年的歲值X
-    const suiBtoA=(calcSumDigit(dataB.grids.zong)===calcSumDigit(dataA.age));
+    // 歲值一律用西元年份虛歲（今年-出生年+1），不看生日月份
+    const suiAgeA=calcYearStartAge(dataA.by,dataA.bm,dataA.bd),suiAgeB=calcYearStartAge(dataB.by,dataB.bm,dataB.bd);
+    const suiBtoA=(calcSumDigit(dataB.grids.zong)===calcSumDigit(suiAgeA));
     // A命宮氣化 = B虛歲氣化 → A是B今年的歲值X
-    const suiAtoB=(calcSumDigit(dataA.grids.zong)===calcSumDigit(dataB.age));
+    const suiAtoB=(calcSumDigit(dataA.grids.zong)===calcSumDigit(suiAgeB));
     const hasSui=suiBtoA||suiAtoB;
     const suiRows=[];
-    if(suiBtoA)suiRows.push(`<div style="background:rgba(255,255,255,.6);border-radius:6px;padding:4px 8px;font-size:.85em"><b style="color:#8B1A1A">${dataB.name}</b><span style="color:#999;font-size:.85em">（命宮${dataB.grids.zong}）</span> 是 <b style="color:#1a3a6b">${dataA.name}</b><span style="color:#999;font-size:.85em">（${dataA.age}歲）</span> 今年的${suiLabel}</div>`);
-    if(suiAtoB)suiRows.push(`<div style="background:rgba(255,255,255,.6);border-radius:6px;padding:4px 8px;font-size:.85em"><b style="color:#8B1A1A">${dataA.name}</b><span style="color:#999;font-size:.85em">（命宮${dataA.grids.zong}）</span> 是 <b style="color:#1a3a6b">${dataB.name}</b><span style="color:#999;font-size:.85em">（${dataB.age}歲）</span> 今年的${suiLabel}</div>`);
+    if(suiBtoA)suiRows.push(`<div style="background:rgba(255,255,255,.6);border-radius:6px;padding:4px 8px;font-size:.85em"><b style="color:#8B1A1A">${dataB.name}</b><span style="color:#999;font-size:.85em">（命宮${dataB.grids.zong}）</span> 是 <b style="color:#1a3a6b">${dataA.name}</b><span style="color:#999;font-size:.85em">（${suiAgeA}歲）</span> 今年的${suiLabel}</div>`);
+    if(suiAtoB)suiRows.push(`<div style="background:rgba(255,255,255,.6);border-radius:6px;padding:4px 8px;font-size:.85em"><b style="color:#8B1A1A">${dataA.name}</b><span style="color:#999;font-size:.85em">（命宮${dataA.grids.zong}）</span> 是 <b style="color:#1a3a6b">${dataB.name}</b><span style="color:#999;font-size:.85em">（${suiAgeB}歲）</span> 今年的${suiLabel}</div>`);
     html+=`<div style="background:${suiBg};border:1px solid ${suiBorder};border-radius:10px;padding:12px 14px;margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:${hasSui?'8px':'0'}">
         <span>${suiEmoji}</span>
