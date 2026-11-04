@@ -1,4 +1,4 @@
-const CACHE = 'jb-name-v29';
+const CACHE = 'jb-name-v30';
 const ASSETS = [
   '/9name/',
   '/9name/index.html',
@@ -27,7 +27,7 @@ self.addEventListener('fetch', e => {
   if (isHTML) {
     // HTML 永遠走網路，確保拿到最新版
     e.respondWith(
-      fetch(e.request).then(res => {
+      fetch(e.request, {cache: 'reload'}).then(res => {
         if (res && res.status === 200) {
           caches.open(CACHE).then(c => c.put(e.request, res.clone()));
         }
