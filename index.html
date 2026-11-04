@@ -661,9 +661,14 @@ function calcAge(by,bm,bd){
 }
 
 /* ── 口訣專用：年度虛歲（整個西元年固定不變，不受生日切換影響）── */
-function calcYearStartAge(by){
+function calcYearStartAge(by,bm,bd){
+  // 年初(1/1)當天的虛歲：沿用 calcAge 同一套切換月規則，只是把「今天」換成今年1/1
   const cur=TODAY.getFullYear();
-  return cur-1911-by+1;
+  const cutoff=((bm+5)%12)+1;
+  const isPast=new Date(cur,0,1)>new Date(cur,cutoff-1,bd);
+  const diff=cur-1911-by;
+  const ov=new Date(cur,bm+5,bd).getFullYear()-cur;
+  return (isPast?2:1)+diff-ov;
 }
 
 function getAgeRange(by,bm,bd){
@@ -943,7 +948,7 @@ function render(name,by,bm,bd,isFX){
   lastSvgA=renderDiagram(chars,grids,s,n1,n2,n3,isFX);
   renderActivationNote(grids,age,chars,isFX);
   renderMingGongQianCheng(grids.zong);
-  renderFlowKutsuCard(grids.zong,age,by);
+  renderFlowKutsuCard(grids.zong,age,calcYearStartAge(by,bm,bd));
   renderGrids(grids,chars,isFX);
   renderWuXing(grids);
   renderPalaces(grids,by,age);
@@ -1552,12 +1557,12 @@ function calcJihuiInfo(gongNum,xb){
 }
 
 /* ── 流年運程＋機會點：合併卡片（單人／雙人共用）── */
-function buildFlowKutsuCard(zong,age,by,bg,border){
+function buildFlowKutsuCard(zong,age,yearAge,bg,border){
   const curROC=TODAY.getFullYear()-1911;
   const fy=calcFlowYear(zong,age);
   const xbNow=calcSumDigit(curROC);
   const jh=calcJihuiInfo(zong,xbNow);
-  const kutsuStageName=calcFlowYear(zong,calcYearStartAge(by)).stage.name;
+  const kutsuStageName=calcFlowYear(zong,yearAge).stage.name;
   const k=JAHUI_KUTSU[kutsuStageName+'/'+jh.name];
   return`<div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:14px;text-align:center">
     <div style="font-size:.78em;color:var(--sub);margin-bottom:5px">流年運程</div>
@@ -1577,10 +1582,10 @@ function buildFlowKutsuCard(zong,age,by,bg,border){
   </div>`;
 }
 
-function renderFlowKutsuCard(zong,age,by,ctx){
+function renderFlowKutsuCard(zong,age,yearAge,ctx){
   const el=document.getElementById('flowkutsu-section'+(ctx||''));
   if(!el)return;
-  el.innerHTML=buildFlowKutsuCard(zong,age,by,'#fff8f0','#e8d0a0');
+  el.innerHTML=buildFlowKutsuCard(zong,age,yearAge,'#fff8f0','#e8d0a0');
 }
 
 function saveManualDual(encA,by,bm,bd,isFX,encB,byB,bmB,bdB,isFXB){
@@ -1730,7 +1735,7 @@ function doRenderB(nameB,byB,bmB,bdB,isFXB,nameA,byA,bmA,bdA,isFXA){
   }catch(e){}
   renderActivationNote(dataB.grids,dataB.age,dataB.chars,isFXB);
   renderMingGongQianCheng(dataB.grids.zong,'_b');
-  renderFlowKutsuCard(dataB.grids.zong,dataB.age,dataB.by,'_b');
+  renderFlowKutsuCard(dataB.grids.zong,dataB.age,calcYearStartAge(dataB.by,dataB.bm,dataB.bd),'_b');
   renderGrids(dataB.grids,dataB.chars,isFXB,'_b');
   renderWuXing(dataB.grids,'_b');
   renderPalaces(dataB.grids,byB,dataB.age);
@@ -1758,8 +1763,8 @@ function renderComparison(dataA,dataB){
 
   // ── 流年運程與機會點對比（跟單人查詢共用同一張卡片）──
   html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px" class="dual-summary-grid">
-    ${buildFlowKutsuCard(dataA.grids.zong,dataA.age,dataA.by,'#fff8f0','#e8d0a0')}
-    ${buildFlowKutsuCard(dataB.grids.zong,dataB.age,dataB.by,'#f0f4ff','#c0d0f0')}
+    ${buildFlowKutsuCard(dataA.grids.zong,dataA.age,calcYearStartAge(dataA.by,dataA.bm,dataA.bd),'#fff8f0','#e8d0a0')}
+    ${buildFlowKutsuCard(dataB.grids.zong,dataB.age,calcYearStartAge(dataB.by,dataB.bm,dataB.bd),'#f0f4ff','#c0d0f0')}
   </div>`;
 
   // ── 宮位發動現況對比 ──
